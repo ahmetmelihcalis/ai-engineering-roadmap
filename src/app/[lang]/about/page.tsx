@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { isValidLocale } from "@/lib/i18n";
+import { localeCode, siteName, socialImageWebp } from "@/lib/seo";
 import { locales } from "@/types";
 import { ArrowUpRight } from "lucide-react";
 import { GitHubIcon } from "@/components/ui/GitHubIcon";
@@ -28,6 +30,48 @@ const copy = {
     eyebrow: "Hakkında",
   },
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isValidLocale(lang)) {
+    return {};
+  }
+
+  const isTurkish = lang === "tr";
+  const title = isTurkish ? "Hakkında" : "About";
+  const description = isTurkish
+    ? "AI Engineering Roadmap’ın amacı, kapsamı ve projeye katkıda bulunma yolları."
+    : "The purpose, scope, and contribution options for AI Engineering Roadmap.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/about/`,
+      languages: {
+        en: "/en/about/",
+        tr: "/tr/about/",
+        "x-default": "/en/about/",
+      },
+    },
+    openGraph: {
+      title: `${title} | ${siteName}`,
+      description,
+      url: `/${lang}/about/`,
+      siteName,
+      locale: localeCode(lang),
+      alternateLocale: localeCode(isTurkish ? "en" : "tr"),
+      type: "website",
+      images: [{ url: socialImageWebp, width: 1732, height: 908, alt: siteName }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ${siteName}`,
+      description,
+      images: [socialImageWebp],
+    },
+  };
+}
 
 export default async function AboutPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;

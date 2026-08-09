@@ -1,11 +1,57 @@
 import { RoadmapTimeline } from "@/components/roadmap/RoadmapTimeline";
 import { SearchBox } from "@/components/ui/SearchBox";
+import type { Metadata } from "next";
 import { dictionaries, isValidLocale } from "@/lib/i18n";
 import { getAllRoadmaps } from "@/lib/mdx";
+import { localeCode, siteName, socialImageWebp } from "@/lib/seo";
 import { locales } from "@/types";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isValidLocale(lang)) {
+    return {};
+  }
+
+  const isTurkish = lang === "tr";
+  const title = isTurkish ? "Yapay Zeka Mühendisliği Yol Haritası Modülleri" : "AI Engineering Roadmap Modules";
+  const description = isTurkish
+    ? "Temel becerilerden üretim sistemlerine ilerleyen 12 modüllük yapay zeka mühendisliği öğrenme yol haritasını inceleyin."
+    : "Explore a 12-module AI engineering learning path from foundational skills to production systems.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/roadmap/`,
+      languages: {
+        en: "/en/roadmap/",
+        tr: "/tr/roadmap/",
+        "x-default": "/en/roadmap/",
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/roadmap/`,
+      siteName,
+      locale: localeCode(lang),
+      alternateLocale: localeCode(isTurkish ? "en" : "tr"),
+      type: "website",
+      images: [
+        { url: socialImageWebp, width: 1732, height: 908, alt: siteName },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [socialImageWebp],
+    },
+  };
 }
 
 export default async function RoadmapPage({ params }: { params: Promise<{ lang: string }> }) {

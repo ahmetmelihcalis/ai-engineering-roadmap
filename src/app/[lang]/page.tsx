@@ -1,13 +1,58 @@
 import { RoadmapCard } from "@/components/roadmap/RoadmapCard";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { SearchBox } from "@/components/ui/SearchBox";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import type { Metadata } from "next";
 import { dictionaries, isValidLocale } from "@/lib/i18n";
 import { getAllRoadmaps } from "@/lib/mdx";
+import { localeCode, siteName, siteUrl, socialImageWebp } from "@/lib/seo";
 import { locales } from "@/types";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isValidLocale(lang)) {
+    return {};
+  }
+
+  const isTurkish = lang === "tr";
+  const title = isTurkish ? "Yapay Zeka Mühendisliği Yol Haritası" : "AI Engineering Roadmap";
+  const description = isTurkish
+    ? "Python ve veri temellerinden LLM sistemleri ile deployment’a uzanan ücretsiz, iki dilli yapay zeka mühendisliği öğrenme yol haritası."
+    : "A free, bilingual AI engineering learning roadmap from Python and data foundations through LLM systems to deployment.";
+
+  return {
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: `/${lang}/`,
+      languages: {
+        en: "/en/",
+        tr: "/tr/",
+        "x-default": "/en/",
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${lang}/`,
+      siteName,
+      locale: localeCode(lang),
+      alternateLocale: localeCode(isTurkish ? "en" : "tr"),
+      type: "website",
+      images: [{ url: socialImageWebp, width: 1732, height: 908, alt: siteName }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [socialImageWebp],
+    },
+  };
 }
 
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
@@ -40,9 +85,28 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           start: "Start the Roadmap",
           allModules: "Browse All Modules",
         };
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: siteName,
+      url: siteUrl,
+      inLanguage: lang,
+      description: copy.description,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: siteName,
+      url: siteUrl,
+      logo: `${siteUrl}/icon.svg`,
+      sameAs: ["https://github.com/ahmetmelihcalis/ai-engineering-roadmap", "https://melihcalis.dev"],
+    },
+  ];
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 md:py-20">
+      <JsonLd data={structuredData} />
       <header className="border-b-[1.5px] border-foreground pb-10">
         <div className="flex flex-col items-center text-center">
           <div className="flex flex-col items-center">

@@ -1,11 +1,15 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ProgressTracker } from "@/components/roadmap/ProgressTracker";
 import { ReadingProgress } from "@/components/roadmap/ReadingProgress";
 import { GitHubIcon } from "@/components/ui/GitHubIcon";
 import { dictionaries, isValidLocale } from "@/lib/i18n";
+import { getEquivalentRoadmapSlug } from "@/lib/roadmap-data";
+import { localeCode, siteName, siteUrl, socialImageWebp } from "@/lib/seo";
 import {
   getAllRoadmaps,
   getRoadmapBySlug,
@@ -17,6 +21,57 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return getRoadmapStaticParams();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string; slug: string }>;
+}): Promise<Metadata> {
+  const { lang, slug } = await params;
+  if (!isValidLocale(lang)) {
+    return {};
+  }
+
+  const roadmap = getAllRoadmaps(lang).find((item) => item.slug === slug);
+  if (!roadmap) {
+    return {};
+  }
+
+  const isTurkish = lang === "tr";
+  const englishSlug = isTurkish ? getEquivalentRoadmapSlug(slug, "tr", "en") : slug;
+  const turkishSlug = isTurkish ? slug : getEquivalentRoadmapSlug(slug, "en", "tr");
+  const title = roadmap.title;
+  const description = roadmap.description;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/${lang}/roadmap/${slug}/`,
+      languages: {
+        en: `/en/roadmap/${englishSlug}/`,
+        tr: `/tr/roadmap/${turkishSlug}/`,
+        "x-default": `/en/roadmap/${englishSlug}/`,
+      },
+    },
+    openGraph: {
+      title: `${title} | ${siteName}`,
+      description,
+      url: `/${lang}/roadmap/${slug}/`,
+      siteName,
+      locale: localeCode(lang),
+      alternateLocale: localeCode(isTurkish ? "en" : "tr"),
+      type: "article",
+      images: [{ url: socialImageWebp, width: 1732, height: 908, alt: siteName }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | ${siteName}`,
+      description,
+      images: [socialImageWebp],
+    },
+  };
 }
 
 export default async function RoadmapDetailPage({
@@ -41,9 +96,34 @@ export default async function RoadmapDetailPage({
   const previous = modules[index - 1];
   const next = modules[index + 1];
   const moduleLabel = lang === "tr" ? "Modül" : "Module";
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: lang === "tr" ? "Ana Sayfa" : "Home",
+        item: `${siteUrl}/${lang}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: lang === "tr" ? "Yol Haritası" : "Roadmap",
+        item: `${siteUrl}/${lang}/roadmap/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: frontmatter.title,
+        item: `${siteUrl}/${lang}/roadmap/${slug}/`,
+      },
+    ],
+  };
 
   return (
     <main className="mx-auto grid min-w-0 max-w-[82rem] gap-8 px-4 py-6 sm:px-6 sm:py-10 lg:grid-cols-[180px_minmax(0,36rem)_180px] lg:justify-center lg:gap-4 xl:grid-cols-[200px_minmax(0,44rem)_200px] xl:gap-6 2xl:grid-cols-[220px_minmax(0,48rem)_220px] 2xl:gap-8">
+      <JsonLd data={breadcrumbData} />
       <ReadingProgress />
       <Sidebar label={lang === "tr" ? "Bölümler" : "Sections"} sections={headings} />
       <article className="detail-shell mx-auto min-w-0 w-full max-w-3xl lg:col-start-2 lg:mx-0">
