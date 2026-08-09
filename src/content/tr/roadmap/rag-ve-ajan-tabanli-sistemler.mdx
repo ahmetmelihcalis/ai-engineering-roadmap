@@ -1,0 +1,216 @@
+---
+title: "RAG ve Ajan Tabanlı Sistemler"
+slug: "rag-ve-ajan-tabanli-sistemler"
+order: 10
+description: "RAG entegrasyonu, yapay zeka ajanları, tool kullanımı, bellek ve MCP."
+tags: ["Chunk", "Embedding", "Retrieval", "Bağlam Yönetimi", "Tool Kullanımı", "Değerlendirme"]
+---
+
+## Genel Bakış
+
+**Retrieval-Augmented Generation (RAG)**, bir dil modelinin yanıt üretmeden önce harici kaynaklardan ilgili bilgileri bulup bağlama eklemesini sağlayan yaklaşımdır. Amaç, model çıktısının yalnızca model ağırlıklarına değil, güncel ve denetlenebilir kaynaklara da dayanmasını sağlamaktır.
+
+RAG; kurum içi belgeler, ürün bilgileri, kullanıcıya özel veriler ve sık güncellenen içeriklerle çalışırken yararlı olabilir. Ajan tabanlı sistemler ise uygulamanın tool çağırması, bilgi getirmesi veya belirli adımları yürütmesi için modelin karar vermesi gerektiğinde düşünülebilir.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Belge Hazırlama ve Parçalama
+* Embedding'ler ve Vektör Veritabanı
+* Bilgi Getirme, Yeniden Sıralama ve Atıf
+* Bağlam Yönetimi
+* Ajan Akışları, Tool Yetkileri ve Bellek
+* İş Akışı, Güvenlik Sınırları ve Değerlendirme
+
+## Temel Kavramlar
+
+### RAG'e Neden İhtiyaç Duyulur?
+
+Modelin eğitim sırasında öğrendiği bilgi, her kurumun özel verisini kapsamaz ve zamanla güncelliğini kaybedebilir. RAG, sık değişen ürün bilgisini ihtiyaç anında bağlama ekler. Fine-tuning kararının ayrıntılı çerçevesi Fine-Tuning ve Optimizasyon modülündedir.
+
+RAG her sorunu çözmez. Kaynak belge yanlış, eski veya eksikse sistem de güvenilir yanıt veremez. Ayrıca doğru belgenin bulunması, modelin onu doğru yorumlayacağı anlamına gelmez. Bu nedenle arama ve cevap üretme aşamaları ayrı ayrı değerlendirilir.
+
+### Belge Hazırlama ve Parçalama
+
+İlk adım belgeleri sisteme almaktır. PDF, web sayfası, tablo veya destek kaydı gibi kaynaklardan metin çıkarılır; başlık, bölüm, tarih, dil, ürün sürümü ve erişim izni gibi üst veriler korunur. Hatalı OCR çıktıları, kaybolan tablo yapısı veya eski belge sürümü daha sonraki bütün aşamaları etkiler.
+
+Uzun belgeler, anlamlı parçalara (chunk) ayrılır. Fazla küçük parçalar gerekli bağlamı kaybedebilir; fazla büyük parçalar ise ilgisiz bilgi taşıyarak aramayı ve modelin dikkatini zorlaştırabilir. SSS belgesinde soru ile cevap, teknik dokümanda başlık ile açıklama aynı parçada tutulabilir. Parça boyutu gerçek kullanıcı sorularıyla değerlendirilir.
+
+### Embedding'ler ve İndeksleme
+
+Her parça için bir **embedding (vektör temsili)** üretilir ve kaynak bilgileriyle birlikte indekse yazılır. Embedding'ler, anlamca yakın metinlerin bulunmasına yardım eder. İndeksleme hattı yalnızca yeni belge eklemeyi değil, güncellenen ve silinen belgeleri de yönetebilmelidir.
+
+Belgenin kimliğini, sürümünü ve erişim seviyesini parçayla birlikte tutmak daha güvenli olur. Aksi halde doğru atıf üretmek, eski parçaları kaldırmak veya kullanıcının yalnızca yetkili olduğu belgelerde arama yapmak zorlaşır. Embedding modeli değiştirildiğinde indeksin yeniden oluşturulması gerekebilir.
+
+### Retrieval, Filtreleme ve Yeniden Sıralama
+
+Kullanıcı sorusu embedding'e çevrilir ve benzer parçalar bulunur. Semantic search anlam yakınlığında güçlüdür; anahtar kelime araması ise ürün kodu, hata numarası ve birebir terimlerde daha iyi çalışabilir. Hybrid search bu iki yaklaşımı birleştirir.
+
+Metadata filtresi; tarih, dil, ürün sürümü ve erişim yetkisi gibi sınırları arama sırasında uygular. İlk arama geniş bir aday listesi getirebilir; yeniden sıralayıcı daha ilgili parçaları üst sıraya taşır. Yeniden sıralama yalnızca sıralamayı iyileştirir. Doğru belge adaylar arasında hiç yoksa önce sisteme alma, parçalama veya retrieval aşaması incelenebilir.
+
+### Bağlam Oluşturma, Kaynağa Dayandırma ve Atıf
+
+Seçilen parçalar kaynak kimlikleriyle birlikte modelin bağlamına eklenir. Modelden yalnızca bu kaynaklara dayanması ve bilgi bulunmadığında bunu açıkça söylemesi istenir. Kaynağa dayandırma, yanıttaki iddiaların verilen kaynaklarla desteklenmesi anlamına gelir.
+
+Atıf, kullanıcıya cevabın hangi belgeye dayandığını gösterir. Yalnızca sayfa sonunda bağlantı listesi vermek yerine iddia ile ilgili kaynak bölümünü eşleştirmek daha doğru bir kaynak gösterimi sağlar. Atıf bulunması tek başına yeterli değildir; doğru iddiaya doğru kaynağın bağlanıp bağlanmadığını test etmek de yararlı olur.
+
+### RAG Entegrasyonu
+
+RAG entegrasyonu yalnızca vektör veritabanı bağlantısı kurmak değildir. Uygulama; kullanıcı sorusunu alır, erişim filtresini uygular, bilgi getirme işlemini çalıştırır, gerekirse sonuçları yeniden sıralar, kaynak kimlikleriyle bağlam oluşturur ve model yanıtını doğrular. Arayüzde atıf gösterimi ve kaynak bulunamadığında verilecek yanıt da aynı akışın parçasıdır.
+
+RAG sonucu başka bir ürün akışına aktarılacaksa kaynak, erişim ve güvenlik bilgisini korumak faydalı olur. Örneğin destek asistanı politika belgesinden yanıt üretip ardından destek kaydı açıyorsa, kayıtta kullanılan belge sürümü ve kullanıcının onayı tutulabilir. Böylece bilgi getirme ile eylem arasında denetlenebilir bir bağ kurulur.
+
+### Ajan Tabanlı Sistemlere Geçiş
+
+RAG sistemi ilgili belgeyi bulur ve bu bağlamla yanıt üretir. Sabit bir bilgi getirme akışı yeterli olmadığında, sonraki adımın girdiye veya ara sonuca göre değiştiği daha esnek ajan akışları düşünülebilir.
+
+### Ajan Akışları ve Tool Seçimi
+
+**Yapay zeka ajanı**, belirli bir hedefe ulaşmak için mevcut durumu değerlendirip hangi tool'un kullanılacağına veya hangi adımın izleneceğine karar veren bir sistemdir. Temel ajan döngüsü; görevi al, gerekli tool'u çağır, sonucu gözlemle, gerekirse durumu güncelle ve durma koşulunu kontrol et şeklinde düşünülebilir. Model bu döngünün karar verme bileşenidir; kimlik doğrulama, yetkilendirme ve eylemlerin gerçekten yürütülmesi ise uygulama katmanında gerçekleştirilir.
+
+Ajanın bu kararı güvenilir biçimde verebilmesi için, yalnızca tool adının modele verilmesi yeterli değildir. Her tool'un ne yaptığı, hangi durumlarda kullanılacağı, hangi girdileri kabul ettiği ve hangi yetki sınırlarına sahip olduğu açıkça tanımlanmalıdır. Benzer iş yapan tool'ların gereksiz yere çoğaltılması yanlış seçim riskini artırabilir.
+
+Her görev için ajan kullanmak gerekli değildir. Adımları önceden belli olan görevlerde, açık ve deterministik bir iş akışı daha güvenli, öngörülebilir ve düşük maliyetli olabilir. Ajanlar özellikle kullanılacak tool'un, kaynağın veya izlenecek yolun girdiye ve ara sonuçlara göre değiştiği durumlarda değer sağlar. Başarı, ajanın kaç adım yürüttüğüyle değil; görevi doğru, güvenli ve kabul edilebilir maliyetle tamamlayabilmesiyle değerlendirilmelidir.
+
+### Tool Yetkileri ve Güvenlik Sınırları
+
+Tool kullanımı için giriş alanlarını, yetkiyi, zaman aşımını, hata durumunda sistemin nasıl davranacağını ve en fazla adım sayısını açıkça tanımlamak güvenli olur. Arama gibi salt okunur işlem ile e-posta gönderme, kayıt silme veya ödeme başlatma aynı yetki düzeyinde tutulmaz. Yüksek etkili eylemlerde kullanıcı onayı ve uygulama tarafında yetki kontrolü kullanılır.
+
+### Ajanlarda Bellek Yönetimi
+
+Ajanlarda bellek, konuşmadaki ilgili bağlamı veya kullanıcı tercihlerini gerektiğinde saklamak için kullanılabilir. Her mesajı sınırsız saklamak yerine hangi bilginin tutulacağı, ne kadar süre saklanacağı ve kullanıcının bunu nasıl silebileceği baştan belirlenmelidir. Özellikle uzun süreli belleğe yazılan bilginin doğrulanması ve hassas veri içermemesi önemlidir.
+
+### MCP ile Tool ve Kaynak Bağlantısı
+
+**MCP (Model Context Protocol)**, yapay zeka uygulamalarının dış sistemlerdeki tool ve kaynaklara ortak bir istemci-sunucu modeliyle bağlanmasını sağlayan standarttır. Ajanın nasıl karar vereceğini veya belleği nasıl yöneteceğini belirlemez.
+
+Bir MCP sunucusu dosya veya belge gibi okunabilir verileri kaynak olarak; veritabanında sorgu çalıştırma ya da işlem yapma yeteneklerini ise tool olarak sunabilir. Yetkilendirme, kullanıcı onayı, gizli anahtar yönetimi ve tool çıktısının doğrulanması yine uygulamanın sorumluluğundadır.
+
+### Ajan Ekosistemi ve Multi-Agent Sistemler
+
+Ajan ekosistemi; model sağlayıcısı, tool katmanı, retrieval sistemi, bellek, iş akışı ve değerlendirme bileşenlerinden oluşabilir. **LangChain**, **LlamaIndex** veya benzeri framework'ler bu bileşenleri bağlamayı kolaylaştırır; ancak güvenlik ve kalite kararlarını kendi başlarına çözmez.
+
+Multi-agent sistem, bir görevin farklı sorumluluklarını üstlenen birden fazla ajanın birlikte çalıştığı yapıdır. Ancak koordinasyon ek gecikme ve maliyet getirdiğinden, yalnızca rollerin ve iş akışının gerçekten ayrıştığı durumlarda tercih edilmelidir.
+
+### Ajan Değerlendirmesi
+
+Ajan değerlendirmesi yalnızca nihai cevaba bakmaz. Doğru tool seçildi mi, girdi doğru hazırlandı mı, gereksiz çağrı yapıldı mı, yetki sınırı korundu mu ve doğru anda durdu mu soruları ayrı kaydedilir. Bellek kullanılan sistemlerde eski veya yanlış bilginin yeni görevi etkileyip etkilemediği de test setine eklenir.
+
+## Çalışma Mantığı
+
+Bir RAG sistemi ilgili belgeyi bulur ve bu bağlamla yanıt üretir. Akış; belgenin alınması, yapısı korunarak metne dönüştürülmesi, anlamlı parçalara bölünmesi, embedding üretilmesi, üst verilerle indekslenmesi, soruya uygun parçaların getirilmesi, gerekirse yeniden sıralanması, bağlam oluşturulması ve kaynaklı yanıt üretilmesi adımlarından oluşur. Her aşamanın girdisini ve çıktısını izlenebilir kılmak faydalı olur.
+
+### RAG Değerlendirmesi ve Hata Analizi
+
+Değerlendirme iki ana parçaya ayrılır. Bilgi getirme kalitesinin değerlendirilmesi, doğru kaynağın ilk sonuçlarda bulunup bulunmadığına bakar. Yanıt üretme değerlendirmesi ise cevabın soruyu yanıtlayıp yanıtlamadığını, kaynak dışına çıkıp çıkmadığını ve atıfların doğru olup olmadığını ölçer. Bu ayrım, yanlış cevabın hangi aşamada oluştuğunu bulmayı kolaylaştırır.
+
+### RAG Hatasını Aşamalara Ayırma
+
+Yanlış bir cevapta önce beklenen belgenin indeks içinde olup olmadığı kontrol edilir. Ardından doğru chunk'ın retrieval sonuçlarına girip girmediğine, yeniden sıralama sonrası modele gönderilip gönderilmediğine ve modelin kaynağı doğru kullanıp kullanmadığına bakılır. Bu sıra, doğrudan modeli değiştirmek yerine gerçek hata noktasını bulmayı sağlar.
+
+Temsili bir soru setinde her soru için beklenen belge veya bölüm işaretlenir. Kaynakta cevabı olmayan ve kullanıcının erişemediği belgeyi isteyen sorular da bu sete eklenir. Bazı durumlarda başarılı davranış cevap üretmek değil, bilgi bulunamadığını veya yetkinin yetersiz olduğunu açıkça söylemektir.
+
+## Kod Örnekleri
+
+### Kaynak Kimliğini Koruyan Bağlam
+
+```python
+def build_context(chunks: list[dict[str, str]]) -> str:
+    return "\n\n".join(
+        f"[{chunk['source_id']}] {chunk['text']}"
+        for chunk in chunks[:4]
+    )
+```
+
+Kaynak kimliği chunk ile birlikte taşınırsa model çıktısındaki atıf arayüzde gerçek belgeyle eşleştirilebilir.
+
+### Retrieval Sonucunu Ölçme
+
+```python
+def recall_at_k(
+    retrieved_ids: list[str],
+    expected_ids: set[str],
+    k: int,
+) -> float:
+    if not expected_ids:
+        return 0.0
+    return len(set(retrieved_ids[:k]) & expected_ids) / len(expected_ids)
+```
+
+Bu ölçüm, beklenen belgelerin ne kadarının ilk sonuçlara girdiğini gösterir. Cevabın kaynağa uygunluğu ayrı bir generation kontrolüdür.
+
+### Sınırları Belirlenmiş Bir Tool
+
+```python
+tool = {
+    "name": "get_order_status",
+    "input_schema": {"order_id": "string"},
+    "permission": "read_only",
+    "timeout_seconds": 5,
+    "max_attempts": 2,
+}
+```
+
+Tool başarısız olduğunda agent'ın sonsuz döngüye girmesini engellemek ve belirlenen deneme sayısından sonra kullanıcıya durumu açıklamak güvenli bir akış sağlar.
+
+### Ajan Durumunu ve Belleği Ayırma
+
+```python
+agent_state = {
+    "task_id": task_id,
+    "step": 2,
+    "tool_results": [],
+    "remaining_steps": 3,
+}
+
+conversation_memory = {
+    "user_id": user_id,
+    "confirmed_preferences": [],
+    "expires_at": expires_at,
+}
+```
+
+Geçici görev durumu ile kullanıcı hakkında oturumlar arasında saklanan bilginin ayrı tutulması, retention ve silme kurallarını daha anlaşılır kılar.
+
+### Ajan Adımını Değerlendirme
+
+```python
+agent_case = {
+    "request": "Find and summarize my order status.",
+    "allowed_tools": ["get_order_status"],
+    "forbidden_actions": ["cancel_order"],
+    "max_steps": 3,
+    "requires_confirmation": False,
+}
+```
+
+Evaluation örneği yalnızca beklenen cevabı değil, kullanılabilecek tool'ları ve yasak eylemleri de tanımlayabilir.
+
+## Kısa Notlar
+
+* RAG, LLM'e ihtiyaç duyduğu anda harici kaynaklardan ek bağlam sağlar.
+* İyi bir retrieval süreci, temiz, güncel ve güvenilir belgelerle başlamalıdır.
+* Chunking, metadata ve erişim filtreleri birlikte düşünülmelidir; çünkü hangi bilginin nasıl bölündüğü ve kim tarafından erişilebildiği retrieval kalitesini doğrudan etkiler.
+* Embedding'ler, metinler arasındaki anlamsal benzerliği bulmaya yardımcı olur; ancak kaynağın doğru, güvenilir veya güncel olduğunu garanti etmez.
+* Cevabın hangi kaynaklara dayandığını göstermek ve atıf vermek, çıktının daha kolay doğrulanmasını sağlar.
+* Agentic sistemlerde tool yetkileri, durma koşulları ve gerekli durumlarda insan onayı açıkça tanımlanmalıdır.
+* Bir RAG entegrasyonu, yalnızca retrieval aşamasından ibaret değildir; context oluşturma, kaynak gösterme, arayüz ve hata durumlarında uygulanacak fallback davranışlarını da kapsar.
+* Bellek, her konuşmayı süresiz olarak saklamak değil; sonraki adımlarda gerekli olacak bilgileri kontrollü ve amaçlı biçimde yönetmektir.
+* MCP, AI uygulamalarının tool'lara, kaynaklara ve prompt bileşenlerine standart bir şekilde erişmesini sağlayan bir protokoldür.
+
+## Kaynaklar
+
+### [Introduction to Information Retrieval — Stanford](https://nlp.stanford.edu/IR-book/)
+
+Retrieval, ranking, relevance ve değerlendirme metrikleri için temel kaynak.
+
+### [Qdrant Documentation](https://qdrant.tech/documentation/)
+
+Embedding, metadata filtreleme, hybrid search ve vektör arama uygulamalarını incelemek için.
+
+### [Building Effective AI Agents — Anthropic](https://www.anthropic.com/engineering/building-effective-agents)
+
+Workflow, agent, tool kullanımı ve multi-agent yapıları için pratik tasarım rehberi.
+
+### [Model Context Protocol Specification](https://modelcontextprotocol.io/specification/2025-06-18/server/index)
+
+MCP'nin tools, kaynaklar ve prompts bileşenlerini resmi dokümantasyondan incelemek için.

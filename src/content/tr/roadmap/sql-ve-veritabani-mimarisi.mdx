@@ -1,0 +1,458 @@
+---
+title: "SQL ve Veritabanı Mimarisi"
+slug: "sql-ve-veritabani-mimarisi"
+order: 2
+description: "Veriyi sorgulamak, ilişkilendirmek ve daha düzenli modellemek için SQL ve veritabanı temelleri."
+tags: ["SELECT", "Filtreleme", "GROUP BY", "JOIN", "CTE", "İndeksler"]
+---
+
+## Genel Bakış
+
+**SQL**, ilişkisel veritabanlarında tutulan veriyi okumak, filtrelemek, sıralamak, birleştirmek ve özetlemek için kullanılan sorgulama dilidir. Tablo, satır, sütun, anahtar ve ilişki kavramları SQL'in temel çalışma alanını oluşturur.
+
+AI ve veri projelerinde SQL, modelleme öncesi veri hazırlığının önemli parçalarından biridir. Ham veriyi incelemek, gerekli kayıtları süzmek, farklı tabloları birleştirmek, veri kalitesini kontrol etmek ve Python tarafına daha temiz bir veri aktarmak için kullanılır.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Temel `SELECT` Kullanımı, Filtreleme, Sıralama ve `LIMIT`
+* Toplulaştırma, `GROUP BY` ve `JOIN`
+* Alt Sorgular ve CTE'ler
+* `VIEW`, indeks, normalizasyon ve transaction
+
+Konular, veri bilimci veya analistin günlük kullanım ihtiyacı üzerinden ele alınacaktır.
+
+## Temel Kavramlar
+
+Bu bölümde SQL komutları yalnızca bir liste halinde değil, verinin neden ve nasıl ilişkilendirildiğiyle birlikte ele alınır.
+
+### SQL Nedir?
+
+SQL, klasik ilişkisel veritabanlarıyla çalışmak için kullanılan temel dildir. Sadece veriyi çekmekle kalmaz; raporlama, ürün analitiği ve makine öğrenmesi süreçlerinin "veri hazırlığı" kısmında da önemli bir rol oynar.
+
+Gerçek dünyada SQL genellikle şu işler için kullanılır:
+
+* Yüz milyonlarca satır içinden sadece ilgilendiğimiz spesifik kayıtları süzmek,
+* İhtiyacımız olmayan veya hatalı verileri analiz dışında bırakmak,
+* Zaman serilerini veya sıralamaları doğru formata dizmek,
+* Ciro, aktif kullanıcı sayısı gibi sayısal metrikler üretmek,
+* Farklı sistemlerden gelen dağınık tabloları anlamlı bir sonuç tablosunda birleştirmek.
+
+### Tablo, Satır, Sütun
+
+İlişkisel veritabanlarında veriyi Excel benzeri tablolar içinde düzenleriz. Her tablo genelde siparişler gibi tek bir konuyu temsil eder. Satırlar o konuya ait tekil kayıtları, sütunlar ise o kaydın sahip olduğu isim, tarih veya tutar gibi özellikleri tutar.
+
+Örneğin bir `users` tablosunda:
+
+* Her satır yeni bir kullanıcıyı temsil eder.
+* `id`, `name`, `email` gibi sütunlar o kullanıcının bilgilerini barındırır.
+
+Küçük Bir Zihinsel Model:
+
+```text
+users
++----+--------+-------------------+
+| id | name   | email             |
++----+--------+-------------------+
+| 1  | Alice  | alice@example.com |
+| 2  | Bob    | bob@example.com   |
++----+--------+-------------------+
+
+```
+
+### Primary Key ve Foreign Key
+
+Milyonlarca satırın içinde belirli bir kaydı, örneğin Ali'yi, benzersiz biçimde tanımlamak için **Primary Key (Birincil Anahtar)** kullanılır. Çoğu mimaride bu görev `id` adlı sütuna verilir.
+
+**Foreign Key (Yabancı Anahtar)** ise, bir tablodaki kaydın başka bir tablodaki hangi kayda ait olduğunu bağlar. Örneğin `orders` tablosundaki `user_id` sütunu bir foreign key'dir; bu alan, siparişin `users` tablosundaki hangi müşteriye ait olduğunu gösterir.
+
+Bu anahtarlar arasındaki ilişki, `JOIN` işlemlerinde hangi tabloların hangi alanlar üzerinden bağlanacağını belirler.
+
+### SELECT
+
+`SELECT`, veritabanına "Bana şu sütunları getir" deme şeklimizdir. SQL dünyasına atılan ilk adımdır.
+
+```sql
+SELECT id, name
+FROM users;
+
+```
+
+Bir tablodaki tüm sütunları görmek için `*` sembolü kullanılabilir:
+
+```sql
+SELECT *
+FROM users;
+
+```
+
+Geliştirme yaparken veya veriyi ilk kez tanırken `*` kullanmak pratik gelebilir. Ancak production projelerde, yalnızca ihtiyaç duyulan sütunları isimleriyle çağırmak, hem veritabanını gereksiz okuma yükünden kurtarır hem de sistemin performansını korur.
+
+### WHERE
+
+Veritabanındaki tüm kayıtları çekmek yerine, sadece ilgili senaryoya uyan satırları süzmek için `WHERE` filtresi kullanılır.
+
+```sql
+SELECT name, department
+FROM employees
+WHERE department = 'AI';
+
+```
+
+Birden fazla koşul mantıksal operatörlerle (`AND`, `OR`) birleştirilebilir:
+
+```sql
+SELECT name, score
+FROM students
+WHERE score >= 80
+  AND department = 'Data';
+
+```
+
+Analize girecek hedef kitleyi belirlerken veya `age < 0` gibi anormallikleri filtrelerken kullanılan temel araç budur.
+
+### ORDER BY
+
+Sonuçları anlamlı bir sıraya dizmek için `ORDER BY` komutuna başvurulur. Varsayılan olarak küçükten büyüğe sıralar; büyükten küçüğe sıralamak için sonuna `DESC` eklenir.
+
+```sql
+SELECT name, score
+FROM students
+ORDER BY score DESC;
+
+```
+
+En yüksek skorları, sisteme yeni giren son 10 kaydı veya en pahalı ürünleri bulmak için sıralama mantığı kullanılır.
+
+### LIMIT
+
+Özellikle milyonlarca satırlık büyük bir tablo ilk kez incelenirken, tüm veriyi ekrana çekmek sistemi zorlayabilir. `LIMIT` kullanarak küçük bir örneklem (kesit) almak, tablonun yapısını güvenli biçimde görmeyi sağlar.
+
+```sql
+SELECT *
+FROM orders
+LIMIT 10;
+
+```
+
+### COUNT, SUM, AVG
+
+Bazen veriyi satır satır görmek yerine özet düzeyde okumak daha anlamlı olabilir. Bu durumda toplulaştırma fonksiyonlarından yararlanılabilir:
+
+* `COUNT`: Satır sayısını (kaç adet kayıt olduğunu) verir.
+* `SUM`: Sayısal sütunlardaki değerleri toplar (örn: toplam ciro).
+* `AVG`: Sayısal değerlerin ortalamasını alır.
+
+Örnek Kullanımlar:
+
+```sql
+SELECT COUNT(*) AS total_users
+FROM users;
+
+```
+
+```sql
+SELECT SUM(total_amount) AS revenue
+FROM orders;
+
+```
+
+```sql
+SELECT AVG(price) AS average_price
+FROM products;
+
+```
+
+Ekrana çıkan sonuç sütununa `AS` ile isimlendirme (alias) yapmak, raporun okunabilirliğini artırır.
+
+### GROUP BY
+
+Bütün tabloyu tek bir sayıya özetlemek yerine, "Kategorilere göre özetle" demek istediğimizde `GROUP BY` pratik bir çözümdür. Genellikle yukarıda öğrendiğimiz `COUNT`, `SUM`, `AVG` gibi fonksiyonlarla birlikte kullanılır.
+
+```sql
+SELECT department, COUNT(*) AS total
+FROM employees
+GROUP BY department;
+
+```
+
+Böylece çalışan sayısı tek bir rakam olarak değil, departman kırılımlarına göre okunabilir.
+
+Bir Başka Örnek:
+
+```sql
+SELECT category, AVG(price) AS average_price
+FROM products
+GROUP BY category;
+
+```
+
+Bu yaklaşım, ürün kategorileri arasında veya aylar bazında karşılaştırmalı analizler yaparken sıkça kullanılır.
+
+### JOIN
+
+Gerçek projelerde veriler çoğu zaman tek bir tabloda durmaz. Kullanıcılar bir tabloda, o kullanıcıların verdiği siparişler başka bir tabloda tutulabilir. Bu verileri anlamlı bir sonuç tablosunda birleştirmek için `JOIN` kullanılır.
+
+```sql
+SELECT users.name, orders.total_amount
+FROM users
+JOIN orders ON users.id = orders.user_id;
+
+```
+
+Bu örnekte `users` ve `orders` tabloları kullanıcı kimliği üzerinden, yani `id` ve `user_id` alanlarıyla eşleştirilir. Çoğu sorguda `INNER JOIN` kullanılır; bu yapı sadece her iki tabloda da karşılığı olan kayıtları getirir.
+
+### Subquery (Alt Sorgu)
+
+Bazen bir filtreleme yapabilmek için, önce veritabanından ara bir sonuç almak gerekebilir. Sorgu içinde başka bir sorgu kullanmaya **Subquery** denir.
+
+```sql
+SELECT name
+FROM products
+WHERE price > (
+  SELECT AVG(price)
+  FROM products
+);
+
+```
+
+Burada sistem önce parantez içindeki sorguyu çalıştırıp ürünlerin genel fiyat ortalamasını bulur. Ardından dış sorgu çalışır ve fiyatı bu ortalamadan büyük olan ürünleri getirir.
+
+### CTE (Common Table Expressions)
+
+Sorgularımıza `JOIN`'ler ve alt sorgular eklendikçe kod karmaşıklaşır ve okunması çok zorlaşır. CTE (WITH yapısı), uzun bir sorguyu geçici ve isimlendirilmiş küçük parçalara bölerek kodumuzu temiz tutmamızı sağlar.
+
+```sql
+WITH high_scores AS (
+  SELECT name, score
+  FROM students
+  WHERE score > 80
+)
+SELECT *
+FROM high_scores;
+
+```
+
+Karmaşık problemleri küçük adımlara bölerek çözmek, sorgunun ekip içinde okunmasını kolaylaştırır.
+
+### View (Görünüm)
+
+Sürekli kullanılan, karmaşık filtrelere ve `JOIN`'lere sahip bir sorgu varsa, bunu her defasında baştan yazmak yerine veritabanına bir View olarak kaydetmek mümkündür.
+
+```sql
+CREATE VIEW active_users AS
+SELECT id, name, email
+FROM users
+WHERE is_active = true;
+
+```
+
+Bu noktadan sonra `SELECT * FROM active_users;` ifadesiyle bu karmaşık sorgunun sonucu, fiziksel bir tabloya benzer şekilde çağrılabilir.
+
+### Index (İndeks)
+
+Milyonlarca satırlık bir tabloda belirli bir kaydı ararken, veritabanının en baştan en sona tüm satırları taraması performans kaybına yol açabilir. Bir kitabın dizin bölümü gibi, veriye daha hızlı ulaşmayı sağlayan mimari yapılara Index denir.
+
+Örneğin, kullanıcılar sık sık e-posta adresinden aranıyorsa, `email` sütununa bir indeks eklemek sorgu süresini saniyelerden milisaniyelere indirebilir. Ancak her sütuna indeks eklemek iyi bir fikir değildir; çünkü bu durumda yeni veri ekleme işlemleri yavaşlar ve disk maliyeti artar.
+
+### Normalization (Normalizasyon)
+
+Veriyi, aynı bilgiyi gereksiz tekrar oluşturmadan ilgili tablolara ayırmaya **Normalization (Normalizasyon)** denir. Bu yaklaşım depolama maliyetini ve güncelleme tutarsızlıklarını azaltabilir.
+
+### Transaction
+
+Bazen birden fazla veritabanı işleminin tek ve tutarlı bir paket halinde gerçekleşmesini isteriz. **Transaction**, işlemlerin ya tümüyle kaydedilmesini ya da bir hata oluştuğunda hiçbir değişiklik yapılmadan geri alınmasını sağlar. Bu geri alma davranışına **Rollback (işlemleri geri alma)** denir.
+
+Özellikle para transferi veya birbiriyle bağlantılı birden çok tablonun aynı anda güncellenmesi gereken işlemlerde veriyi bozulmalardan korur.
+
+## Çalışma Mantığı
+
+SQL kullanırken sadece sorgu yazım kurallarını bilmek çoğu zaman yeterli değildir. Önemli noktalardan biri, verinin tablolar arasına nasıl dağıtıldığını ve şema mimarisinin nasıl kurulduğunu anlayabilmektir.
+
+Bir tabloya ilk kez bakıldığında sadece sütun isimlerine değil, tablonun iş süreçlerinde neyi temsil ettiğine de odaklanılır. Örneğin, bir `orders` tablosunda müşteri demografik verilerinin `users` tablosunda, ürün kategorisinin ise `products` tablosunda tutulabileceği düşünülebilir.
+
+Bir SQL sorgusu tasarlanırken şu düşünce adımları takip edilebilir:
+
+* Problem tam olarak hangi metrikleri veya sütunları istiyor?
+* Bu bilgiler hangi tablolarda yer alıyor ve tablolar hangi alanlar üzerinden bağlanabilir?
+* Hangi kurallarla veri daraltılabilir?
+* Sonuçlar ham bir liste olarak mı bırakılabilir, yoksa `GROUP BY` ile özetlenebilir mi?
+
+Veri ve AI projelerinde SQL genellikle ilk kontrol katmanıdır. Kirli veriyi, aykırı değerleri veya kullanılmayacak geçmiş yılları SQL katmanında filtreleyip temizlemek; bu yükü Python ve pandas'a taşımaktan daha hızlı ve verimli olabilir.
+
+## Kod Örnekleri
+
+Aşağıdaki örneklerde, bu yapıların pratik sorgularda nasıl birleştiği gösterilir.
+
+### Basit Kolon Seçimi
+
+```sql
+SELECT id, name, email
+FROM users;
+
+```
+
+`*` kullanmak yerine yalnızca gerekli sütunları seçmek, veritabanının okuma yükünü azaltır.
+
+### Filtreleme
+
+```sql
+SELECT name, department
+FROM employees
+WHERE department = 'Data';
+
+```
+
+Tüm kayıtları çekmek yerine, analiz edilecek hedef kitle filtrelenir.
+
+### Sayısal Koşul
+
+```sql
+SELECT name, score
+FROM students
+WHERE score >= 75;
+
+```
+
+Büyük veya eşit (`>=`) gibi operatörlerle metrikler üzerinde sınırlar tanımlanabilir.
+
+### Sıralama ve Limit
+
+```sql
+SELECT name, score
+FROM students
+ORDER BY score DESC
+LIMIT 5;
+
+```
+
+En yüksek skora sahip ilk 5 kaydı (**Top 5**) bulmak için kullanılan standart kalıplardan biridir.
+
+### Kayıt Sayısı Hesaplama
+
+```sql
+SELECT COUNT(*) AS total_orders
+FROM orders;
+
+```
+
+Tablonun güncel büyüklüğünü hızlıca anlamak için kullanılır.
+
+### Ortalama Alma
+
+```sql
+SELECT AVG(score) AS average_score
+FROM students;
+
+```
+
+Değerlerin genel düzeyini görmek için kullanılan bir toplulaştırma yöntemidir.
+
+### Gruplama
+
+```sql
+SELECT department, COUNT(*) AS total_employee
+FROM employees
+GROUP BY department;
+
+```
+
+Şirket çalışanlarını departman bazında gruplayarak okunabilir bir özet rapor üretir.
+
+### JOIN ile Tablo Birleştirme
+
+```sql
+SELECT users.name, orders.total_amount
+FROM users
+JOIN orders ON users.id = orders.user_id;
+
+```
+
+Kullanıcı ve sipariş bilgilerini aynı sonuçta görmek için iki tabloyu bir araya getirir.
+
+### Ortalama Üzeri Ürünleri Bulma
+
+```sql
+SELECT name, price
+FROM products
+WHERE price > (
+  SELECT AVG(price)
+  FROM products
+);
+
+```
+
+Sabit bir rakam yazmak yerine, ortalamayı alt sorguyla dinamik olarak hesaplatıp esnek bir filtre kurgular.
+
+### CTE ile Daha Okunabilir Yapı
+
+```sql
+WITH department_counts AS (
+  SELECT department, COUNT(*) AS total
+  FROM employees
+  GROUP BY department
+)
+SELECT *
+FROM department_counts
+ORDER BY total DESC;
+
+```
+
+Bu sorguda önce sayımlar `department_counts` adıyla hazırlanır, ardından bu ara sonuç sıralanarak okunur.
+
+### Basit View Tanımı
+
+```sql
+CREATE VIEW recent_orders AS
+SELECT id, user_id, total_amount
+FROM orders
+WHERE created_at >= '2025-01-01';
+
+```
+
+Sürekli "2025 sonrası siparişler" filtresi yazmak yerine, bu kural veritabanına bir görünüm (View) olarak kaydedilir.
+
+### Transaction Mantığı
+
+```sql
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 100
+WHERE id = 1;
+
+UPDATE accounts
+SET balance = balance + 100
+WHERE id = 2;
+
+COMMIT;
+
+```
+
+İlk güncellemeden sonra işlem tamamlanmadan sistem kesilirse veri tutarsız kalabilir. `BEGIN` ve `COMMIT` blokları, içindeki tüm işlemlerin bir bütün olarak tamamlanmasını sağlar.
+
+## Kısa Notlar
+
+* Tablolar konuları, satırlar tekil kayıtları, sütunlar ise özellikleri temsil eder; veriyi bu yapıyı dikkate alarak incelemek yararlı olur.
+* Primary Key, bir tablodaki her kaydı benzersiz olarak tanımlar; Foreign Key ise başka bir tablodaki kayda referans vererek tablolar arasında ilişki kurar.
+* Canlı sistemlerde `SELECT *` yerine yalnızca gerekli sütunları seçmek, gereksiz veri okumayı önler.
+* `WHERE`, analize dahil edilmeyecek ilgisiz kayıtları sorgunun başında filtrelemeyi sağlar.
+* `ORDER BY ... DESC`, sonuçları büyükten küçüğe sıralar. Örneğin `LIMIT 10` ile birlikte kullanılarak en yüksek 10 değer listelenebilir.
+* Büyük tablolarla ilk kez çalışırken `LIMIT` kullanmak veritabanının gereksiz yük almasını önler.
+* Veriyi satır satır değil özet düzeyde okumak gerektiğinde `GROUP BY` ile `COUNT`, `SUM`, `AVG` fonksiyonları birlikte kullanılabilir.
+* Tabloları birleştirirken hangi ortak sütunların birbiriyle eşleştiğini kontrol etmek faydalı olur.
+* Uzun ve karmaşık sorguları CTE bloklarına ayırmak, sorguyu ekip içinde daha okunabilir hale getirir.
+* Her sütuna indeks eklemek okumayı hızlandırabilir; ancak yazma işlemlerini yavaşlatır. Bu nedenle okuma performansı ile yazma maliyeti arasında denge kurmak gerekir.
+
+## Kaynaklar
+
+### [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+
+Açık kaynaklı veritabanı alanındaki detaylı ve saygın kaynaklardan biridir. Standart SQL syntax, indeksleme ve transaction gibi mimari davranışları anlamak için kapsamlı bir rehber niteliğindedir.
+
+### [SQLBolt](https://sqlbolt.com/)
+
+Tarayıcı üzerinden pratik yaparak SQL öğrenmek için interaktif bir giriş kaynağıdır.
+
+### [Use The Index, Luke](https://use-the-index-luke.com/)
+
+Sorgular yavaş çalıştığında, veritabanı motorlarının arka planda (B-Tree vb.) indeksleri nasıl kullandığını ve sorgu performansının nasıl iyileştirilebileceğini sade bir dille anlatan başvuru kılavuzudur.

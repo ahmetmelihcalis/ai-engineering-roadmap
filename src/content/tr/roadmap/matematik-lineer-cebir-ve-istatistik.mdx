@@ -1,0 +1,275 @@
+---
+title: "Matematik, Lineer Cebir ve İstatistik"
+slug: "matematik-lineer-cebir-ve-istatistik"
+order: 4
+description: "AI modellerini anlamak için gerekli temel matematik, lineer cebir ve istatistik kavramları."
+tags: ["Fonksiyonlar", "Vektörler", "Matrisler", "Olasılık", "İstatistik", "Gradyan"]
+---
+
+## Genel Bakış
+
+**Matematik**, yapay zeka ve machine learning modellerinin çalışma mantığını anlatmanın temel dilidir. Sayılar, oranlar, fonksiyonlar, vektörler, matrisler, olasılık ve istatistik kavramları; veri temsili, optimizasyon ve model değerlendirme süreçlerinde sıkça kullanılır.
+
+Yapay zeka projelerinde matematik bilgisi, formülleri ezberlemekten çok sonuçları doğru yorumlamak için önemlidir. Bir metriğin ne anlattığını, iki vektörün neden benzer kabul edildiğini veya bir modelin loss değerini neden azaltmaya çalıştığını anlamak bu temel kavramlarla mümkündür.
+
+Bu modülde sayı ve oran mantığı, fonksiyonlar, grafik okuma, vektörler, matrisler, noktasal çarpım, temel olasılık, ortalama, varyans ve gradient kavramı işlenecektir. Odak, ileri düzey ispatlardan çok yapay zeka uygulamalarında gerekli olan temel sezgiyi kazandırmaktır.
+
+## Temel Kavramlar
+
+### Sayılar, Oranlar ve Fonksiyonlar
+
+Matematikte birçok ifade sayıların birbiriyle ilişkisini anlatır. Oran, artış, azalış, ortalama ve değişim gibi kavramlar model sonuçlarını yorumlarken sıkça kullanılır.
+
+**Fonksiyon**, bir girdinin belirli bir kurala göre çıktıya dönüşmesini ifade eder. Makine öğrenmesi modelleri en genel haliyle, bir girdiyi alıp öğrenilmiş bir kurala göre çıktıya dönüştüren yapılar olarak düşünülebilir.
+
+Örneğin:
+
+```text
+f(x) = 2x + 1
+```
+
+Bu ifade, `x` girdisinin belirli bir kuralla çıktıya dönüştüğünü gösterir.
+
+### Vektör
+
+**Vektör**, sıralı sayı dizisi gibi düşünülebilir. Yapay zeka uygulamalarında bir kelime, bir kullanıcı, bir ürün ya da bir görüntü parçası bazen vektör olarak temsil edilir.
+
+Örneğin Üç Boyutlu Basit Bir Vektör:
+
+```text
+[2, 5, 1]
+```
+
+Bu yapı, bir nesnenin üç özelliğini birlikte temsil eder. Embedding mantığının ilk sezgisi de buraya dayanır.
+
+### Matris
+
+**Matris**, vektörlerin yan yana veya alt alta dizilmiş hali gibi düşünülebilir. Birden fazla kaydı birlikte temsil etmek için kullanışlıdır.
+
+Örneğin:
+
+```text
+[
+  [1, 2],
+  [3, 4],
+  [5, 6]
+]
+```
+
+Bu yapı, üç satır ve iki özellikten oluşan küçük bir veri tablosu gibi okunabilir.
+
+Lineer cebirde matrisler yalnızca veri tutmaz; aynı zamanda dönüşüm fikrini de taşır.
+
+### Noktasal Çarpım
+
+**Noktasal Çarpım**, iki vektör arasındaki uyumu veya benzer yönlülüğü değerlendirmek için kullanılan temel araçlardan biridir.
+
+Basit Örnek:
+
+```text
+[1, 2] · [3, 4] = 1*3 + 2*4 = 11
+```
+
+Yapay zeka uygulamalarında noktasal çarpım özellikle benzerlik, skor üretimi ve attention mantığı gibi yerlerde kullanılır.
+
+### Matris Çarpımı
+
+**Matris çarpımı**, veriyi bir dönüşümden geçirmek olarak düşünülebilir. Neural network katmanlarını ilk sezgide anlamak için bu fikir önemlidir.
+
+Detaya çok girmeden şu mantık yeterlidir:
+
+* Giriş bir vektör olabilir
+* Ağırlıklar bir matris gibi düşünülebilir
+* Çıktı yeni bir sayısal temsil olur
+
+Bu yüzden lineer cebir, model içindeki bilgi akışını anlamada temel bir rol oynar.
+
+### Olasılık
+
+**Olasılık**, bir olayın ne kadar mümkün olduğunu ifade eder. Yapay zeka ve istatistik uygulamalarında model sonuçlarını yorumlarken bu mantık çok önemlidir.
+
+Olasılık değeri genellikle 0 ile 1 arasındadır:
+
+* 0 imkânsızlığı temsil eder
+* 1 kesinliği temsil eder
+
+Örneğin bir sınıflandırma modelinin bir örnek için 0.92 olasılık vermesi, modelin o sınıfa yüksek olasılık atadığını gösterebilir. Ancak bu değer mutlak doğruluk anlamına gelmez.
+
+### Ortalama
+
+**Ortalama**, bir veri grubunun genel merkezini görmek için kullanılır. Veri analizinde ve model sonuçlarını özetlemede sıkça karşılaşılır.
+
+Örneğin:
+
+```text
+80, 90, 70
+```
+
+Bu Sayılar İçin Ortalama:
+
+```text
+(80 + 90 + 70) / 3 = 80
+```
+
+Ortalama genel seviyeyi gösterir ama verinin ne kadar dağınık olduğunu tek başına anlatmaz.
+
+### Varyans
+
+**Varyans**, değerlerin ortalamadan ne kadar saptığını gösterir. Yani verinin ne kadar yayıldığını ifade eder.
+
+İki veri grubunun ortalaması aynı olabilir ama biri çok düzenli, diğeri çok dağınık olabilir. Bu farkı görmek için varyans mantığı önemlidir.
+
+İlk aşamada şu sezgi yeterlidir:
+
+* Düşük varyans: Değerler birbirine daha yakındır
+* Yüksek varyans: Değerler daha dağınıktır
+
+### Standart Sapma
+
+**Standart Sapma**, varyansın daha kolay yorumlanabilen hâli olarak düşünülebilir. Verinin ortalama etrafında ne kadar yayıldığını daha sezgisel okumayı sağlar.
+
+Veri analizi ve model değerlendirme tarafında standart sapma ifadesi sıkça görülür. Bu yüzden temel anlamını bilmek önemlidir.
+
+### Dağılım Mantığı
+
+İstatistikte yalnızca tek tek sayılar değil, sayıların nasıl dağıldığı da önemlidir. Bazı veriler belirli bir bölgede toplanır, bazıları geniş alana yayılır, bazıları ise dengesizdir.
+
+Bu bakış açısı özellikle şu konularda önemlidir:
+
+* Veri kalitesini anlamak
+* Aykırı değerleri fark etmek
+* Model çıktılarının dengesini yorumlamak
+
+### Gradyan ve Optimizasyon
+
+Gradient, bir fonksiyonun hangi yönde arttığını veya azaldığını gösterir. Makine öğrenmesinde ise amaç, kaybı azaltacak yönü bulmaktır.
+
+Bu yüzden optimizasyon mantığında şu fikir öne çıkar:
+
+* Model bir hata üretir
+* Bu hata bir kayıp fonksiyonuyla ölçülür
+* Parametreler, kaybı azaltacak yönde güncellenir
+
+Gradient descent yaklaşımının temel sezgisi budur. İlk aşamada formül ezberlemekten çok, “model hatayı azaltmaya çalışır” fikrini kavramak yeterlidir.
+
+### Metrik ve Belirsizlik
+
+Bir modelin sonucu tek başına yeterli değildir; bu sonucun nasıl değerlendirileceği de önemlidir. Accuracy, precision, recall gibi metrikler bu yüzden kullanılır.
+
+Aynı şekilde bir sonucun ne kadar güvenilir olduğu veya ne kadar değişkenlik taşıdığı da önemlidir. İstatistik, sonuçları fazla kesin yorumlamamayı öğretir.
+
+## Çalışma Mantığı
+
+AI modelleri çoğu zaman girdileri sayısal temsillere dönüştürür. Bu yüzden vektör ve matris mantığı, model içindeki bilgi akışını anlamak için temel bir araç haline gelir. Bir embedding vektörü, bir ağırlık matrisi veya bir çıktı skoru, bu matematik dilinin farklı görünümleridir.
+
+İstatistik ise veri ve sonuçların ne kadar güvenilir biçimde yorumlanabileceğini gösterir. Ortalama, varyans ve dağılım gibi kavramlar yalnızca akademik değildir; veri seti incelenirken, model çıktısı yorumlanırken ve hata payı düşünülürken de kullanılır.
+
+Optimizasyonda temel fikir şudur: Model ilk anda iyi değildir, ama hatayı ölçüp parametreleri güncelleyerek daha iyi hale gelmeye çalışır. Gradient ve kayıp fonksiyonu bu süreci açıklamak için kullanılır.
+
+Bu modülde amaç her formülü ezberlemek değildir. Bir formül görüldüğünde bunun benzerlik mi, dönüşüm mü, özet bilgi mi, yoksa hata azaltma mantığı mı anlattığını ayırt edebilmek hedeflenir.
+
+## Kod Örnekleri
+
+Bu bölümde matematiksel kavramların kod karşılığını basit örneklerle görmek amaçlanır.
+
+### Ortalama Hesaplama
+
+```python
+scores = [80, 90, 70, 60]
+
+average = sum(scores) / len(scores)
+
+print(average)
+```
+
+Bu örnek veri grubunun genel merkezini bulur.
+
+### Vektör Toplama
+
+```python
+import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+result = a + b
+
+print(result)
+```
+
+Bu örnek iki vektörün eleman bazlı toplanmasını gösterir.
+
+### Noktasal Çarpım
+
+```python
+import numpy as np
+
+a = np.array([1, 2])
+b = np.array([3, 4])
+
+result = np.dot(a, b)
+
+print(result)
+```
+
+Bu yapı iki vektör arasındaki temel çarpım ilişkisini gösterir.
+
+
+### Varyans ve Standart Sapma
+
+```python
+import numpy as np
+
+values = np.array([80, 90, 70, 60])
+
+print(np.var(values))
+print(np.std(values))
+```
+
+Bu yapı, verinin ne kadar yayıldığını görmek için temel bir örnektir.
+
+### Basit Doğrusal Fonksiyon
+
+```python
+def linear_function(x: float) -> float:
+    return 2 * x + 1
+
+
+print(linear_function(3))
+```
+
+Bu örnek, model fikrini bir fonksiyon üzerinden düşünmek için en basit yapılardan biridir.
+
+## Kısa Notlar
+
+* Fonksiyon, bir girdi ile çıktı arasındaki ilişkiyi tanımlar.
+* Vektör, sıralı sayılardan oluşan bir yapı olarak düşünülebilir.
+* Matris, sayıları satır ve sütunlar halinde düzenler ve birden fazla vektörü birlikte temsil edebilir.
+* Matris çarpımı, özellikle dönüşümleri ve sinir ağlarındaki hesaplamaları anlamak için önemlidir.
+* Ortalama, bir veri grubunun merkezini kabaca gösterir.
+* Varyans, değerlerin ortalama etrafında ne kadar yayıldığını ölçer.
+* Standart sapma, verinin yayılımını varyansla aynı birimde ifade ettiği için daha kolay yorumlanır.
+* Olasılık, bir olayın gerçekleşme ihtimalini ifade eder.
+* Olasılık dağılımı, olası değerlerin ve bu değerlere ait olasılıkların nasıl dağıldığını gösterir.
+* Gradient, bir fonksiyonun hangi yönde ve ne kadar hızlı değiştiğini gösterir.
+* Optimizasyon, modelin hata değerini azaltacak veya hedef fonksiyonunu iyileştirecek parametreleri bulma sürecidir.
+* Metrikler, modelin performansını ölçmek ve sonuçlarını değerlendirmek için kullanılır.
+
+Matematik, makine öğrenmesinde tek başına bir amaç değil; modellerin nasıl çalıştığını, neden hata yaptığını ve nasıl geliştirilebileceğini anlamak için kullanılan temel araçlardan biridir.
+
+#### Ek Konular
+
+* Koşullu olasılık, başka bir olayın gerçekleştiği bilindiğinde bir olayın gerçekleşme olasılığını ifade eder.
+* Bayes teoremi, yeni bir bilgi elde edildiğinde mevcut olasılıkları güncellememizi sağlar.
+* Korelasyon, iki değişkenin birlikte nasıl değiştiğini ve aralarındaki ilişkinin yönünü gösterir.
+* Normal dağılım, birçok doğal ve istatistiksel süreçte yaklaşık olarak karşılaşılan temel olasılık dağılımlarından biridir.
+
+## Kaynaklar
+
+### [3Blue1Brown — Essence of Linear Algebra](https://www.3blue1brown.com/lessons/essence-of-linear-algebra)
+
+Lineer cebiri yalnızca semboller üzerinden değil, görsel sezgi üzerinden anlatan bir kaynaktır. Vektör, matris ve dönüşüm mantığı için iyi bir başlangıç sağlar.
+
+### [NumPy Documentation](https://numpy.org/doc/stable/)
+
+Kod tarafında vektör, matris ve temel sayısal işlemleri görmek için pratik bir başvuru kaynağıdır. Teoriyi küçük örneklerle birleştirir.

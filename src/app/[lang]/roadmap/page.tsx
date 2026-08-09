@@ -1,0 +1,46 @@
+import { RoadmapTimeline } from "@/components/roadmap/RoadmapTimeline";
+import { SearchBox } from "@/components/ui/SearchBox";
+import { dictionaries, isValidLocale } from "@/lib/i18n";
+import { getAllRoadmaps } from "@/lib/mdx";
+import { locales } from "@/types";
+
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
+
+export default async function RoadmapPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params;
+  if (!isValidLocale(lang)) {
+    return null;
+  }
+
+  const modules = getAllRoadmaps(lang);
+  const t = dictionaries[lang];
+  const copy =
+    lang === "tr"
+      ? {
+          eyebrow: "YOL HARİTASI",
+          description:
+            "Temel becerilerden canlı sistemlere doğru, adım adım ilerleyen 12 modüllük öğrenme akışı.",
+        }
+      : {
+          eyebrow: "ROADMAP",
+          description:
+            "A 12-module learning path that progresses step by step from foundational skills to production systems.",
+        };
+
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 md:py-20">
+      <section className="text-center">
+        <h1 className="display-title roadmap-page-title text-4xl font-extrabold leading-[0.95] tracking-[-0.055em] text-accent sm:text-6xl md:text-7xl">
+          {copy.eyebrow}
+        </h1>
+        <p className="mx-auto mt-5 max-w-3xl text-sm font-medium leading-6 text-foreground sm:mt-6 sm:text-base sm:leading-7">{copy.description}</p>
+        <div className="mx-auto mt-6 max-w-2xl sm:mt-8">
+          <SearchBox items={modules} locale={lang} placeholder={t.common.search} />
+        </div>
+        <RoadmapTimeline locale={lang} modules={modules} />
+      </section>
+    </main>
+  );
+}

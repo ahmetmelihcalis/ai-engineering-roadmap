@@ -1,0 +1,65 @@
+---
+title: "A Short Introduction to Computer Vision"
+slug: "a-short-introduction-to-computer-vision"
+order: 7
+description: "A short introduction to the core concepts of working with image data and the points that require attention."
+tags: ["Image Classification", "Object Detection", "Segmentation", "YOLO", "Data Augmentation", "Transfer Learning"]
+---
+
+## Overview
+
+**Computer Vision** is the area of AI that focuses on extracting meaning from image and video data. Object recognition, separating regions in an image, locating fields in a document, and detecting defects on a production line are common use cases in this area.
+
+This module offers a short introduction to computer vision. The goal is not to teach computer vision in every detail, but to show why image data is handled differently from tabular and text data and to introduce the core concepts. The architectural foundations of CNNs are covered in the Deep Learning module; the focus here is on applications such as image classification, object detection, segmentation, data augmentation, and transfer learning.
+
+## General Information
+
+### The Nature of Image Data
+
+From a computer's perspective, an image is a structure made of numbers. Color images usually consist of three channels: red, green, and blue. The structure a model sees is typically a **Tensor**; channel order, resolution, and pixel-value range directly affect model behavior.
+
+For example, if an image scaled between 0 and 1 during training is sent in the 0 to 255 range in production, it can produce unexpected results. For this reason, how the image is prepared can be as influential as the model file itself.
+
+Resolution is an image's width and height information. Resizing, cropping, or compressing an image changes the level of detail the model sees. Very low resolution can make small objects invisible; very high resolution can increase cost and memory use.
+
+### Core Vision Problems
+
+**Image Classification** assigns a class to an entire image: for example, whether a photo contains a cat or whether a product is damaged. **Object Detection** finds an object's location in an image with a **Bounding Box**. **Segmentation** determines which object each pixel belongs to.
+
+Although these problem types look similar, they require different labels, evaluation metrics, and user expectations. An evaluation that is suitable for a classification model may not be sufficient for a segmentation project.
+
+**YOLO (You Only Look Once)** is a widely used object-detection family that predicts the class and location of objects in an image in a single forward pass. It produces bounding-box coordinates, the object's class in each box, and the related prediction score together. Because it runs quickly, it is often used in real-time camera streams, production-line inspection, and security applications.
+
+When working with YOLO, use a consistent bounding-box format and consistent class names in every label. Evaluate detection models with task-specific metrics such as **IoU** and **mAP**, which measure how well a box overlaps the actual object, rather than accuracy alone.
+
+Computer vision has many use cases, including OCR, face detection, pose estimation, medical image analysis, autonomous driving, document processing, and quality control. All of these areas work with images, but their data collection, labeling, and error costs differ.
+
+### Methods, Tools, and Datasets
+
+**Convolution** is a method for looking for patterns in small regions of an image. Visual cues such as edges, textures, corners, and shapes can be captured this way. Modern models do not use convolution alone; Transformer-based vision models can also process an image by dividing it into patches.
+
+PyTorch and TensorFlow/Keras are among the most commonly used frameworks in computer-vision work. On the PyTorch side, `torchvision` is used for ready-made datasets, image transformations, and pretrained models. On the TensorFlow side, a similar workflow for building, training, and evaluating a model can be set up with the Keras API.
+
+CIFAR-10, MNIST, Fashion-MNIST, and ImageNet are common example datasets when learning computer vision. CIFAR-10 contains small images from 10 classes such as airplane, automobile, bird, cat, deer, dog, frog, horse, ship, and truck. These datasets may not represent a real product problem, but they provide a good starting point for understanding the logic of image classification.
+
+When applying **Transfer Learning** in image projects, compare source data such as ImageNet with target images across lighting, angle, device, background, and class structure. The Deep Learning module covers the general logic of transfer learning; for computer vision, pay particular attention to the distribution gap between source and target data.
+
+### Data Quality and Experiment Practices
+
+In image projects, it is often useful to inspect the dataset before building a model. Do images come from different devices? Do lighting, background, and angle vary? Is there enough variety for the same class? Are labels prepared using the same rule? The answers to these questions can make a bigger difference than choosing a larger model.
+
+Labeling quality plays an important role in computer-vision projects. In object detection, how tightly boxes surround the object; in segmentation, how consistently mask boundaries are drawn; and in classification, how clearly classes are separated can noticeably affect model behavior.
+
+**Data Augmentation** means making limited changes to training images that preserve their meaning. Light cropping or brightness changes can increase data variety in some projects. However, distorting an image too much can cause the model to learn examples it will not encounter in real life.
+
+### Evaluation and Ethics
+
+It is also useful to perform error analysis visually. A high accuracy score does not mean that the model performs well on difficult examples. Opening a few incorrectly predicted images can reveal whether the model confuses shadow with damage, background with an object, or two similar classes with each other.
+
+If an image includes a face, license plate, document, or private environment, privacy and permission to use it should be evaluated separately. Keeping or sharing error examples can be meaningful for technical review; however, those examples can also contain personal or organizational information.
+
+## Resources
+
+### [Roboflow](https://roboflow.com/)
+
+A practical platform commonly used to label and organize image datasets, apply data augmentation, and train and deploy object-detection models such as YOLO.

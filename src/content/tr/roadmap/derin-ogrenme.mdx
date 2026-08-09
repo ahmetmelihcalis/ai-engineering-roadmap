@@ -1,0 +1,335 @@
+---
+title: "Derin Öğrenme"
+slug: "derin-ogrenme"
+order: 6
+description: "Yapay sinir ağlarının temelleri, eğitim döngüsü, RNN, GRU, LSTM ve Transformer mimarisi."
+tags: ["Tensörler", "Sinir Ağları", "Forward Pass", "Softmax", "Backpropagation", "Genelleme"]
+---
+
+## Genel Bakış
+
+**Derin Öğrenme**, çok katmanlı yapay sinir ağlarıyla veriden anlamlı özellikler ve örüntüler öğrenmeye odaklanan bir makine öğrenmesi alanıdır. Görüntü, ses, metin ve zaman serisi gibi karmaşık veri türlerinde klasik özellik çıkarımı yerine, modelin bu yapıları eğitim sırasında kendisinin öğrenmesi hedeflenir.
+
+Yapay zeka sistemlerinde derin öğrenme; bilgisayarlı görü, doğal dil işleme ve üretken yapay zeka gibi birçok modern yaklaşımın temelini oluşturur.
+
+Bu nedenle model geliştirirken yalnızca mimariye odaklanmak yerine, tensör yapısını, eğitim döngüsünü, kayıp değerini, gradyanları ve doğrulama sonuçlarını da değerlendirmek yararlı olur.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Tensörler ve Boyut Kontrolü
+* Yapay Sinir Ağları ve CNN
+* Katmanlar, Parametreler ve Forward Pass
+* Aktivasyon Fonksiyonları ve Softmax
+* Kayıp Fonksiyonu, Değerlendirme Metrikleri ve Backpropagation
+* Optimizasyon, Öğrenme Oranı, Batch ve Epoch
+* Genelleme, Doğrulama ve Regularization
+
+Devamında RNN, GRU, LSTM ve Transformer mimarilerine giriş yapılacaktır.
+
+## Temel Kavramlar
+
+### Yapay Sinir Ağları
+
+**Yapay Sinir Ağı**, girdiyi katmanlar boyunca dönüştürerek çıktı üreten bir modeldir. Her bağlantının öğrenilebilir bir ağırlığı vardır; eğitim sırasında bu ağırlıklar güncellenerek modelin tahmini hedefe yaklaştırılır. Gizli katman sayısı ve yapısı arttıkça ağ daha karmaşık ilişkileri temsil edebilir.
+
+<NeuralNetworkDiagram />
+
+### Tensörler ve Boyutlar
+
+**Tensör**, özünde çok boyutlu sayısal bir dizidir. Tek bir sayı 0 boyutlu bir skaler, özellik vektörü 1 boyutlu, alıştığımız tablo verisi 2 boyutlu, renkli bir görüntü grubu ise sıklıkla 4 boyutlu tensör olarak temsil edilir.
+
+Örneğin PyTorch'ta, bir görüntü örnek grubu çoğu zaman `[batch, channel, height, width]` düzenindedir. 32 örnekten oluşan, 3 renk kanallı ve 224x224 piksel boyutundaki bir görüntü grubu `[32, 3, 224, 224]` boyutuna sahiptir. Bir metin grubu ise genellikle `[batch, sequence_length]` veya embedding sonrasında `[batch, sequence_length, embedding_size]` şeklinde ele alınır.
+
+Bir boyut hatası yalnızca teknik bir pürüz değildir; modelin beklediği veri biçimi ile verilen biçimin uyuşmadığını gösterir. Eğitime başlamadan önce rastgele seçilmiş bir örnek grubu alıp veri tiplerini ve boyutları ekrana yazdırmak, hata ayıklama sürecini hızlandırır.
+
+### Katmanlar (Layers), Parametreler ve Forward Pass
+
+**Katman**, girdiyi yeni ve daha anlamlı bir temsile dönüştüren yapı taşıdır. Doğrusal, evrişimli, attention ve normalizasyon katmanları farklı dönüşümler uygular. Modelin öğrenmeye çalıştığı ağırlık ve sapma değerlerine **Parametre** denir.
+
+**Forward Pass** sırasında girdi modelden geçer ve bir tahmin üretilir. Model başlangıçta isabetli tahminler yapmayabilir; eğitim döngüsündeki asıl amaç, parametreleri güncelleyerek bu tahmini hedefe yaklaştırmaktır.
+
+### Aktivasyon Fonksiyonları
+
+**Aktivasyon Fonksiyonu**, katmanın doğrusal çıktısına doğrusal olmayan bir dönüşüm ekler. Bu dönüşüm olmadan, birden fazla doğrusal katman üst üste konsa bile ağ sonuçta tek bir doğrusal dönüşüme indirgenir ve karmaşık ilişkileri öğrenemez.
+
+* **ReLU:** Negatif değerleri sıfırlar, pozitif değerleri korur. Gizli katmanlarda yaygın ve hızlı bir başlangıç seçimidir.
+* **Sigmoid:** Bir değeri 0 ile 1 arasına taşır. İkili sınıflandırmada tek çıktı olasılığını yorumlamak için kullanılabilir.
+* **Softmax:** Birden fazla sınıf için çıktı değerlerini toplamı 1 olan olasılıklara dönüştürür.
+
+Model çıktısının hangi aktivasyonu kullanacağı, probleme ve kayıp fonksiyonuna bağlıdır. Örneğin PyTorch'ta `CrossEntropyLoss`, sınıflandırma çıktısı olan ham skorlarla (`logits`) çalışır; bu nedenle eğitim sırasında modele ayrıca `softmax` eklenmez.
+
+```python
+import torch
+
+logits = torch.tensor([[2.4, 0.7, -1.1]])
+probabilities = torch.softmax(logits, dim=1)
+
+print(probabilities)
+```
+
+Bu örnekte `softmax`, üç sınıfa ait ham skorları toplamı 1 olan olasılıklara dönüştürür. Eğitim sırasında aynı `logits` değerleri doğrudan `CrossEntropyLoss` fonksiyonuna verilir; `softmax` daha çok tahmin olasılıklarını yorumlamak veya kullanıcıya göstermek için kullanılır.
+
+### Kayıp Fonksiyonu (Loss Function) ve Başarı Ölçütü
+
+**Kayıp Fonksiyonu (Loss Function)**, optimizasyon algoritmasının matematiksel olarak azaltmaya çalıştığı eğitim sinyalidir. Regresyon için MSE, sınıflandırma için çapraz entropi sık kullanılan örneklerdir. **Başarı Ölçütü** ise iş sonucunu yorumlamak için kullanılır: doğruluk oranı, F1 skoru veya MAE gibi.
+
+Kayıp fonksiyonu ile başarı ölçütü aynı olmak zorunda değildir. Kayıp, optimize etmeye elverişli seçilir; başarı ölçütü ise problemin başarı kriterini yansıtır. Eğitim süresince her ikisinin de kaydedilmesi yararlıdır.
+
+Sınıflandırma modellerinde model çıktısı genellikle olasılık değil, ham `logits` formundadır. PyTorch'taki `CrossEntropyLoss` fonksiyonu, kendi içinde hem `softmax` hem de `log` işlemi uygular. Bu nedenle modelin son katmanına ayrıca bir `softmax` eklemek, loss hesaplamasında softmax'ın iki kez uygulanmasına ve modelin yanlış bir eğitim sinyali almasına neden olabilir. Olasılık değerini yalnızca tahmin skoru gösterileceği zaman ayrı bir adımda hesaplamak daha uygun olur.
+
+### Geriye Yayılım (Backpropagation), Optimizasyon ve Öğrenme Oranı
+
+**Geriye Yayılım (Backpropagation)**, hesaplanan kayıp değerinin her bir parametre için ne yönde değişmesi gerektiğini gradyan olarak belirler. **Optimizasyon Algoritması (Optimizer)** bu gradyanları kullanarak parametre güncellemesini gerçekleştirir. SGD ve Adam yaygın kullanılan örneklerdir.
+
+**Öğrenme Oranı (Learning Rate)**, güncelleme adımının büyüklüğünü temsil eder. Çok yüksek seçilmesi durumunda eğitim kararsızlaşabilir; çok düşük seçilmesi ise ilerlemeyi yavaşlatabilir veya modelin zayıf bir noktada takılmasına yol açabilir. Bu nedenle yalnızca son skora bakmak yerine kayıp eğrisini okumak, modelin davranışını anlamada öğreticidir.
+
+### Örnek Grupları, Eğitim Turları ve Genelleme
+
+**Batch**, tek bir güncellemede işlenen örnek grubudur. **Epoch**, eğitim verisinin tamamının modelden bir kez geçirilmesidir. Ancak `drop_last=True` gibi bir ayarla son eksik batch atlanıyorsa, o epoch'ta verinin tamamı değil, batch boyutuna tam bölünen kısmı kullanılmış olur. Bu durum, özellikle küçük veri setlerinde göz önünde bulundurulması gereken bir detaydır.
+
+Batch Normalization, eğitim ve değerlendirme davranışı farklı olan katmanlardan biridir. Eğitim sırasında o anki örnek grubunun istatistiklerini kullanarak girdiyi normalize eder ve bu istatistiklerin hareketli ortalamasını biriktirir. Değerlendirme sırasında ise o anki örnek grubuna değil, biriktirilen bu genel ortalamaya dayanır. Bu nedenle eğitimde `model.train()`, değerlendirmede ise `model.eval()` çağrılması beklenir.
+
+Eğitim turu sayısını artırırken eğitim kaybı düşüp doğrulama kaybı yükseliyorsa, model aşırı uyum (overfitting) göstermeye başlamış olabilir. Bu durumda eğitimi durdurmak veya düzenlileştirme ayarlarını gözden geçirmek düşünülebilir. Eğitim/doğrulama/test ayrımının temel açıklaması Makine Öğrenmesi modülündedir; burada karar, modelin eğitim ve doğrulama eğrilerine bakılarak verilir.
+
+### Evrişimsel Sinir Ağları (CNN)
+
+Evrişimsel sinir ağları (Convolutional Neural Networks, CNN), özellikle görüntülerdeki yerel örüntüleri öğrenmek için tasarlanmış ağlardır. Aynı küçük desenleri görüntünün farklı bölgelerinde aradıkları için, her pikseli bağımsız ele alan yapılara göre görüntü verisinde daha verimli çalışırlar.
+
+* **Evrişim Katmanı (Convolutional Layer):** Görüntü üzerinde küçük pencerelerle dolaşarak yerel örüntüleri çıkarır.
+* **Filtre/Çekirdek (Filter/Kernel):** Kenar, doku veya daha karmaşık şekiller gibi öğrenilen örüntü arayıcısıdır.
+* **Özellik Haritası (Feature Map):** Bir filtrenin görüntünün hangi bölgelerinde güçlü yanıt verdiğini gösteren çıktıdır.
+* **Havuzlama (Pooling):** Özellik haritasını özetleyerek boyutu ve hesaplama maliyetini azaltır.
+
+İlk katmanlar genellikle kenar ve doku gibi basit ayrıntıları yakalar; daha derin katmanlar nesne parçaları ve nesneler gibi daha soyut yapıları temsil eder. Bilgisayarlı Görü modülünde ise bu mimarinin görüntü sınıflandırma, nesne tespiti, bölütleme, veri artırma ve aktarım öğrenmesi gibi uygulamaları ele alınır.
+
+### Transfer Learning
+
+**Transfer Learning**, büyük ve genel bir veri seti üzerinde önceden eğitilmiş bir modelin öğrendiği özellikleri yeni bir probleme uyarlama yaklaşımıdır. Modelin erken katmanları genellikle kenar, doku veya temel örüntüler gibi genel bilgileri taşıdığı için dondurulabilir; göreve daha yakın katmanlar ise hedef veriyle yeniden eğitilir. Kaynak ve hedef veri ne kadar benzerse, önceden öğrenilen temsil de o kadar verimli kullanılabilir.
+
+### RNN, GRU ve LSTM
+
+Recurrent Neural Network (RNN) ailesi, sıralı veriyi adım adım işler ve önceki adımlardan taşıdığı gizli durum (hidden state) ile geçmiş bilgiyi bir sonraki adıma aktarır. Metin, zaman serisi ve ses gibi veriler için tasarlanmıştır.
+
+Backpropagation, RNN'de zaman adımları boyunca zincir kuralıyla geriye doğru akar. Gradyanın her adımda aynı ağırlık matrisiyle tekrar tekrar çarpılması, uzak geçmişten öğrenmeyi zorlaştırabilir veya eğitimi kararsızlaştırabilir. Bu problemler vanishing gradient ve exploding gradient olarak bilinir.
+
+GRU ve LSTM yapıları, bilginin ne kadarının saklanacağını özel kapılarla (gate) kontrol ederek bu sorunu hafifletir. GRU daha az parametre kullandığı için hesaplama açısından daha hafiftir. Hangi mimarinin belirli bir görevde daha iyi performans göstereceğini anlamanın en sağlıklı yollarından biri, aynı veri ve bütçeyle karşılaştırmalı deneyler yapmaktır.
+
+Dizi (sequence) modellerinde girdi genellikle `[batch, sequence_length, feature_size]` formatındadır. Değişken uzunluktaki diziler padding (doldurma) ve maskeleme gerektirir. Padding içeren dizilerde son zaman adımının doğrudan kullanılması, modelin gerçek veri yerine padding üzerinden öğrenmesine yol açabilir. Bu risk kod örneklerinde ele alınır.
+
+### Attention ve Transformer Mimarisi
+
+Bugün kullanılan modern LLM'lerin temelindeki Transformer yaklaşımı, Google araştırmacılarının 2017'de yayımladığı **Attention Is All You Need** makalesiyle tanıtıldı. Makalenin merkezindeki attention mekanizması, bir token'ın temsilini oluştururken dizideki diğer token'lara doğrudan bakabilmesini sağlar. Bu yönüyle, diziyi adım adım işleyen RNN ailesinden ayrılır.
+
+Transformer mimarisi bu yaklaşımı çok başlı attention, feed-forward katmanlar, residual connections ve normalizasyon ile birleştirir. Sıra bilgisi, positional encoding ile modele eklenir.
+
+Encoder yapıları girdiyi anlamaya (örn. BERT), decoder yapıları sıradaki token'ı üretmeye (örn. GPT) odaklanır. İkisini birleştiren modeller çeviri ve özetleme görevlerinde tercih edilir. Bu bölümün amacı LLM dünyasının tüm ayrıntılarına girmek değil, sonraki modüllerde kullanılan Transformer kavramlarına temel oluşturmaktır.
+
+## Çalışma Mantığı
+
+Bir derin öğrenme modeli şu akışla çalışır:
+
+1. Girdi örnek grubu hazırlanır ve modelin beklediği tensör biçimine dönüştürülür.
+2. Girdi, katmanlar ve aktivasyon fonksiyonlarından geçerek forward pass sırasında bir tahmine dönüşür.
+3. Tahmin ile gerçek hedef karşılaştırılarak kayıp (loss) hesaplanır.
+4. Geriye yayılım ile kaybın parametrelere göre gradyanı çıkarılır.
+5. Optimizasyon algoritması parametreleri günceller; süreç örnek grupları boyunca tekrarlanır.
+6. Her eğitim turunun sonunda model, doğrulama verisi üzerinde ölçülür. Bu aşama modelin yeni verideki genelleme davranışını izlemeyi sağlar.
+
+Bu döngünün kararlı çalışması, veri kadar sayısal doğruluğa da bağlıdır. Uygun başlangıç değerleri, veri normalizasyonu ve mantıklı bir öğrenme oranı takvimi eğitimi daha dengeli hale getirir.
+
+Overfitting’i azaltmak için **dropout, weight decay (ağırlıkların büyüklüğünü sınırlama), veri artırma** veya **early stopping** gibi yöntemler denenebilir. Etkilerini karşılaştırmak için validation sonuçlarını birlikte incelemek faydalıdır.
+
+Deneylerde basitten karmaşığa ilerlemek, karşılaştırmayı kolaylaştırır. Önce basit bir RNN ile sonuç alıp, gradyan kararlılığı için GRU/LSTM denenebilir. Dizi çok uzunsa ve tokenlar arası ilişkiler kritikse Transformer yapıları değerlendirilebilir. Mimari kararı yalnızca yeniliğe değil; performans, bellek ve donanım maliyeti kriterlerine göre şekillendirmek faydalı olur.
+
+## Kod Örnekleri
+
+### Örnek Grubunu Doğrulama
+
+```python
+batch = next(iter(train_loader))
+
+print(batch["x"].shape)
+print(batch["y"].shape)
+print(batch["x"].dtype)
+
+```
+
+Bu temel kontrol, model geliştirmeye başlamadan veri akışındaki yapısal hataları erken fark etmeyi sağlar. Görüntü veya metin gibi girdilerde tensör shape'lerini yazdırmakla birlikte örnekleri görsel olarak incelemek de yararlı bir yaklaşımdır.
+
+### Eğitim Adımını Manuel Olarak Uygulamak
+
+```python
+model.train()
+
+for batch in train_loader:
+    x = batch["x"].to(device)
+    y = batch["y"].to(device)
+
+    optimizer.zero_grad()
+    logits = model(x)
+    loss = loss_fn(logits, y)
+    loss.backward()
+    optimizer.step()
+
+```
+
+`model.train()` kullanımı, dropout ve batch normalization gibi katmanların eğitim davranışlarını etkinleştirir. Bu blok, eğitim döngüsünün temel yapısını oluşturur.
+
+### Validation Loop
+
+```python
+model.eval()
+total_loss = 0.0
+correct = 0
+count = 0
+
+with torch.no_grad():
+    for batch in validation_loader:
+        x = batch["x"].to(device)
+        y = batch["y"].to(device)
+        logits = model(x)
+        total_loss += loss_fn(logits, y).item() * len(y)
+        correct += (logits.argmax(dim=1) == y).sum().item()
+        count += len(y)
+
+print("validation_loss:", total_loss / count)
+print("validation_accuracy:", correct / count)
+
+```
+
+Değerlendirme sırasında `model.eval()` çağırmak ve `torch.no_grad()` ile gradyan hesaplamayı kapatmak bellek kullanımını azaltır. Sınıflandırma için `logits.argmax(dim=1)` doğrudan ham skorlar üzerinde çalışır; tahmin sıralaması değişmeyeceği için ayrıca softmax uygulamaya gerek kalmaz.
+
+### RNN, GRU ve LSTM ile Dizi Modeli
+
+```python
+import torch.nn as nn
+
+class SequenceClassifier(nn.Module):
+    def __init__(self, input_size, hidden_size, class_count, cell="lstm"):
+        super().__init__()
+        cells = {
+            "rnn": nn.RNN,
+            "gru": nn.GRU,
+            "lstm": nn.LSTM,
+        }
+        self.encoder = cells[cell](
+            input_size=input_size,
+            hidden_size=hidden_size,
+            batch_first=True,
+        )
+        self.classifier = nn.Linear(hidden_size, class_count)
+
+    def forward(self, x, lengths):
+        # Padding'li (sıfırlarla doldurulmuş) dizilerde encoder'ın
+        # yalnızca gerçek token'lar üzerinden işlem yapması için pack kullanılır.
+        packed = nn.utils.rnn.pack_padded_sequence(
+            x, lengths.cpu(), batch_first=True, enforce_sorted=False
+        )
+        _, hidden = self.encoder(packed)
+
+        if isinstance(hidden, tuple):  # LSTM (h_n, c_n) döndürür
+            last_hidden = hidden[0][-1]
+        else:  # RNN ve GRU yalnızca h_n döndürür
+            last_hidden = hidden[-1]
+
+        return self.classifier(last_hidden)
+
+```
+
+Padding içeren dizilerde son elemanı doğrudan seçmek, modelin dolgu değerleri üzerinden karar üretmesine yol açabilir. `pack_padded_sequence` yöntemi, her dizinin gerçek uzunluğuna uygun gizli durumu (hidden state) döndürerek bu sorunu önler.
+
+### Attention Mask
+
+```python
+print("input shape:", input_ids.shape)
+print("mask shape:", attention_mask.shape)
+print("valid tokens:", attention_mask.sum(dim=1))
+
+```
+
+Padding token'larının attention hesaplamasına dahil olması, metnin temsiliyetini yanıltıcı yönde etkileyebilir. Maske yapısının batch ve diziliş boyutuyla uyuştuğunu eğitime başlamadan kontrol etmek faydalı olur.
+
+### Konfigürasyon Kaydı
+
+```python
+run_config = {
+    "model": "small-cnn",
+    "learning_rate": 3e-4,
+    "batch_size": 32,
+    "epochs": 12,
+    "seed": 42,
+}
+
+```
+
+Eğitim sonuçlarının tekrarlanabilir olması için; veri sürümünü, model mimarisini, seed değerini ve hiperparametreleri sistematik biçimde kaydetmek faydalı olur.
+
+### Tekrarlanabilirlik ve Rastgelelik
+
+Rastgele başlatma, veri karıştırma sırası ve donanımsal operasyonlar nedeniyle denemeler arasında küçük farklar oluşabilir. Seed değerini sabitlemek, bu varyasyonu en aza indirerek deneyleri daha güvenilir hale getirir.
+
+```python
+import random
+import numpy as np
+import torch
+
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+```
+
+Farklı seed değerleriyle eğitimin kararlılığını test etmek, modelin tesadüfi bir başarı elde etmediğini doğrulamak için kullanılır.
+
+### Model Checkpoint ve Seçimi
+
+Son epoch her zaman en uygun modeli temsil etmeyebilir. Modelin ağırlıklarını doğrulama metriğinin en yüksek olduğu noktada saklamak daha güvenilir bir değerlendirme sağlar.
+
+```python
+if validation_f1 > best_validation_f1:
+    best_validation_f1 = validation_f1
+    torch.save(
+        {
+            "model_state": model.state_dict(),
+            "config": run_config,
+            "epoch": epoch,
+        },
+        "best-checkpoint.pt",
+    )
+
+```
+
+Checkpoint dosyasına sadece ağırlıkları değil, hiperparametreleri ve epoch bilgisini de eklemek çıkarım (inference) aşamasına geçişi kolaylaştırır.
+
+## Kısa Notlar
+
+* Tensör boyutları, verinin modele beklenen biçimde verilmesi için doğru ayarlanmalıdır.
+* Forward pass sırasında model bir tahmin üretir, loss fonksiyonu ise bu tahminin gerçek değerden ne kadar saptığını ölçer.
+* Backpropagation, hatanın parametrelere nasıl dağıldığını hesaplar; optimizer da bu gradient bilgilerini kullanarak model parametrelerini günceller.
+* Öğrenme oranı (learning rate), modelin ne kadar büyük adımlarla öğrendiğini belirler ve eğitim sürecinin hızını ve kararlılığını etkiler.
+* Validation sonuçları, modelin eğitim sırasında görmediği verilere ne kadar iyi genelleme yapabildiğini anlamaya yardımcı olur.
+* Deneyleri tekrarlanabilir hale getirmek için kodu, seed değerlerini ve hiperparametreleri birlikte takip etmek faydalıdır.
+* Transfer learning, önceden eğitilmiş bir modelden yararlanarak iyi bir başlangıç sağlar; ancak hedef probleme uygunluğu ayrıca değerlendirilmelidir.
+* RNN, geçmiş bilgiyi sıralı olarak taşır ancak uzun dizilerde vanishing veya exploding gradient gibi sorunlar yaşayabilir.
+* LSTM ve GRU, kullandıkları gate yapıları sayesinde RNN'lerin uzun süreli bilgiyi koruma ve gradient sorunlarını azaltma konusunda daha başarılıdır.
+* Transformer, veriyi tamamen sıralı işlemek yerine attention mekanizmasıyla öğeler arasındaki ilişkileri doğrudan kurar. Bu yapı, özellikle eğitim sırasında daha fazla paralelleştirmeye olanak sağlar.
+
+## Kaynaklar
+
+### [PyTorch Tutorials](https://docs.pytorch.org/tutorials/)
+
+Tensör yapıları, eğitim döngüsü ve veri işlemlerini çalıştırılabilir örneklerle anlatan resmi PyTorch kaynaklarından biridir.
+
+### [Dive into Deep Learning](https://d2l.ai/)
+
+Teorik matematiksel sezgiler ile kod örneklerini bir araya getirerek özellikle temel mimarilerin anlaşılmasına odaklanır.
+
+### [CS231n: Deep Learning for Computer Vision](https://cs231n.github.io/)
+
+CNN'ler, geri yayılım, optimizasyon ve görsel öğrenme için kapsamlı ders notları sunar.
+
+### [Practical Deep Learning for Coders](https://course.fast.ai/)
+
+Baseline model kurulumu, transfer learning ve hızlı deney pratikleri açısından uygulama odaklı bir bakış açısı sağlar.

@@ -1,0 +1,274 @@
+---
+title: "Mathematics, Linear Algebra, and Statistics"
+slug: "mathematics-linear-algebra-and-statistics"
+order: 4
+description: "Core mathematics, linear algebra, and statistics concepts needed to understand AI models."
+tags: ["Functions", "Vectors", "Matrices", "Probability", "Statistics", "Gradient"]
+---
+
+## Overview
+
+**Mathematics** is the foundational language for understanding how AI and machine-learning models work. Numbers, ratios, functions, vectors, matrices, probability, and statistics are frequently used in data representation, optimization, and model-evaluation processes.
+
+In AI projects, mathematical knowledge is important less for memorizing formulas and more for interpreting results correctly. Understanding what a metric says, why two vectors are considered similar, or why a model tries to reduce its loss value is possible through these core concepts.
+
+This module covers number and ratio logic, functions, reading graphs, vectors, matrices, dot products, basic probability, mean, variance, and gradients. The focus is on gaining the core intuition needed in AI applications rather than advanced proofs.
+
+## Key Concepts
+
+### Numbers, Ratios, and Functions
+
+Many expressions in mathematics describe relationships between numbers. Concepts such as ratio, increase, decrease, mean, and change are frequently used when interpreting model results.
+
+A **function** maps an input to an output according to a rule. At their core, machine-learning models do the same: they transform an input into an output according to a learned rule.
+
+For example:
+
+```text
+f(x) = 2x + 1
+```
+
+This expression shows that the input `x` turns into an output according to a certain rule.
+
+### Vectors
+
+A **vector** can be thought of as an ordered sequence of numbers. In AI applications, a word, user, product, or part of an image is sometimes represented as a vector.
+
+For example, a simple three-dimensional vector:
+
+```text
+[2, 5, 1]
+```
+
+This structure represents three properties of an object together. The first intuition behind embeddings also relies on this idea.
+
+### Matrices
+
+A **matrix** is a rectangular arrangement of values or vectors. It is useful for representing multiple records together.
+
+For example:
+
+```text
+[
+  [1, 2],
+  [3, 4],
+  [5, 6]
+]
+```
+
+This structure can be read like a small data table with three rows and two features.
+
+In linear algebra, matrices do not only hold data; they also carry the idea of transformation.
+
+### Dot Product
+
+The **dot product** is one of the fundamental tools used to evaluate compatibility or directional similarity between two vectors.
+
+Simple example:
+
+```text
+[1, 2] · [3, 4] = 1*3 + 2*4 = 11
+```
+
+In AI applications, the dot product is used especially in similarity, score generation, and attention logic.
+
+### Matrix Multiplication
+
+**Matrix multiplication** can be understood as applying a transformation to data. This idea is important for gaining an initial understanding of neural-network layers.
+
+Without going into too much detail, this logic is sufficient:
+
+* The input can be a vector.
+* Weights can be thought of as a matrix.
+* The output becomes a new numerical representation.
+
+For this reason, linear algebra plays a fundamental role in understanding information flow inside a model.
+
+### Probability
+
+**Probability** expresses how possible an event is. This logic is very important when interpreting model results in AI and statistics applications.
+
+Probability is generally between 0 and 1:
+
+* 0 represents impossibility.
+* 1 represents certainty.
+
+For example, if a classification model gives an example a probability of 0.92, it can indicate that the model assigns high probability to that class. However, this value does not mean absolute correctness.
+
+### Mean
+
+The **mean** is used to see the general center of a data group. It is frequently encountered in data analysis and when summarizing model results.
+
+For example:
+
+```text
+80, 90, 70
+```
+
+The mean of these numbers is:
+
+```text
+(80 + 90 + 70) / 3 = 80
+```
+
+The mean shows the general level, but it does not explain by itself how scattered the data is.
+
+### Variance
+
+**Variance** shows how far values deviate from the mean. In other words, it expresses how spread out the data is.
+
+Two data groups can have the same mean, but one can be very regular while the other is very scattered. Variance intuition is important for seeing this difference.
+
+At the first stage, this intuition is enough:
+
+* Low variance: Values are closer to one another.
+* High variance: Values are more scattered.
+
+### Standard Deviation
+
+**Standard deviation** is a more easily interpreted form of variance. It shows more intuitively how widely data is spread around the mean.
+
+Standard deviation is frequently seen in data analysis and model evaluation. For this reason, knowing its basic meaning is important.
+
+### Distribution Intuition
+
+In statistics, not only individual numbers but also how numbers are distributed matters. Some data gathers in a particular region, some spreads over a wide area, and some is imbalanced.
+
+This perspective is especially important for:
+
+* Understanding data quality
+* Noticing outliers
+* Interpreting the balance of model outputs
+
+### Gradients and Optimization
+
+A gradient shows in which direction a function increases or decreases. In machine learning, the goal is to find the direction that reduces loss.
+
+For this reason, the following idea stands out in optimization logic:
+
+* A model produces an error.
+* This error is measured with a loss function.
+* Parameters are updated in the direction that reduces loss.
+
+This is the basic intuition of gradient descent. At the first stage, understanding the idea that “the model tries to reduce error” is enough rather than memorizing formulas.
+
+### Metrics and Uncertainty
+
+A model's result is not enough on its own; how that result is evaluated also matters. Metrics such as accuracy, precision, and recall are used for this reason.
+
+Likewise, how reliable a result is or how much variation it contains matters. Statistics teaches us not to interpret results too definitively.
+
+## How It Works
+
+AI models often turn inputs into numerical representations. For this reason, vector and matrix intuition becomes a core tool for understanding information flow inside a model. An embedding vector, a weight matrix, or an output score are different appearances of this mathematical language.
+
+Statistics shows how reliably data and results can be interpreted. Concepts such as mean, variance, and distribution are not only academic; they are also used while examining a dataset, interpreting model output, and considering margin of error.
+
+The core idea in optimization is this: a model is not good at first, but it tries to improve by measuring error and updating its parameters. Gradient and loss functions are used to explain this process.
+
+The goal of this module is not to memorize every formula. When seeing a formula, the aim is to distinguish whether it describes similarity, transformation, summary information, or error-reduction logic.
+
+## Code Examples
+
+This section aims to show the code counterpart of mathematical concepts through simple examples.
+
+### Calculating the Mean
+
+```python
+scores = [80, 90, 70, 60]
+
+average = sum(scores) / len(scores)
+
+print(average)
+```
+
+This example finds the general center of a data group.
+
+### Vector Addition
+
+```python
+import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+result = a + b
+
+print(result)
+```
+
+This example shows element-wise addition of two vectors.
+
+### Dot Product
+
+```python
+import numpy as np
+
+a = np.array([1, 2])
+b = np.array([3, 4])
+
+result = np.dot(a, b)
+
+print(result)
+```
+
+This structure shows the fundamental multiplication relationship between two vectors.
+
+### Variance and Standard Deviation
+
+```python
+import numpy as np
+
+values = np.array([80, 90, 70, 60])
+
+print(np.var(values))
+print(np.std(values))
+```
+
+This structure is a basic example for seeing how spread out data is.
+
+### A Simple Linear Function
+
+```python
+def linear_function(x: float) -> float:
+    return 2 * x + 1
+
+
+print(linear_function(3))
+```
+
+This example is one of the simplest structures for thinking about the model idea through a function.
+
+## Quick Notes
+
+* A function defines the relationship between an input and an output.
+* A vector can be thought of as an ordered structure of numbers.
+* A matrix arranges numbers in rows and columns and can represent multiple vectors together.
+* Matrix multiplication is especially important for understanding transformations and computations in neural networks.
+* The mean gives a rough indication of the center of a data group.
+* Variance measures how widely values are spread around the mean.
+* Standard deviation is easier to interpret because it expresses the spread of the data in the same units as the data.
+* Probability expresses the likelihood that an event will occur.
+* A probability distribution shows how possible values and their probabilities are distributed.
+* A gradient shows the direction and rate at which a function changes.
+* Optimization is the process of finding parameters that reduce a model's error or improve its objective function.
+* Metrics are used to measure a model's performance and evaluate its results.
+
+Mathematics is not an end in itself in machine learning; it is one of the fundamental tools for understanding how models work, why they make errors, and how they can be improved.
+
+#### Additional Topics
+
+* Conditional probability expresses the probability that an event will occur given that another event has occurred.
+* Bayes' theorem allows us to update existing probabilities when new information becomes available.
+* Correlation shows how two variables change together and the direction of their relationship.
+* Normal distribution is one of the fundamental probability distributions encountered approximately in many natural and statistical processes.
+
+## Resources
+
+### [3Blue1Brown — Essence of Linear Algebra](https://www.3blue1brown.com/lessons/essence-of-linear-algebra)
+
+A resource that explains linear algebra not only through symbols, but through visual intuition. It provides a good starting point for vectors, matrices, and transformation logic.
+
+### [NumPy Documentation](https://numpy.org/doc/stable/)
+
+A practical reference for seeing vectors, matrices, and basic numerical operations in code. It connects theory with small examples.

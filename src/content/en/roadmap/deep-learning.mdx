@@ -1,0 +1,314 @@
+---
+title: "Deep Learning"
+slug: "deep-learning"
+order: 6
+description: "The foundations of neural networks, the training loop, and RNN, GRU, LSTM, and Transformer architectures."
+tags: ["Tensors", "Neural Networks", "Forward Pass", "Softmax", "Backpropagation", "Generalization"]
+---
+
+## Overview
+
+**Deep Learning** is an area of machine learning that focuses on learning meaningful features and patterns from data with multi-layer neural networks. In complex data types such as images, audio, text, and time series, the goal is for a model to learn these structures during training rather than relying on classical feature extraction.
+
+In AI systems, deep learning forms the basis of many modern approaches, including computer vision, natural language processing, and generative AI.
+
+For this reason, when developing a model, it is useful to evaluate the tensor structure, training loop, loss value, gradients, and validation results rather than focusing only on architecture.
+
+This module covers:
+
+* Tensor and Dimension Checks
+* Neural Networks and CNNs
+* Layers, Parameters, and the Forward Pass
+* Activation Functions and Softmax
+* Loss Functions, Evaluation Metrics, and Backpropagation
+* Optimization, Learning Rate, Batches, and Epochs
+* Generalization, Validation, and Regularization
+
+It then introduces RNN, GRU, LSTM, and Transformer architectures.
+
+## Key Concepts
+
+### Neural Networks
+
+An **Artificial Neural Network** is a model that produces an output by transforming input through layers. Every connection has a learnable weight; during training, these weights are updated to bring the model prediction closer to the target. As the number and structure of hidden layers increase, a network can represent more complex relationships.
+
+<NeuralNetworkDiagram />
+
+### Tensors and Dimensions
+
+A **Tensor** is essentially a multidimensional numerical array. A single number is a zero-dimensional scalar, a feature vector is one-dimensional, familiar tabular data is two-dimensional, and a group of color images is frequently represented as a four-dimensional tensor.
+
+For example, in PyTorch, a batch of images is often in `[batch, channel, height, width]` order. A group of 32 examples with 3 color channels and 224x224 pixels has the shape `[32, 3, 224, 224]`. A text batch is generally handled as `[batch, sequence_length]`, or as `[batch, sequence_length, embedding_size]` after embedding.
+
+A dimension error is not only a technical inconvenience; it shows that the data format the model expects and the format supplied do not match. Before training, selecting a random batch and printing data types and dimensions speeds up debugging.
+
+### Layers, Parameters, and Forward Pass
+
+A **Layer** is a building block that transforms input into a new and more meaningful representation. Linear, convolutional, attention, and normalization layers apply different transformations. The weight and bias values a model tries to learn are called **Parameters**.
+
+During a **Forward Pass**, input passes through the model and a prediction is produced. A model may not make accurate predictions at first; the main goal of the training loop is to bring this prediction closer to the target by updating parameters.
+
+### Activation Functions
+
+An **Activation Function** adds a non-linear transformation to a layer's linear output. Without this transformation, even if multiple linear layers are stacked, the network ultimately reduces to a single linear transformation and cannot learn complex relationships.
+
+* **ReLU:** Zeros negative values and keeps positive values. It is a common and fast starting choice in hidden layers.
+* **Sigmoid:** Moves a value between 0 and 1. It can be used to interpret a single output probability in binary classification.
+* **Softmax:** Turns output values for multiple classes into probabilities that sum to 1.
+
+Which activation a model output uses depends on the problem and loss function. For example, `CrossEntropyLoss` in PyTorch works with raw classification scores (`logits`), so `softmax` is not added separately to the model during training.
+
+```python
+import torch
+
+logits = torch.tensor([[2.4, 0.7, -1.1]])
+probabilities = torch.softmax(logits, dim=1)
+
+print(probabilities)
+```
+
+In this example, `softmax` turns raw scores for three classes into probabilities that sum to 1. During training, the same `logits` values are passed directly to `CrossEntropyLoss`; `softmax` is used more for interpreting prediction probabilities or showing them to a user.
+
+### Loss Functions and Evaluation Metrics
+
+A **Loss Function** is the training signal that an optimization algorithm tries to reduce mathematically. MSE for regression and cross-entropy for classification are common examples. An **Evaluation Metric** is used to interpret the business outcome: accuracy, F1 score, or MAE, for example.
+
+A loss function and evaluation metric do not have to be the same. Loss is chosen because it is suitable for optimization; the evaluation metric reflects the problem's success criterion. Recording both during training is useful.
+
+In classification models, model output is usually raw `logits`, not probability. `CrossEntropyLoss` in PyTorch applies both `softmax` and `log` internally. For this reason, adding an extra `softmax` to the model's final layer can cause loss calculation to receive an incorrect signal with softmax applied twice. It is more appropriate to calculate probability values in a separate step only when a prediction score will be shown.
+
+### Backpropagation, Optimization, and Learning Rate
+
+**Backpropagation** determines, as gradients, how the calculated loss should change for every parameter. An **Optimizer** uses these gradients to update parameters. SGD and Adam are common examples.
+
+The **Learning Rate** represents the size of an update step. If it is too high, training can become unstable; if it is too low, progress can slow down or the model can get stuck at a weak point. For this reason, reading the loss curve rather than looking only at the final score is instructive for understanding model behavior.
+
+### Batches, Epochs, and Generalization
+
+A **Batch** is the group of examples processed in a single update. An **Epoch** is one pass of the entire training data through the model. However, if an incomplete final batch is skipped with a setting such as `drop_last=True`, not all data but only the portion evenly divisible by batch size is used in that epoch. This is a detail to consider especially in small datasets.
+
+Batch Normalization is one of the layers whose training and evaluation behavior differs. During training, it normalizes input by using statistics from the current batch and accumulates a moving average of these statistics. During evaluation, it relies not on the current batch but on this accumulated overall average. For this reason, `model.train()` is expected in training and `model.eval()` in evaluation.
+
+If training loss falls while validation loss rises as the number of epochs increases, the model may have started to overfit. In that case, stop training or review the regularization settings. The Machine Learning module explains train/validation/test splitting; here, make the decision from the model's training and validation curves.
+
+### Convolutional Neural Networks (CNNs)
+
+Convolutional Neural Networks (CNNs) are networks designed especially to learn local patterns in images. Because they search for the same small patterns in different regions of an image, they work more efficiently on image data than structures that handle every pixel independently.
+
+* **Convolutional Layer:** Extracts local patterns by moving small windows over an image.
+* **Filter/Kernel:** A learned pattern finder for edges, textures, or more complex shapes.
+* **Feature Map:** Output that shows in which regions of an image a filter responds strongly.
+* **Pooling:** Summarizes a feature map to reduce size and computational cost.
+
+Early layers usually capture simple details such as edges and texture; deeper layers represent more abstract structures such as object parts and objects. The Computer Vision module covers applications of this architecture such as image classification, object detection, segmentation, data augmentation, and transfer learning.
+
+### Transfer Learning
+
+**Transfer Learning** is the approach of adapting features learned by a model pretrained on a large and general dataset to a new problem. A model's early layers can be frozen because they generally carry general information such as edges, texture, or basic patterns; layers closer to the task are retrained with target data. The more similar source and target data are, the more efficiently the learned representation can be used.
+
+### RNN, GRU, and LSTM
+
+The Recurrent Neural Network (RNN) family processes sequential data step by step and passes information from the past to the next step through the hidden state it carries. It was designed for data such as text, time series, and audio.
+
+In an RNN, backpropagation flows backward through time steps with the chain rule. Repeatedly multiplying gradients by the same weight matrix at every step can make learning from the distant past difficult or training unstable. These problems are known as vanishing and exploding gradients.
+
+GRU and LSTM structures alleviate this problem by controlling how much information is retained through special gates. Because GRU uses fewer parameters, it is computationally lighter. One of the healthiest ways to understand which architecture performs better on a particular task is to run comparative experiments with the same data and budget.
+
+In sequence models, input is generally in `[batch, sequence_length, feature_size]` format. Variable-length sequences require padding and masking. In sequences containing padding, directly using the final time step can cause a model to learn from padding rather than real data. This risk is addressed in the code examples.
+
+### Attention and Transformer Architecture
+
+The Transformer approach behind modern LLMs was introduced in the 2017 paper **Attention Is All You Need** by Google researchers. The attention mechanism at the center of the paper allows a token to look directly at other tokens in a sequence while forming its representation. In this respect, it differs from the RNN family, which processes a sequence step by step.
+
+The Transformer architecture combines this approach with multi-head attention, feed-forward layers, residual connections, and normalization. Sequence information is added to the model through positional encoding.
+
+Encoder structures focus on understanding input (for example, BERT), while decoder structures focus on producing the next token (for example, GPT). Models that combine the two are preferred for translation and summarization tasks. The aim of this section is not to enter every detail of the LLM world, but to provide a foundation for Transformer concepts used in later modules.
+
+## How It Works
+
+A deep-learning model works through this flow:
+
+1. An input batch is prepared and converted to the tensor format expected by the model.
+2. Input passes through layers and activation functions and turns into a prediction during the forward pass.
+3. Loss is calculated by comparing the prediction and actual target.
+4. Backpropagation calculates the gradient of loss with respect to parameters.
+5. The optimization algorithm updates parameters; the process repeats across batches.
+6. At the end of every epoch, the model is measured on validation data. This stage makes it possible to monitor the model's generalization behavior on new data.
+
+The stable operation of this loop depends on numerical correctness as much as data. Appropriate initial values, data normalization, and a sensible learning-rate schedule make training more balanced.
+
+To reduce overfitting, methods such as **dropout, weight decay, and data augmentation** or **early stopping** can be tried. Compare their effects by reviewing validation results together.
+
+Moving from simple to complex makes experiments easier to compare. Start with a simple RNN, then try a GRU or LSTM when gradient stability matters. If sequences are very long and relationships between words are critical, evaluate a Transformer. Base architecture decisions on performance, memory, and hardware cost—not novelty alone.
+
+## Code Examples
+
+### Validating a Batch
+
+```python
+batch = next(iter(train_loader))
+
+print(batch["x"].shape)
+print(batch["y"].shape)
+print(batch["x"].dtype)
+```
+
+This basic check makes it possible to notice structural errors in the data flow early before starting model development. Alongside printing tensor shapes for inputs such as images or text, examining examples visually is also useful.
+
+### Applying a Training Step Manually
+
+```python
+model.train()
+
+for batch in train_loader:
+    x = batch["x"].to(device)
+    y = batch["y"].to(device)
+
+    optimizer.zero_grad()
+    logits = model(x)
+    loss = loss_fn(logits, y)
+    loss.backward()
+    optimizer.step()
+```
+
+Using `model.train()` enables training behavior in layers such as dropout and batch normalization. This block forms the basic structure of the training loop.
+
+### Validation Loop
+
+```python
+model.eval()
+total_loss = 0.0
+correct = 0
+count = 0
+
+with torch.no_grad():
+    for batch in validation_loader:
+        x = batch["x"].to(device)
+        y = batch["y"].to(device)
+        logits = model(x)
+        total_loss += loss_fn(logits, y).item() * len(y)
+        correct += (logits.argmax(dim=1) == y).sum().item()
+        count += len(y)
+
+print("validation_loss:", total_loss / count)
+print("validation_accuracy:", correct / count)
+```
+
+Calling `model.eval()` during evaluation and disabling gradient calculation with `torch.no_grad()` reduces memory use. For classification, `logits.argmax(dim=1)` works directly on raw scores; because prediction order does not change, there is no need to apply softmax separately.
+
+### A Sequence Model with RNN, GRU, and LSTM
+
+```python
+import torch.nn as nn
+
+class SequenceClassifier(nn.Module):
+    def __init__(self, input_size, hidden_size, class_count, cell="lstm"):
+        super().__init__()
+        cells = {"rnn": nn.RNN, "gru": nn.GRU, "lstm": nn.LSTM}
+        self.encoder = cells[cell](input_size=input_size, hidden_size=hidden_size, batch_first=True)
+        self.classifier = nn.Linear(hidden_size, class_count)
+
+    def forward(self, x, lengths):
+        # Pack lets the encoder process only real tokens in padded sequences.
+        packed = nn.utils.rnn.pack_padded_sequence(x, lengths.cpu(), batch_first=True, enforce_sorted=False)
+        _, hidden = self.encoder(packed)
+        if isinstance(hidden, tuple):  # LSTM returns (h_n, c_n)
+            last_hidden = hidden[0][-1]
+        else:  # RNN and GRU return only h_n
+            last_hidden = hidden[-1]
+        return self.classifier(last_hidden)
+```
+
+Selecting the final item directly in padded sequences can make the model base its decision on padding values. `pack_padded_sequence` prevents this by returning the hidden state appropriate to every sequence's real length.
+
+### Attention Mask
+
+```python
+print("input shape:", input_ids.shape)
+print("mask shape:", attention_mask.shape)
+print("valid tokens:", attention_mask.sum(dim=1))
+```
+
+Allowing padding tokens into attention calculations can distort text representations. Before training, verify that the mask matches the batch and sequence dimensions.
+
+### Recording Configuration
+
+```python
+run_config = {
+    "model": "small-cnn",
+    "learning_rate": 3e-4,
+    "batch_size": 32,
+    "epochs": 12,
+    "seed": 42,
+}
+```
+
+To make training results reproducible, it is useful to record data version, model architecture, seed value, and hyperparameters systematically.
+
+### Reproducibility and Randomness
+
+Small differences can occur between experiments because of random initialization, data-shuffle order, and hardware operations. Fixing the seed value minimizes this variation and makes experiments more reliable.
+
+```python
+import random
+import numpy as np
+import torch
+
+def set_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+```
+
+Testing training stability with different seed values can be used to verify that the model did not achieve a result by chance.
+
+### Model Checkpoint and Selection
+
+The final epoch may not always represent the best model. Saving model weights at the point where the validation metric is highest provides a more reliable evaluation.
+
+```python
+if validation_f1 > best_validation_f1:
+    best_validation_f1 = validation_f1
+    torch.save(
+        {
+            "model_state": model.state_dict(),
+            "config": run_config,
+            "epoch": epoch,
+        },
+        "best-checkpoint.pt",
+    )
+```
+
+Adding not only weights but also hyperparameters and epoch information to a checkpoint file makes moving to inference easier.
+
+## Quick Notes
+
+* Tensor dimensions must be set correctly so data is provided to the model in the expected format.
+* During a forward pass, the model produces a prediction, while the loss function measures how far that prediction is from the true value.
+* Backpropagation calculates how error is distributed across parameters; the optimizer then uses this gradient information to update model parameters.
+* The learning rate determines how large the model's learning steps are and affects the speed and stability of training.
+* Validation results help determine how well a model can generalize to data it did not see during training.
+* To make experiments reproducible, track the code, seed values, and hyperparameters together.
+* Transfer learning provides a strong starting point by leveraging a pretrained model; however, its suitability for the target problem should be evaluated separately.
+* An RNN carries past information sequentially, but it can experience issues such as vanishing or exploding gradients in long sequences.
+* LSTMs and GRUs use gate structures to better preserve long-term information and reduce RNN gradient problems.
+* A Transformer does not process data strictly sequentially; instead, it directly models relationships between elements through attention. This structure enables greater parallelization, especially during training.
+
+## Resources
+
+### [PyTorch Tutorials](https://docs.pytorch.org/tutorials/)
+
+One of PyTorch's official resources for learning about tensor structures, training loops, and data operations through runnable examples.
+
+### [Dive into Deep Learning](https://d2l.ai/)
+
+Focuses on understanding core architectures by bringing together theoretical mathematical intuition and code examples.
+
+### [CS231n: Deep Learning for Computer Vision](https://cs231n.github.io/)
+
+Provides comprehensive lecture notes for CNNs, backpropagation, optimization, and visual learning.
+
+### [Practical Deep Learning for Coders](https://course.fast.ai/)
+
+Offers an application-focused perspective on building baseline models, transfer learning, and rapid experiment practices.

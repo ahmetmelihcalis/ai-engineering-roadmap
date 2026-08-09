@@ -1,0 +1,379 @@
+---
+title: "Keşifsel Veri Analizi (EDA)"
+slug: "kesifsel-veri-analizi"
+order: 3
+description: "Modellemeye hazır veri setleri için keşifsel veri analizi, veri profilleme, veri kalitesi kontrolleri, görselleştirme ve temel raporlama."
+tags: ["Veri Şeması", "ETL", "Pandas ve NumPy", "Matplotlib", "Eksik Değerler", "Outliers", "Data Leakage"]
+---
+
+## Genel Bakış
+
+**Keşifsel Veri Analizi (EDA)**, bir veri setinin yapısını, kapsamını, kalitesini, dağılımlarını ve olası risklerini modelleme öncesinde inceleme sürecidir. Amaç yalnızca grafik üretmek değil; verinin hangi sorulara cevap verebileceğini, hangi varsayımlarla toplandığını ve hangi noktalarda yanıltıcı olabileceğini anlamaktır.
+
+Yapay zeka ve makine öğrenmesi projelerinde EDA, model geliştirme kararlarının temelini oluşturur. Bir satırın neyi temsil ettiği, hedef değişkenin hangi anda oluştuğu, sütunların tahmin anında gerçekten erişilebilir olup olmadığı ve verinin hangi kullanıcıları ya da zaman dilimini kapsadığı bu aşamada netleştirilir.
+
+Veri tipleri, eksik değerler, tekrar eden kayıtlar, sınıf dengesizliği, zaman akışı ve data leakage gibi konular doğru incelenmezse model performansı güvenilir biçimde yorumlanamaz. Bu yüzden EDA, model kurmadan önce verinin güvenilirliğini ve modelleme için taşıdığı riskleri görünür hale getiren bir kontrol katmanı gibi düşünülebilir.
+
+EDA aynı zamanda verinin kaynaktan alınıp tekrarlanabilir biçimde modellemeye hazır hale getirilmesine dayanır. Bu modülde temel ETL akışı; ham veriyi koruma, dönüşümleri doğrulama ve işlenmiş çıktıyı ayrı tutma açısından ele alınır.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Veri Boyutu ve Şeması
+* Pandas ve NumPy ile Veri İnceleme
+* Eksik Değerler
+* Outliers (Aykırı Değerler)
+* Dağılımlar
+* Matplotlib ve Seaborn ile Görselleştirme
+* Korelasyon
+* Segment Analizi
+* Data Leakage
+* Temel ETL Akışı ve Tekrarlanabilir Veri Hazırlama
+
+Ayrıca EDA bulgularının modelleme kararlarına nasıl dönüştürüleceği pratik örneklerle ele alınacaktır.
+
+## Temel Kavramlar
+
+### Veri Boyutu ve Şeması
+
+İlk olarak veri setinin boyutuna ve **Veri Şeması**na bakılır. `shape`, satır ve sütun sayısını gösterir; beklenmedik bir değer eksik aktarım, tekrarlanan kayıt veya yanlış birleştirme gibi sorunlara işaret edebilir.
+
+Ardından sütunların anlamı ve veri türleri incelenir. `customer_id` sayısal olsa da model için anlamlı bir büyüklük değildir; `signup_date` metin olarak gelmişse tarih bilgisini kullanmadan önce dönüştürülebilir.
+
+Sütunları kimlik, özellik, hedef ve zaman alanları olarak ayırmak, sonraki adımları netleştirmeyi kolaylaştırır. Kimlik alanları çoğu zaman modele doğrudan verilmez; hedef alan tahmin edilmek istenen sonucu temsil eder. Zaman alanları ise feature engineering için kullanılabilir ve geleceğe ait bilgi içeriyorsa data leakage riski yaratabileceğinden dikkatle değerlendirilebilir. Kategorik ve metin alanları da modelleme öncesinde uygun biçimde dönüştürülebilir.
+
+### Pandas ve NumPy ile Veri İnceleme
+
+EDA'da günlük işin büyük kısmı **pandas** ile yapılır. `DataFrame`, tablo verisini satır ve kolonlarla incelemeyi; filtreleme, gruplama, eksik değer analizi ve CSV gibi dosyaları okumayı kolaylaştırır. Bu modüldeki `head`, `info`, `describe`, `value_counts`, `groupby` ve tarih dönüşümü örnekleri pandas kullanımına dayanır.
+
+**NumPy** ise sayısal diziler ve vektörel hesaplamalar için temel kütüphanedir. Pandas sayısal işlemlerin önemli bölümünde NumPy üzerinde çalışır; **NaN**, maskeleme, yüzde değerleri, quantile hesapları (veriyi belirli yüzdelik dilimlere ayıran eşikler) ve sayısal koşulları açık biçimde kurmak gerektiğinde NumPy özellikle kullanışlıdır. Başlangıçta her işlemi NumPy ile yazmak gerekmez: tabloyu anlamak için pandas, saf sayısal hesap veya array işlemi için NumPy seçmek daha okunabilir bir akıştır.
+
+### Eksik Değerler ve Veri Kalitesi
+
+**Eksik Değer** her zaman temiz bir **NaN** olarak görünmez. Boş string, `"unknown"`, `-1`, `0` veya `N/A` gibi değerler de iş bağlamına göre eksiklik anlamına gelebilir. Bu yüzden eksikliği yalnızca kodla sayılan teknik bir sorun olarak değil, o alanın anlamıyla birlikte yorumlamak daha doğru olur.
+
+Bir kolondaki eksiklik farklı nedenlerden kaynaklanabilir: Sistem o veriyi hiç ölçmemiş olabilir, bilgi bilinmiyor olabilir veya o alan, ilgili kayıt için geçerli olmayabilir. Örneğin; kredi kartı kullanmayan bir müşterinin "kart limiti" alanının boş olması ile sistem kesintisi nedeniyle "sıcaklık" bilgisinin gelmemesi farklı durumlardır ve aynı yöntemle doldurmak her zaman uygun olmayabilir.
+
+**Veri Kalitesi** sadece eksiklerden ibaret değildir. Tekrar eden satırları, beklenmedik kategorileri, mantıksız sayı aralıklarını ve tip dönüşüm sorunlarını da kapsar. Örneğin yaş kolonunda `-4` veya `900` gibi bir değer görülüyorsa, modeli eğitmeden önce veri toplama sürecindeki sızıntı veya hata sorgulanabilir.
+
+### Outliers (Aykırı Değerler)
+
+**Outlier**, verinin geri kalanından ciddi şekilde sapan alışılmadık bir değerdir. Ancak her outlier hata değildir. Tutarı çok yüksek bir işlem bir sahtecilik sinyali olabilirken; başka bir değer sadece içerideki bir test hesabından gelmiş olabilir. Doğru yaklaşım bu değerleri otomatik olarak silmek değil, kaynağını ve iş açısından ne ifade ettiğini anlamaktır.
+
+### Dağılımlar
+
+**Dağılım**, bir değişkenin aldığı değerlerin nasıl yayıldığını gösterir. Yalnızca ortalama değerine bakmak çoğu zaman yanıltıcı olabilir; medyan, minimum, maksimum, quantile değerleri ve histogram daha net bir tablo sunar. Gelir, işlem tutarı veya web sitesinde geçirilen süre gibi alanlarda sağa doğru uzayan çarpık dağılımlar görmek normaldir.
+
+### Matplotlib ve Seaborn ile Görselleştirme
+
+Tablo özetleri tek başına yeterli olmayabilir; dağılımdaki yığılmaları, outlier'ları ve gruplar arasındaki farkları grafik üzerinde görmek daha kolaydır. **Matplotlib** grafiğin temel iskeletini ve ayrıntılı özelleştirmeyi sağlar. **Seaborn** ise Matplotlib üzerinde çalışır; dağılım, kategorik karşılaştırma ve değişken ilişkileri için daha kısa ve okunaklı bir arayüz sunar.
+
+Grafik bir sonuç değil, soru sorma aracıdır. Örneğin histogram ile “değerler hangi aralıkta yoğunlaşıyor?”, kutu grafiği ile “hangi grupta outlier daha fazla?”, saçılım grafiği ile “iki sayısal değişken birlikte nasıl hareket ediyor?” soruları araştırılabilir.
+
+### Korelasyon
+
+**Korelasyon**, iki değişkenin birlikte artma veya azalma eğilimidir; ancak bu "biri diğerinin nedenidir" demek değildir. Çok yüksek korelasyon gösteren iki değişken bulunduğunda, bunlar aynı iş sürecinden beslenen veya birbirini tekrar eden özellikler olabilir. Bu tür bulgular yeni hipotez üretmek için kullanılabilir, ancak kesin bir yargıya varmak için tek başına yeterli değildir.
+
+### Segment Analizi
+
+**Segment Analizi**, genel tablonun alt gruplara inildiğinde nasıl değiştiğini gösterir. Genel müşteri kaybı oranı %5 gibi dengeli görünebilir; ancak sadece yeni kayıt olan kullanıcılar veya spesifik bir ülke incelendiğinde bu oran belirgin biçimde farklılaşabilir. Bu nedenle önemli metrikleri kanal, zaman, kullanıcı tipi veya ürün bazında da incelemek yararlı olur.
+
+### Data Leakage
+
+EDA'da **Data Leakage**, tahmin anından sonra oluşan bilgiyi modele girdi olarak kullanma riskidir; örneğin iptalden sonra açılan bir şikayet kaydı müşteri kaybı tahmininde özellik olamaz. Eğitim/test ayrımı ve ön işleme kaynaklı leakage'in genel çerçevesi Makine Öğrenmesi modülündedir.
+
+### ETL ve Tekrarlanabilir Veri Akışı
+
+**ETL (Extract, Transform, Load)**; veriyi bir kaynaktan alma, analiz veya modelleme için dönüştürme ve işlenmiş çıktıyı ayrı bir hedefe yazma akışıdır.
+
+* **Extract:** CSV, API veya veritabanı gibi kaynaklardan veriyi almak.
+* **Transform:** Kolon adlarını standartlaştırmak, veri türlerini dönüştürmek, eksik değerleri ve tekrarları incelemek, gerekli birleştirmeleri yapmak.
+* **Load:** Doğrulanmış çıktıyı analiz ya da modelleme için kullanılacak ayrı bir dosyaya veya tabloya yazmak.
+
+EDA bağlamında temel ilke ham veriyi değiştirmemektir. Ham kaynak korunur; dönüştürülmüş veri ham kaynaktan ayrı tutulur. Böylece aynı akış tekrar çalıştırılabilir, dönüşümler izlenebilir ve modelleme öncesi sorunlar erken yakalanabilir.
+
+Bu modül ETL altyapılarını (Airflow, dbt veya streaming gibi) ayrıntılı biçimde ele almaz. Bunun yerine, küçük bir veri akışının şema kontrolüyle nasıl daha güvenli hale getirilebileceğini gösterir.
+
+## Çalışma Mantığı
+
+EDA'yı tek seferlik bir kod bloğu olarak görmek yerine, küçük bir araştırma döngüsü olarak düşünmek süreci daha verimli kılar:
+
+Verinin amacı ve tek bir satırın tam olarak neyi temsil ettiği tanımlanır: müşteri, sipariş veya günlük özet gibi.
+
+Şema, verinin kapsamı ve genel kalite kontrol edilir. Eksikler ve tekrar eden kayıtlar ayrıca not edilir.
+
+Değişkenlerin dağılımları ve segment kırılımları incelenir.
+
+Çıkan sonuçlara göre hipotezler yazılır ve veriyle bu hipotezler doğrulanır veya çürütülür.
+
+Probleme dair kararlar, riskler ve ucu açık sorular bir araya getirilip raporlanır.
+
+İlk aşamada "Bu satır neyi temsil ediyor?" sorusu ele alınır. Eğer aynı kullanıcı veri setinde birden fazla satırda yer alıyorsa, standart bir rastgele train/test ayrımı aynı kişinin bazı kayıtlarını eğitime bazılarını teste koyabilir. Bu da modelin o kişiyi ezberlemesine ve leakage oluşmasına yol açar. Zaman serisi içeren verilerde ise train/test ayrımını geçmişten geleceğe doğru yapmak daha uygun olur.
+
+EDA bulgularını modelin çıkarımlarından ayrı değerlendirmek faydalı olur. "Bu kolon churn ile ilişkili görünüyor" bir gözlemdir. "Bu kolon churn oranını artırır" ise nedensel bir iddiadır; A/B testi, alan bilgisi veya nedensel analiz gibi ek kanıt gerektirir.
+
+İyi bir EDA süreci her ihtimali deneyip çok sayıda grafik üretmekten ibaret değildir. Soruları daraltır, alınacak modelleme kararlarını netleştirir ve gereksiz denemelerin önüne geçerek süreci daha verimli hale getirir.
+
+## Kod Örnekleri
+
+### Pandas ile Veriye İlk Bakış
+
+```python
+import pandas as pd
+
+df = pd.read_csv("customers.csv")
+
+print("First rows:")
+print(df.head())
+print("Last rows:")
+print(df.tail(3))
+print("Shape:", df.shape)
+print("Columns:", df.columns.tolist())
+print("Data types:")
+print(df.dtypes)
+
+df.info()
+
+summary = df.describe(include="all").transpose()
+missing_rate = df.isna().mean().sort_values(ascending=False)
+
+print(summary)
+print(missing_rate.head(10))
+
+```
+
+`head()` ve `tail()` örnek kayıtları görmeyi sağlar; `shape`, kolon listesi ve `info()` ise veri setinin teknik çerçevesini hızlıca ortaya çıkarır. `describe(include="all")` hem sayısal hem de kategorik kolonlar için özet sunar. Bu çıktı, nihai analizden çok veriye dair yeni sorular (Örn: "Neden max yaş 999?") üretmek için bir başlangıç noktası olarak görülebilir.
+
+### Kategorik Kolonları Pandas ile Profil Çıkarma
+
+```python
+plan_profile = (
+    df["plan_type"]
+    .fillna("<missing>")
+    .value_counts(dropna=False)
+    .rename_axis("plan_type")
+    .reset_index(name="row_count")
+)
+
+print("Distinct plan count:", df["plan_type"].nunique(dropna=True))
+print(plan_profile.head(10))
+```
+
+`value_counts()` yazım farklarını, beklenmedik kategorileri ve nadir değerleri görünür hale getirir. Çok yüksek sayıda farklı değere sahip bir kolonun müşteri kimliği, serbest metin veya yanlış parse edilmiş bir alan olup olmadığı ayrıca sorgulanabilir.
+
+### NumPy ile Sayısal Kalite Kontrolü
+
+```python
+import numpy as np
+
+numeric_spend = pd.to_numeric(df["monthly_spend"], errors="coerce")
+monthly_spend = numeric_spend.to_numpy()
+
+missing_rate = np.isnan(monthly_spend).mean()
+valid_spend = monthly_spend[
+    (~np.isnan(monthly_spend)) & (monthly_spend >= 0)
+]
+
+print("Missing or non-numeric rate:", missing_rate)
+
+if valid_spend.size == 0:
+    print("No valid non-negative spending values were found.")
+else:
+    p01, p99 = np.quantile(valid_spend, [0.01, 0.99])
+
+    print("Minimum:", np.min(valid_spend))
+    print("Median:", np.median(valid_spend))
+    print("1st and 99th percentiles:", [p01, p99])
+
+    extreme_spend = df.loc[
+        numeric_spend.gt(p99),
+        ["customer_id", "monthly_spend", "plan_type"],
+    ]
+    print(extreme_spend.head())
+```
+
+Burada pandas, kolonu güvenli biçimde sayısala dönüştürmek ve ilgili satırları seçmek için; NumPy ise **NaN** değerlerini hesaba katmadan quantile eşiği bulmak için kullanılır. Geçerli, negatif olmayan değer yoksa örnek istatistik hesaplamayı atlayıp durumu bildirir. Eşik üstündeki kayıtlar otomatik silinmez; önce test verisi veya gerçek yüksek değer olup olmadığı incelenir.
+
+### Eksik Değerleri Pandas ile İnceleme
+
+```python
+missing_summary = pd.DataFrame(
+    {
+        "missing_count": df.isna().sum(),
+        "missing_rate": df.isna().mean(),
+        "non_missing_count": df.notna().sum(),
+    },
+).sort_values("missing_rate", ascending=False)
+
+print(missing_summary.head(10))
+
+# Bu kontrol için event_date'i olmayan satırları hariç tutar.
+dated_events = df.dropna(subset=["event_date"])
+print("Rows with event_date:", len(dated_events))
+
+# Eksikliği ayrı bir özellik olarak korur.
+df["income_is_missing"] = df["income"].isna().astype("int8")
+
+# Kullanılan imputation kuralını açıkça belirtir.
+df["country"] = df["country"].fillna("<unknown>")
+```
+
+`isna()` eksik değerleri `True` olarak işaretler; `sum()` eksik değer sayısını, `mean()` ise eksik oranını verir. `notna()` bunun tersidir ve gerçekten dolu kayıt sayısını verir. `dropna(subset=[...])` yalnızca belirtilen sütunu eksik olan satırları çıkarır; bu yüzden kalıcı veri temizliği yerine analize uygun geçici bir alt küme oluşturmak için düşünülebilir. `fillna()` ise eksikliği bir değerle doldurur; sayısal bir sütunu ortalamayla doldurmak varsayılan bir çözüm değildir, önce eksikliğin iş anlamını incelemek yararlı olur.
+
+### Matplotlib ve Seaborn ile Dağılımı İnceleme
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plot_df = df.dropna(subset=["monthly_spend", "plan_type"])
+
+_, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+sns.histplot(
+    data=plot_df,
+    x="monthly_spend",
+    bins=30,
+    kde=True,
+    ax=axes[0],
+)
+axes[0].set_title("Monthly spend distribution")
+
+sns.boxplot(
+    data=plot_df,
+    x="plan_type",
+    y="monthly_spend",
+    ax=axes[1],
+)
+axes[1].set_title("Monthly spend by plan")
+axes[1].tick_params(axis="x", rotation=20)
+
+plt.tight_layout()
+plt.show()
+```
+
+`histplot()` sayısal bir alanın dağılımını, `boxplot()` ise gruplar arasındaki medyanı, yayılımı ve olası outlier'ları karşılaştırmayı sağlar. Grafikte görülen bir fark doğrudan neden-sonuç ilişkisi anlamına gelmez; bulguyu veri kapsamı ve iş bağlamıyla birlikte değerlendirmek yararlı olur.
+
+### Tekrarlanan Kayıt ve Aralık Kontrolü
+
+```python
+duplicate_rows = df.duplicated().sum()
+duplicate_customer_ids = df["customer_id"].duplicated().sum()
+
+invalid_age = df.loc[~df["age"].between(0, 110), ["customer_id", "age"]]
+
+print("Duplicate rows:", duplicate_rows)
+print("Repeated customer ids:", duplicate_customer_ids)
+print(invalid_age.head())
+
+```
+
+Burada tekrar eden bir `customer_id` yakalamak her zaman bir problem olduğu anlamına gelmez; veri setinin kayıt düzeyi her işlem için ayrı bir satır oluşturuyorsa bu normaldir. Karar vermeden önce veri sözlüğüne ve iş akışına bakmak faydalı olur.
+
+### Segment Bazında Hedef Oranı
+
+```python
+segment_summary = (
+    df.groupby("plan_type", dropna=False)
+    .agg(
+        customer_count=("customer_id", "nunique"),
+        churn_rate=("churn", "mean"),
+        median_monthly_spend=("monthly_spend", "median"),
+    )
+    .sort_values("customer_count", ascending=False)
+)
+
+print(segment_summary)
+
+```
+
+Bu tür grup özetleri yapılırken, gözlem sayısı çok az olan segmentlerdeki oranlara (örn: 3 müşterisi olan grupta tüm müşterilerin churn olması) temkinli yaklaşmak faydalı olur. Oranlarla birlikte örneklem büyüklüğünü (`customer_count`) de değerlendirmek daha sağlıklı bir yorum sunar.
+
+### Zaman İçinde Dağılım Kontrolü
+
+```python
+df["event_date"] = pd.to_datetime(df["event_date"], errors="coerce")
+
+monthly_counts = (
+    df.dropna(subset=["event_date"])
+    .groupby(df["event_date"].dt.to_period("M"))
+    .size()
+)
+
+print(monthly_counts.tail(12))
+
+```
+
+Zaman içinde gerçekleşen işlemlerde ani bir düşüş veya anlamsız bir yükseliş görülüyorsa; bu bir veri toplama hatasını, başarılı bir kampanyayı ya da sistemsel bir kesintiyi işaret ediyor olabilir. Modele geçmeden önce bu zamansal kırılmaların nedenini anlamaya çalışmak yararlı olur.
+
+### EDA Raporunu Karara Dönüştürme
+
+Bir EDA çalışmasının sonunda, uzun notebook çıktıları yerine bir sonraki adımı belirleyen net bir özet gereklidir. Örneğin: *"income alanında %18 eksik değer var; bu eksiklik yeni kullanıcı segmentinde yoğunlaşıyor; ilk denemede eksik değerler için bir gösterge sütunu eklenebilir"* gibi bir ifade, hem bulguyu hem de çözümü içerir.
+
+EDA raporunuzu şu başlıklarla toparlamak çok pratik bir yöntemdir:
+
+* **Veri Kapsamı:** Hangi tarih aralığını, hangi kaynakları ve hangi satır seviyesini kullandık?
+* **Kalite Riskleri:** Eksiklik, tekrar, geçersiz format veya şema sorunu nerede var?
+* **Modelleme Riski:** Data leakage, sınıf dengesizliği, zamansal kopukluk veya temsil sorunu var mı?
+* **Karar:** Hangi kolonlar kullanılacak, hangileri çıkarılacak ve hangi temizlik adımları pipeline'a eklenecek?
+
+### Ham Veriden İşlenmiş Veri Setine Küçük ETL Akışı
+
+```python
+from pathlib import Path
+
+import pandas as pd
+
+source_path = Path("customers.csv")
+output_path = Path("customers_clean.csv")
+
+df = pd.read_csv(source_path)
+
+df.columns = df.columns.str.strip().str.lower()
+required_columns = {"customer_id", "signup_date", "country"}
+missing_columns = required_columns - set(df.columns)
+if missing_columns:
+    raise ValueError(f"Missing columns: {sorted(missing_columns)}")
+
+df["signup_date"] = pd.to_datetime(df["signup_date"], errors="coerce")
+df = df.drop_duplicates(subset=["customer_id"])
+
+output_path.parent.mkdir(parents=True, exist_ok=True)
+df.to_csv(output_path, index=False)
+
+print(f"Saved {len(df)} records to {output_path}")
+```
+
+Bu akış ham dosyayı değiştirmez. Kolon adlarını standartlaştırır, tarihi güvenli biçimde dönüştürür, tekrar eden müşteri kayıtlarını yalnızca `customer_id` gerçekten tekil kayıt tanımlayıcısıysa kaldırır ve zorunlu kolonları doğrular. `drop_duplicates` kuralını her veri setine otomatik uygulamak doğru değildir; kayıt düzeyi ve iş kuralı önce teyit edilmelidir.
+
+
+## Kısa Notlar
+
+* EDA'nın temel amacı; verinin yapısını, dağılımlarını, değişkenler arasındaki ilişkileri, veri kalitesi sorunlarını ve olası riskleri anlamaktır.
+* İlk aşamada veri setinin satır ve sütun sayısı (`shape`), sütunların veri türleri (`dtypes`), eksik değerler ve örnek satırlar incelenebilir.
+* Aykırı değerler her zaman silinmesi gereken hatalı veriler değildir; neden ortaya çıktıkları ve iş açısından ne ifade ettikleri incelenmelidir.
+* Korelasyon, değişkenlerin birlikte hareket ettiğini gösterir; tek başına nedensellik anlamına gelmez.
+* Data leakage, bir özelliğin tahmin anında erişilebilir olup olmadığı dikkate alınmadan modele dahil edilmesiyle ortaya çıkabilir.
+* Segment ve zaman kırılımlarını incelemek, genel ortalamaların gizlediği önemli sorunları görünür kılabilir.
+* İyi bir EDA çalışması, yüzlerce grafikle dolu bir notebook değil; riskleri ve alınacak kararları özetleyen bir analizdir.
+
+## Kaynaklar
+
+### [Kaggle](https://www.kaggle.com/learn)
+
+Veri bilimi projeleri, yarışmalar ve veri setleri için önde gelen platform.
+
+### [pandas Documentation](https://pandas.pydata.org/docs/)
+
+DataFrame işlemleri, veri tipi dönüşümleri ve eksik değer yönetimi gibi EDA'nın temel konuları için birincil başvuru kaynağıdır.
+
+### [seaborn Documentation](https://seaborn.pydata.org/)
+
+Seaborn'un resmi dokümantasyonu; dağılımları, değişkenler arasındaki ilişkileri ve kategorik grupları grafiklerle incelemeyi açıklar.
+
+### [Matplotlib Documentation](https://matplotlib.org/stable/)
+
+Grafiklerin eksen, başlık, açıklama ve yerleşim ayrıntılarını yönetmek için temel başvuru kaynağıdır.
+
+### [Great Expectations Documentation](https://docs.greatexpectations.io/docs/)
+
+Veri kalitesini sadece notebook içinde gözlemleyip bırakmak yerine, sürekli çalışan test edilebilir pipeline kontrollerine dönüştürme fikrini anlatan kaynaklardır.

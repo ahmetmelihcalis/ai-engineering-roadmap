@@ -1,0 +1,262 @@
+---
+title: "Üretken Yapay Zeka ve Büyük Dil Modelleri"
+slug: "uretken-yapay-zeka-ve-buyuk-dil-modelleri"
+order: 9
+description: "Büyük dil modellerine genel bakış, çalışma prensipleri, üretken yapay zeka alanları, başlangıç adımları ve kullanılan araçlar."
+tags: ["Tokenization", "Context Window", "Prompt Engineering", "Inference", "Halüsinasyon", "API Entegrasyonu"]
+---
+
+## Genel Bakış
+
+**Büyük Dil Modelleri (LLM'ler)**, geniş metinler üzerinde eğitilen ve verilen bağlama göre yeni metin üretebilen modellerdir. Sohbet botları, özetleme sistemleri, bilgi çıkarımı, kod asistanları ve üretken yapay zeka uygulamaları bu modellerin yaygın kullanım alanları arasındadır.
+
+Yapay zeka projelerinde LLM'ler esnek bir arayüz sunsa da, ürettikleri yanıtların doğruluğunu, güncelliğini, güvenliğini ve maliyetini ayrıca yönetmek gerekir.
+
+Bu nedenle LLM'lerle çalışmak yalnızca model seçimiyle sınırlı değildir; prompt engineering, çıktı doğrulama, context window kullanımı, RAG, tool kullanımı ve değerlendirme süreci birlikte düşünülür.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* LLM'lerin Çalışma Mantığı
+* Tokenization
+* Context Window
+* Prompt Engineering
+* Inference
+* Halüsinasyon
+* Tool Calling Temelleri
+* API Entegrasyonu
+* Açık Ağırlıklı Modeller
+* Quantization
+* Değerlendirme
+
+## Temel Kavramlar
+
+### Büyük Dil Modellerine Genel Bakış
+
+Bir LLM'in temel çalışma mantığı sadedir: Öncesindeki kelimelere (token'lara) bakar ve bir sonraki kelimenin ne olması gerektiğine dair bir olasılık dağılımı hesaplar. "Sıradaki kelimeyi tahmin etme" yaklaşımı, geniş veri seti ve yüksek model kapasitesiyle birleştiğinde soru yanıtlayan, özet çıkaran, çeviri yapan ve kod yazan sistemleri mümkün kılar.
+
+Modeller kullanım amaçlarına göre iki ana grupta ele alınabilir. **Base model**, geniş metin koleksiyonları üzerinde eğitilerek dilin genel örüntülerini öğrenmiş ham modeldir. **Instruction-tuned veya chat model** ise, kullanıcının verdiği komutları izlemesi ve sohbet formatında yanıt verebilmesi için özel olarak eğitilmiş versiyondur. Her görev için doğrudan piyasadaki en büyük modeli seçmek yerine; kalite, yanıt hızı ve bütçe dengesi gözetilebilir.
+
+### Büyük Dil Modellerinin Çalışma Prensibi
+
+Modele verilen metin tokenizer tarafından token'lara ayrılır; model bu bağlamdan sıradaki token'ı üretir. Tokenization ve Transformer'ın temel açıklaması sırasıyla NLP ve Deep Learning modüllerindedir; LLM uygulamasında token sayısı doğrudan context bütçesini, gecikmeyi ve maliyeti etkiler.
+
+**Context Window**, modelin tek bir istek sırasında dikkate alabileceği toplam token kapasitesidir. System prompt, kullanıcı mesajları, konuşma geçmişi, RAG ile getirilen belge parçaları ve tool çıktıları bu alanı paylaşır. Modelin yanıtı için de token bütçesi gerektiğinden, uzun bir girdi maliyeti ve gecikmeyi artırabilir; üretilebilecek yanıt uzunluğunu da sınırlayabilir.
+
+Context window büyüdükçe model daha fazla bilgi görebilir; ancak ilgisiz veya tekrar eden içerik, önemli detayların arka planda kalmasına yol açabilir. Bu nedenle konuşma geçmişini özetlemek, RAG sonuçlarını ilgili parçalarla sınırlamak ve gereksiz tool çıktılarını bağlama eklememek yararlı olur.
+
+`temperature`, modelin sonraki token seçerken ne kadar çeşitli davranacağını etkiler. `temperature=0` daha tutarlı ve öngörülebilir çıktılar üretme eğilimindedir; sınıflandırma, yapılandırılmış çıktı veya bilgi getirme gibi görevlerde tercih edilebilir. `temperature=1` ise daha çeşitli ve yaratıcı seçeneklere daha fazla alan tanır; ancak yanıtlar daha değişken hale gelebilir. `top_p` de yalnızca en olası tokenların belirli bir kısmı içinden seçim yapılmasını sağlayan benzer bir sampling ayarıdır. Bu ayarlar çıktının çeşitliliğini etkiler; doğruluğu tek başına garanti etmez.
+
+Decoder tabanlı LLM'lerde **Causal Mask**, her token'ın yalnızca kendisinden önceki token'lara ve kendisine attention vermesini sağlar; gelecekteki token'lara bakmasını engeller. Böylece model, bir sonraki token'ı üretirken yalnızca o ana kadar gördüğü bağlama dayanır. Eğitimde bu maske kullanılmazsa model hedef token'ları önceden görebilir ve gerçek üretim koşullarını yansıtmayan bir öğrenme sinyali oluşur.
+
+Attention matrisi üzerinde düşünüldüğünde, gelecekteki konumlar maskelenir: ilk token yalnızca kendisini, ikinci token ilk iki token'ı, üçüncü token ise ilk üçünü görebilir. Bu yapı GPT gibi decoder modellerinin metni soldan sağa, sırayla üretmesini mümkün kılar.
+
+**Padding Mask** ise farklı bir iş görür: değişken uzunluktaki dizilerde dolgu token'larının (dizileri aynı uzunluğa getirmek için eklenen yapay token'ların) attention hesabına katılmasını engeller. Attention ve Transformer'ın temel kavramları Derin Öğrenme modülünde ele alınır.
+
+### Büyük Dil Modellerine Başlamak
+
+Bir LLM projesine başlarken ilk soru genellikle "Hangi modeli kullanmalıyım?" değildir. Bunun yerine, dar ve ölçülebilir bir görev belirleyerek başlamak süreci daha düzenli hale getirebilir. Örneğin; gelen bir destek mesajındaki müşteri adını ve şikayet kategorisini JSON olarak ayıklamak, net ve test edilebilir bir başlangıç noktasıdır.
+
+Önce basit bir prompt yazılıp içine birkaç few-shot örnek eklenerek bir baseline elde edilebilir. Ardından modelin ürettiği çıktı doğruluk, format ve güvenlik açısından ölçülür. Prompt, model sürümü ve `temperature` ayarlarının kaydedilmesi, sonraki değişikliklerin etkisini kıyaslamayı sağlar.
+
+Modelden JSON veya belirli bir format bekleniyorsa, prompt içine sadece "JSON formatında ver" yazmak çoğu zaman yetersiz kalır. Uygulama tarafında **Pydantic** gibi bir araçla çıktının gerçekten doğru formatta olup olmadığını denetlemek ve hatalıysa sistemi güvenli bir akışa yönlendirmek faydalı olur. Bu akış tekrar deneme veya insan kontrolü olabilir.
+
+### Yapay Zeka Alanları
+
+Generative AI ekosistemi sadece metin tabanlı sohbet botlarıyla sınırlı değildir. Metin tarafında özetleme ve soru yanıtlama varken; görsel modeller verilen metinden yepyeni görseller çizebilir veya mevcutları düzenleyebilir. Ses modelleri konuşmayı metne dönüştürür veya metni seslendirir. **Multimodal** modeller ise metne, görsele, sese veya dokümana aynı context içinde birlikte bakıp yorum yapabilir.
+
+Kullanım alanı değiştikçe evaluation yöntemi de değişir. Kod üretiminde başarı yazılım testleriyle, bilgi sorularında kaynak doğruluğuyla, ses üretiminde ise kelime hata oranıyla ölçülür. Tüm yapay zeka alanlarını tek başına kapsayan evrensel bir metrik bulunmaz.
+
+### Model Seçimi ve Geliştirme Ekosistemi
+
+Projeye başlarken genellikle iki ana yol ayrımı vardır: API kullanmak veya açık ağırlıklı bir modeli yerel ortamda çalıştırmak. **OpenAI**, **Anthropic** ve **Gemini** API sağlayıcılarına; **Llama** ve **Mistral** ise açık ağırlıklı modellere örnektir. Hazır bir model seçerken benchmark skorlarının yanı sıra lisansı, desteklediği dilleri, context sınırını ve donanım gereksinimlerini de incelemek yararlı olur. API kullanmak, altyapı yönetimi gerektirmediği için hızlı bir başlangıç sağlar; veri gizliliği kuralları katıysa, yüksek trafik/maliyet söz konusuysa veya veri üzerinde tam kontrol gerekiyorsa yerel model barındırma daha uygun bir tercih olabilir.
+
+**Hugging Face Transformers**, açık ağırlıklı modellere, tokenizer'lara ve araçlara ulaşmak için yaygın kullanılan bir arayüz sunar. **PyTorch** ve **TensorFlow** modelleri geliştirmek ve eğitmek için; **Colab** ise küçük denemeleri hızlıca test etmek için pratik araçlardır. Başlangıç aşamasında **LangChain** veya **LlamaIndex** gibi kapsamlı framework'leri hemen sürece dahil etmek yerine, model API'lerine doğrudan istek atarak temel işleyişi görmek daha doğrudan bir başlangıçtır. Temel kullanım netleştikten sonra prompt yönetimi, RAG veya workflow ihtiyacına göre bu araçlar projeye eklenebilir. LLMOps yaklaşımı ise promptları, model sürümlerini, evaluation setlerini ve tracing üzerinden maliyetleri birlikte takip etmeyi hedefler.
+
+### Token Bütçesi ve Veri Uyumu
+
+Tokenizer ile model ağırlıklarının eşleşmesi beklenir; farklı bir tokenizer kullanmak anlamsız çıktıya yol açabilir. Tokenization'ın temel mantığı NLP modülündedir; LLM tabanlı uygulamalarda Türkçe gibi eklemeli dillerin token uzunluğu context window, gecikme ve maliyet hesabına doğrudan girer.
+
+### Büyük Dil Modellerinin Eğitimi, Özellikleri ve Ölçekleme Yasaları
+
+Bir LLM'in ilk aşaması **Pretraining (Ön Eğitim)** adımıdır. Model, büyük metin koleksiyonlarında "sıradaki kelimeyi tahmin ederek" dilin ve dünyanın genel örüntülerini öğrenir. Veri temizliği ve hangi dillerin ağırlıklı olduğu, modelin yetkinliklerini doğrudan belirler.
+
+Instruction tuning, modelin talimat izleyen davranış kazanmasını sağlar. Sık değişen bilgi için RAG, kalıcı davranış veya çıktı biçimi için fine-tuning düşünülür; ayrıntılı seçim çerçevesi Fine-tuning & Optimization modülündedir.
+
+**Scaling Laws (Ölçeklenme Yasaları)**, modele sağlanan veri ve hesaplama gücü büyüdükçe performansın öngörülebilir bir şekilde iyileştiğini gösterir. Ancak "En büyük model her görevde en uygun sonucu verir" genellemesi her zaman doğru olmayabilir. **Kendi LLM'ini sıfırdan eğitmek** büyük kaynaklar gerektirdiğinden, çoğu proje için hazır bir modeli prompt ve RAG bileşenleriyle tasarlamak, iş hedeflerine ulaşmak için genellikle daha verimli bir yoldur.
+
+### Inference ve Quantization
+
+**Inference**, eğitilmiş bir modelin yeni bir girdiye göre çıktı veya tahmin üretmesidir. LLM'lerde bu süreç, modelin token'ları sırayla üretmesiyle gerçekleşir. Canlı ortamda kullanıcıya cevap üretmek, inference'ın yaygın kullanım biçimlerinden biridir. Bu kullanımda **TTFT** ve saniye başına üretilen token sayısı sıkça takip edilir. TTFT, ilk token'ın üretilme süresidir. Sisteme verilen uzun bağlamlar gecikmeyi ve bellek kullanımını doğrudan artırır.
+
+Büyük modellerde quantization bellek gereksinimini azaltabilir; kalite kaybını ilgili görev setinde ölçmeden yayın kararı vermek riskli olabilir. Bit hassasiyeti, cache ve routing arasındaki ayrıntılı optimizasyon kararları Fine-tuning & Optimization modülündedir.
+
+Üretim hızını artırmak için **KV Cache** ve **Batching** gibi optimizasyonlar uygulanır. KV Cache hesaplamaları hafızada tutar; Batching ise gelen istekleri gruplar. Bu teknikler toplam kapasiteyi artırsa da tek bir kullanıcının bekleme süresini uzatabilir. Mimari seçim yapılırken hız, maliyet ve kalite üçgenini birlikte değerlendirmek yararlı olur.
+
+### Prompt Engineering ve Context Window
+
+İyi tasarlanmış bir prompt; modele sadece görevi söylemekle kalmaz, uyacağı sınırları, kullanacağı bağlamı ve beklenen çıktı formatını net çizgilerle ayırır. **Few-Shot Prompting**, modelin görevi yalnızca talimatla değil, prompt içinde verilen birkaç girdi-çıktı örneği üzerinden de anlamasına yardımcı olur. Örneğin metin sınıflandırmada birkaç metin ve doğru etiketi göstermek, modelin hem beklenen kategorileri hem de yanıt biçimini takip etmesini kolaylaştırabilir.
+
+Few-shot örnekleri model ağırlıklarını değiştirmez; yalnızca o isteğin bağlamında yol gösterir. Bu yönüyle fine-tuning'den ayrılır. Örneklerin gerçek göreve benzemesi, doğru etiketlenmesi ve istenen çıktı biçimini tutarlı göstermesi önemlidir. Çok fazla, ilgisiz veya çelişkili örnek ise context window'u gereksiz doldurabilir, maliyeti artırabilir ve modelin asıl soruya odaklanmasını zorlaştırabilir.
+
+**Context window kapasitesi sınırlıdır.** Uzun bir diyalog geçmişi olduğunda, uygulamanın hangi mesajları tutacağını ve hangilerini özetleyeceğini iyi kurgulamak faydalı olur. Kullanıcının girdiği serbest metin ile geliştiricinin yazdığı System Prompt'u aynı güven seviyesinde değerlendirmek uygun olmayabilir. Bu ayrım, Prompt Injection gibi risklere karşı önemli bir önlemdir.
+
+### Halüsinasyon, Akıl Yürütme ve Güvenli Çıktı
+
+LLM'ler olasılık dağılımları üzerinden kelime seçtiği için, akıcı ama gerçeği yansıtmayan çıktılar verebilir. Bu durum halüsinasyon olarak adlandırılır ve yalnızca modelin konuyu "bilmemesinden" kaynaklanmaz. RAG sisteminin eksik belge getirmesi, belirsiz bir istem veya araç çıktısının doğrulanmaması da halüsinasyon riskini artırabilir.
+
+Model bazı senaryolarda "adım adım düşün" denildiğinde başarılı mantıksal çıkarımlar yapsa da, bu yapı garantili bir akıl yürütme değildir. Ürün fiyatı hesaplamak, hukuki bir karar vermek veya bir işlemi onaylamak gibi doğrulanabilir adımları modelin metin üretimine bırakmak yerine, kural tabanlı bir araca devretmek daha güvenli olabilir. Sistemin güvenini, modelin ne kadar kendinden emin konuştuğundan çok uygulanan yazılımsal doğrulamalar destekler.
+
+LLM çıktısı, olası sonraki token'lar için hesaplanan olasılık dağılımından bir seçim yapılarak üretilir. Her token bağlama göre farklı bir ağırlık alır; decoding yöntemi bu dağılımdan seçim yapar. Bu mekanizma, açık kurallı bir karar tablosu veya kanıtlanmış mantıksal çıkarımla aynı değildir. Kritik kararlar için model skorunu kural, veri kaynağı veya insan onayıyla desteklemek güvenilir bir yaklaşım olur.
+
+### Büyük Dil Modellerinde Tool Kullanımı
+
+**Tool Calling**, modelin yalnızca serbest metin üretmek yerine, bir görevi tamamlamak için hangi aracın veya fonksiyonun hangi parametrelerle çağrılması gerektiğini yapılandırılmış bir çıktı olarak belirtmesidir. Bu çıktı çoğu sistemde JSON benzeri bir formatta temsil edilir.
+
+Buradaki önemli nokta, modelin fonksiyonu, veritabanını veya harici sistemi doğrudan çalıştırmamasıdır. Model yalnızca hangi tool'un hangi girdilerle çağrılacağını belirten yapılandırılmış bir istek üretir; yetkilendirme, doğrulama ve çağrının yürütülmesi uygulama katmanında kalır. Uygulama elde edilen sonucu tekrar modele iletebilir; model de bu sonucu kullanarak kullanıcıya nihai cevabı üretir.
+
+Örneğin güncel döviz kuru, hava durumu veya veritabanındaki bir kayıt bu yöntemle alınabilir.
+
+Tool seçimi, memory ve daha gelişmiş agent döngüleri bir sonraki **RAG & Agentic Systems** modülünde daha ayrıntılı ele alınacaktır.
+
+## Çalışma Mantığı
+
+Bir LLM uygulamasının mimarisini dört ana katmanda düşünebiliriz:
+
+1. Modele sağlanan temel talimatlar.
+2. Görev için dışarıdan sağlanan bağlam.
+3. Modelin ürettiği metin çıktısı.
+4. Uygulama kodunun yaptığı son kontrol ve doğrulama.
+
+Sadece promptu değiştirerek tüm mimariyi güvenli hale getirmek çoğu zaman yeterli değildir; sistemin asıl güvenliği ve doğruluğu uygulama kodunda başlar. Prompt'u bir güvenlik duvarı olarak görmek doğru olmaz. Yüksek etkili işlemleri, veritabanı yazma izinlerini ve yetkilendirmeleri geleneksel yazılım kontrolleriyle desteklemek güvenliği artırır.
+
+Modeli değerlendirmek için kullanılan "Evaluation Seti"nin, gerçek kullanım senaryolarındaki çeşitliliği yansıtması beklenir. Bu sete sadece kolay soruları değil; eksik bilgiler içeren, farklı dillerdeki veya zorlayıcı uç durum örneklerini de dahil etmek, modelin dayanıklılığını ölçmek için önemlidir.
+
+Geliştirme sürecinde basitten karmaşığa gitmek genellikle daha düzenli bir karşılaştırma sağlar:
+
+* API üzerinden hazır bir model ve net bir prompt ile başlangıç düzeyi belirlenmelidir.
+* Gerekirse modelden yapılandırılmış çıktı alınıp uygulama tarafında doğrulanabilir.
+* Modele dış veri gerekiyorsa RAG veya Tool bileşenleri değerlendirilebilir.
+* Tüm bu adımlara rağmen hedeflenen kaliteye ulaşılamıyorsa, bir sonraki adım olarak Fine-Tuning değerlendirilebilir.
+
+## Kod Örnekleri
+
+### Örnek Mesaj Yapısı
+
+```python
+messages = [
+    {
+        "role": "system",
+        "content": "Use only the provided text. State clearly when information is missing.",
+    },
+    {
+        "role": "user",
+        "content": "Summarize the following note in three bullet points: ...",
+    },
+]
+```
+
+Kullanıcıdan gelen girdi ile sistemin kurallarını (`role: "system"`) birbirinden ayırmak, modelin hangi talimatı dikkate alması gerektiğini netleştirir ve yönlendirme (prompt injection) risklerini hafifletir.
+
+### Yapılandırılmış Çıktıyı Doğrulama
+
+```python
+from pydantic import BaseModel, ValidationError
+
+# Expected output schema
+class TicketResult(BaseModel):
+    category: str
+    summary: str
+    needs_human_review: bool
+
+model_output = '{"category": "billing", "summary": "Invoice could not be downloaded.", "needs_human_review": false}'
+
+try:
+    result = TicketResult.model_validate_json(model_output)
+    print("Category:", result.category)
+except ValidationError:
+    print("Output format could not be validated; routing to human review.")
+```
+
+> **Sürüm notu:** Bu örnek Pydantic v2 API'sini kullanır; `model_validate_json` metodu Pydantic v1'de bulunmaz.
+
+Modelden JSON gibi belirli bir yapı beklendiğinde, kod seviyesinde validation yapmak sistemin hata toleransını ciddi ölçüde artırır.
+
+### Model Yanıtlarını Değerlendirme
+
+```python
+evaluation_case = {
+    "input": "How many days is the return period?",
+    "context": "", # RAG üzerinden bağlam getirilmedi.
+    "expected_behavior": "Do not invent a duration when no source is available; state that information is missing.",
+    "checks": ["groundedness", "format", "safety"],
+}
+```
+
+Evaluation yaparken, modelin sadece doğru cevabı bulmasını değil, bilgi eksikliği durumunda nasıl davrandığını da açıkça test etmek iyi bir uygulamadır. Bu davranış fallback akışıyla yönetilebilir.
+
+### Hazır Bir Model ile Inference
+
+```python
+import torch
+from transformers import pipeline
+
+generator = pipeline(
+    task="text-generation",
+    model="distilbert/distilgpt2",
+    device=0 if torch.cuda.is_available() else -1,
+)
+
+output = generator(
+    "A reliable language model application",
+    max_new_tokens=30,
+    do_sample=False,
+)
+```
+
+`do_sample=False`, örnekleme yerine her adımda en yüksek olasılıklı token'ı seçen deterministic greedy decoding kullanır. Üretim kodunda model ismini, model revision etiketini ve generation ayarlarını net bir şekilde sabitlemek tekrarlanabilirliği sağlar.
+
+### Tahmin Maliyetini Kaydetme
+
+```python
+run = {
+    "model": model_name,
+    "prompt_tokens": usage.prompt_tokens,
+    "output_tokens": usage.output_tokens,
+    "latency_ms": latency_ms,
+    "schema_valid": schema_valid,
+}
+```
+
+Her istek için token tüketimini ve gecikme süresini kaydetmek, ileride daha küçük bir modele veya farklı bir sağlayıcıya geçiş kararı verirken somut veriler sağlar.
+
+## Kısa Notlar
+
+* LLM'ler temel olarak bağlama bakarak bir sonraki token'ı olasılık hesabıyla tahmin eden sistemlerdir.
+* Transformer içindeki attention mekanizması, cümle içindeki kelimelerin birbirleriyle olan ilişkilerini kurmalarını sağlar.
+* Context window kapasitesi sınırlıdır, veri arttıkça maliyet yükselirken modelin odağı zayıflayabilir.
+* Prompt tasarımı çıktıyı yönlendirir ancak tek başına tam doğruluk veya güvenlik sağlamaz.
+* Generative AI sadece metinle sınırlı değildir; kod, görsel, ses ve karmaşık belgeleri anlayan multimodal sistemleri de içerir.
+* RAG kullanmak, modele sürekli kendi güncel verilerinizi öğretmenize gerek kalmadan, doğru bilgiyi sağlamanın en yaygın yollarından biridir.
+* Inference aşamasında Quantization, kaliteyi kabul edilebilir düzeyde tutarak bellek ihtiyacını azaltmak için kullanılır.
+
+## Kaynaklar
+
+### [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+
+Transformer mimarisini ve attention mekanizmasının işleyişini grafiklerle, sezgisel bir biçimde anlatan temel bir kaynaktır.
+
+### [Hugging Face Transformers Documentation](https://huggingface.co/docs/transformers/)
+
+Kendi ortamınızda model çalıştırmak, tokenizer yapılandırmak ve generation ayarlarını incelemek için başvurulabilecek kapsamlı bir rehberdir.
+
+### [PyTorch Documentation](https://docs.pytorch.org/docs/stable/index.html) ve [TensorFlow Documentation](https://www.tensorflow.org/api_docs)
+
+Modellerin eğitim döngüleri, optimizasyonları ve tensör işlemlerinin altyapısı için framework'lerin kendi resmi kaynaklarıdır.
+
+### [LangChain Documentation](https://python.langchain.com/docs/introduction/) ve [LlamaIndex Documentation](https://docs.llamaindex.ai/)
+
+RAG, Tool Calling ve agent yapılarını oluştururken framework'lerin mimariyi nasıl soyutladığını görmek için incelenebilir.
+
+### [OpenAI](https://platform.openai.com/docs/overview), [Anthropic](https://docs.anthropic.com/) ve [Gemini](https://ai.google.dev/gemini-api/docs) Dokümantasyonu
+
+Modele özgü rate limit, yapılandırılmış çıktı desteği, güvenlik kuralları ve token maliyetlerini doğru hesaplamak için ilgili modelin kendi dokümanlarına başvurmak faydalı olur.

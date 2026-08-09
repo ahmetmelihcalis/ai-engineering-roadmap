@@ -1,0 +1,374 @@
+---
+title: "Exploratory Data Analysis (EDA)"
+slug: "exploratory-data-analysis"
+order: 3
+description: "Exploratory data analysis, data profiling, data-quality checks, visualization, and foundational reporting for datasets ready for modeling."
+tags: ["Data Schema", "ETL", "Pandas and NumPy", "Matplotlib", "Missing Values", "Outliers", "Data Leakage"]
+---
+
+## Overview
+
+**Exploratory Data Analysis (EDA)** is the process of examining a dataset's structure, scope, quality, distributions, and possible risks before modeling. The goal is not only to create charts, but to understand which questions the data can answer, which assumptions it was collected under, and where it may be misleading.
+
+In AI and machine-learning projects, EDA forms the basis of model-development decisions. What a row represents, when the target variable is formed, whether columns are actually available at prediction time, and which users or time period the data covers are clarified at this stage.
+
+If data types, missing values, duplicate records, class imbalance, time flow, and data leakage are not examined correctly, model performance cannot be interpreted reliably. For this reason, EDA can be thought of as a control layer that makes the reliability of data and its modeling risks visible before building a model.
+
+EDA also depends on moving data from its source into a repeatable, model-ready form. This module covers the fundamentals of ETL through preserving raw data, validating transformations, and keeping processed outputs separate.
+
+This module covers:
+
+* Data Size and Schema
+* Data Inspection with Pandas and NumPy
+* Missing Values
+* Outliers
+* Distributions
+* Visualization with Matplotlib and Seaborn
+* Correlation
+* Segment Analysis
+* Data Leakage
+* Basic ETL Workflows and Reproducible Data Preparation
+
+It also discusses how EDA findings can be turned into modeling decisions through practical examples.
+
+## Key Concepts
+
+### Data Size and Schema
+
+First, the dataset's size and **Data Schema** are examined. `shape` shows the number of rows and columns; an unexpected value can indicate issues such as an incomplete transfer, duplicate records, or an incorrect join.
+
+Then the meaning and data types of columns are examined. Although `customer_id` is numeric, it is not a meaningful magnitude for a model; if `signup_date` arrives as text, it can be converted before using date information.
+
+Separating columns into identity, feature, target, and time fields makes later steps easier to clarify. Identity fields are usually not given to the model directly; the target field represents the result to be predicted. Time fields can be used for feature engineering and should be evaluated carefully because they can create data-leakage risk when they contain information from the future. Categorical and text fields can also be transformed appropriately before modeling.
+
+### Data Inspection with Pandas and NumPy
+
+Much of the daily work in EDA is done with **pandas**. A `DataFrame` makes it easier to examine tabular data with rows and columns, filter, group, analyze missing values, and read files such as CSVs. The `head`, `info`, `describe`, `value_counts`, `groupby`, and date-conversion examples in this module rely on pandas.
+
+**NumPy** is the core library for numerical arrays and vectorized calculations. Pandas relies heavily on NumPy for numerical operations; NumPy is particularly useful for working explicitly with **NaN** values, masks, percentiles, quantiles (thresholds that divide data into percentage ranges), and numerical conditions. There is no need to write every operation in NumPy: use pandas to understand tabular data and NumPy for numerical calculations or array operations.
+
+### Missing Values and Data Quality
+
+A **Missing Value** does not always appear as a clean **NaN**. Values such as an empty string, `"unknown"`, `-1`, `0`, or `N/A` can also mean missingness according to business context. For this reason, it is more accurate to interpret missingness together with the meaning of that field rather than as a technical problem counted only with code.
+
+Missingness in a column can have different causes: the system may not have measured the data at all, the information may be unknown, or the field may not apply to the relevant record. For example, an empty “card limit” field for a customer who does not use a credit card and missing “temperature” information because of a system outage are different cases and may not always be suitable for the same imputation method.
+
+**Data Quality** is not only about missingness. It also covers duplicate rows, unexpected categories, illogical numerical ranges, and type-conversion problems. For example, if a value such as `-4` or `900` appears in an age column, a leak or error in the data-collection process can be questioned before training the model.
+
+### Outliers
+
+An **Outlier** is an unusual value that deviates seriously from the rest of the data. However, not every outlier is an error. A transaction with a very high amount may be a fraud signal, while another value may come only from an internal test account. The right approach is not to delete such values automatically, but to understand their source and business meaning.
+
+### Distributions
+
+**Distribution** shows how a variable's values are spread. Looking only at the mean is often misleading; median, minimum, maximum, quantile values, and a histogram offer a clearer picture. It is normal to see right-skewed distributions in fields such as income, transaction amount, or time spent on a website.
+
+### Visualization with Matplotlib and Seaborn
+
+Table summaries may not be enough; it is easier to see clustering in a distribution, outliers, and differences between groups on a chart. **Matplotlib** provides the basic chart structure and detailed customization. **Seaborn** works on top of Matplotlib; it offers a shorter and more readable interface for distributions, categorical comparisons, and variable relationships.
+
+A chart is not a conclusion, but a tool for asking questions. For example, with a histogram, “In which range do values cluster?”; with a box plot, “Which group has more outliers?”; and with a scatter plot, “How do two numerical variables move together?” can be investigated.
+
+### Correlation
+
+**Correlation** is the tendency of two variables to increase or decrease together; however, it does not mean that “one causes the other.” When two variables have a very high correlation, they may be produced by the same business process or encode overlapping information. Such findings can generate new hypotheses, but they are not enough on their own to reach a definite judgment.
+
+### Segment Analysis
+
+**Segment Analysis** shows how the general picture changes when moving into subgroups. The overall churn rate may appear balanced at 5%; however, when only newly registered users or a specific country is examined, this rate can differ noticeably. For this reason, it is useful to examine important metrics by channel, time, user type, or product as well.
+
+### Data Leakage
+
+In EDA, **Data Leakage** is the risk of using information that forms after prediction time as a model input; for example, a complaint record opened after cancellation cannot be a feature for churn prediction. The general framework for leakage caused by train/test splitting and preprocessing is in the Machine Learning module.
+
+### ETL and Reproducible Data Workflows
+
+**ETL (Extract, Transform, Load)** is the process of retrieving data from a source, transforming it for analysis or modeling, and writing the processed output to a separate destination.
+
+* **Extract:** Retrieve data from sources such as CSV files, APIs, or databases.
+* **Transform:** Standardize column names, convert data types, inspect missing values and duplicates, and perform needed joins.
+* **Load:** Write the validated output to a separate file or table used for analysis or modeling.
+
+In EDA, the core principle is to leave raw data unchanged. Preserve the original source and keep transformed data separate from it. This makes the workflow repeatable, keeps transformations traceable, and helps catch issues before modeling.
+
+This module does not cover ETL platforms in depth, such as Airflow, dbt, or streaming systems. Instead, it shows how schema checks can make a small data workflow safer.
+
+## How It Works
+
+Rather than seeing EDA as a one-time code block, thinking of it as a small research loop makes the process more efficient:
+
+Define the purpose of the data and exactly what a single row represents: a customer, an order, or a daily summary, for example.
+
+Check the schema, data scope, and overall quality. Missingness and duplicate records are also noted separately.
+
+Examine variable distributions and segment breakdowns.
+
+Write hypotheses according to the findings, then validate or disprove these hypotheses with the data.
+
+Bring together and report decisions, risks, and open questions about the problem.
+
+At the first stage, address the question “What does this row represent?” If the same user appears in multiple rows in a dataset, a standard random train/test split can put some records of the same person into training and others into test. This can cause the model to memorize that person and create leakage. In data containing time series, making the train/test split from past to future is more appropriate.
+
+Keep EDA findings separate from a model's conclusions. “This column appears related to churn” is an observation. “This column increases the churn rate” is a causal claim and requires additional evidence, such as an A/B test, domain knowledge, or causal analysis.
+
+A good EDA process is not only trying every possibility and producing many charts. It narrows questions, clarifies modeling decisions, and makes the process more efficient by preventing unnecessary experiments.
+
+## Code Examples
+
+### A First Look at Data with Pandas
+
+```python
+import pandas as pd
+
+df = pd.read_csv("customers.csv")
+
+print("First rows:")
+print(df.head())
+print("Last rows:")
+print(df.tail(3))
+print("Shape:", df.shape)
+print("Columns:", df.columns.tolist())
+print("Data types:")
+print(df.dtypes)
+
+df.info()
+
+summary = df.describe(include="all").transpose()
+missing_rate = df.isna().mean().sort_values(ascending=False)
+
+print(summary)
+print(missing_rate.head(10))
+```
+
+`head()` and `tail()` make it possible to see sample records; `shape`, the column list, and `info()` quickly reveal the dataset's technical frame. `describe(include="all")` provides a summary for both numerical and categorical columns. This output can be seen as a starting point for generating new questions about the data (for example, “Why is maximum age 999?”), rather than the final analysis.
+
+### Profiling Categorical Columns with Pandas
+
+```python
+plan_profile = (
+    df["plan_type"]
+    .fillna("<missing>")
+    .value_counts(dropna=False)
+    .rename_axis("plan_type")
+    .reset_index(name="row_count")
+)
+
+print("Distinct plan count:", df["plan_type"].nunique(dropna=True))
+print(plan_profile.head(10))
+```
+
+`value_counts()` makes spelling differences, unexpected categories, and rare values visible. Whether a column with a very high number of distinct values is a customer identity, free text, or an incorrectly parsed field can be questioned separately.
+
+### Numerical Quality Checks with NumPy
+
+```python
+import numpy as np
+
+numeric_spend = pd.to_numeric(df["monthly_spend"], errors="coerce")
+monthly_spend = numeric_spend.to_numpy()
+
+missing_rate = np.isnan(monthly_spend).mean()
+valid_spend = monthly_spend[
+    (~np.isnan(monthly_spend)) & (monthly_spend >= 0)
+]
+
+print("Missing or non-numeric rate:", missing_rate)
+
+if valid_spend.size == 0:
+    print("No valid non-negative spending values were found.")
+else:
+    p01, p99 = np.quantile(valid_spend, [0.01, 0.99])
+
+    print("Minimum:", np.min(valid_spend))
+    print("Median:", np.median(valid_spend))
+    print("1st and 99th percentiles:", [p01, p99])
+
+    extreme_spend = df.loc[
+        numeric_spend.gt(p99),
+        ["customer_id", "monthly_spend", "plan_type"],
+    ]
+    print(extreme_spend.head())
+```
+
+Here, pandas safely converts a column to numeric form and selects relevant rows; NumPy calculates a quantile threshold while ignoring **NaN** values. If there are no valid non-negative values, the example skips the statistics and reports that condition. Records above that threshold are not removed automatically: first determine whether they are test data or genuine high values.
+
+### Examining Missing Values with Pandas
+
+```python
+missing_summary = pd.DataFrame(
+    {
+        "missing_count": df.isna().sum(),
+        "missing_rate": df.isna().mean(),
+        "non_missing_count": df.notna().sum(),
+    },
+).sort_values("missing_rate", ascending=False)
+
+print(missing_summary.head(10))
+
+# Exclude rows without event_date for this check.
+dated_events = df.dropna(subset=["event_date"])
+print("Rows with event_date:", len(dated_events))
+
+# Preserve missingness as a separate feature.
+df["income_is_missing"] = df["income"].isna().astype("int8")
+
+# Name the imputation rule explicitly.
+df["country"] = df["country"].fillna("<unknown>")
+```
+
+`isna()` marks missing values as `True`; `sum()` returns the missing-value count and `mean()` returns the missing-value rate. `notna()` is the inverse and returns the count of non-missing records. `dropna(subset=[...])` removes only rows missing the specified column, which makes it suitable for creating a temporary analysis subset rather than permanently cleaning the data. `fillna()` replaces missing values; filling a numerical column with its mean is not a default solution, so first examine what the missingness means in the business context.
+
+### Examining a Distribution with Matplotlib and Seaborn
+
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plot_df = df.dropna(subset=["monthly_spend", "plan_type"])
+
+_, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+sns.histplot(
+    data=plot_df,
+    x="monthly_spend",
+    bins=30,
+    kde=True,
+    ax=axes[0],
+)
+axes[0].set_title("Monthly spend distribution")
+
+sns.boxplot(
+    data=plot_df,
+    x="plan_type",
+    y="monthly_spend",
+    ax=axes[1],
+)
+axes[1].set_title("Monthly spend by plan")
+axes[1].tick_params(axis="x", rotation=20)
+
+plt.tight_layout()
+plt.show()
+```
+
+`histplot()` makes it possible to examine the distribution of a numerical field, while `boxplot()` compares medians, spread, and possible outliers between groups. A difference seen in a chart does not directly mean a causal relationship; it is useful to evaluate a finding together with data scope and business context.
+
+### Duplicate Records and Range Checks
+
+```python
+duplicate_rows = df.duplicated().sum()
+duplicate_customer_ids = df["customer_id"].duplicated().sum()
+
+invalid_age = df.loc[~df["age"].between(0, 110), ["customer_id", "age"]]
+
+print("Duplicate rows:", duplicate_rows)
+print("Repeated customer ids:", duplicate_customer_ids)
+print(invalid_age.head())
+```
+
+Here, finding a repeated `customer_id` does not always indicate a problem. If the dataset's record-level granularity creates a separate row for each transaction, repetition is expected. Review the data dictionary and business workflow before deciding.
+
+### Target Rate by Segment
+
+```python
+segment_summary = (
+    df.groupby("plan_type", dropna=False)
+    .agg(
+        customer_count=("customer_id", "nunique"),
+        churn_rate=("churn", "mean"),
+        median_monthly_spend=("monthly_spend", "median"),
+    )
+    .sort_values("customer_count", ascending=False)
+)
+
+print(segment_summary)
+```
+
+When producing group summaries like this, approach rates in segments with very few observations cautiously (for example, all customers churning in a group of three). Considering sample size (`customer_count`) alongside rates leads to a sounder interpretation.
+
+### Checking Distribution Over Time
+
+```python
+df["event_date"] = pd.to_datetime(df["event_date"], errors="coerce")
+
+monthly_counts = (
+    df.dropna(subset=["event_date"])
+    .groupby(df["event_date"].dt.to_period("M"))
+    .size()
+)
+
+print(monthly_counts.tail(12))
+```
+
+An unexpected drop or spike in events over time can indicate a data-collection error, a successful campaign, or a system outage. Investigate the cause of these time-based breaks before moving on to modeling.
+
+### Turning an EDA Report into a Decision
+
+At the end of an EDA study, a clear summary that determines the next step is needed rather than long notebook output. For example, a statement such as *“The income field has 18% missing values; this missingness is concentrated in the new-user segment; a missingness indicator feature can be added in the first experiment”* contains both the finding and the solution.
+
+Organizing an EDA report under these headings is a very practical method:
+
+* **Data Scope:** Which date range, sources, and row level did we use?
+* **Quality Risks:** Where are missingness, duplicates, invalid formats, or schema problems?
+* **Modeling Risk:** Are there data leakage, class imbalance, time discontinuity, or representation problems?
+* **Decision:** Which columns will be used, which will be removed, and which cleaning steps will be added to the pipeline?
+
+### A Small ETL Workflow from Raw to Processed Data
+
+```python
+from pathlib import Path
+
+import pandas as pd
+
+source_path = Path("customers.csv")
+output_path = Path("customers_clean.csv")
+
+df = pd.read_csv(source_path)
+
+df.columns = df.columns.str.strip().str.lower()
+required_columns = {"customer_id", "signup_date", "country"}
+missing_columns = required_columns - set(df.columns)
+if missing_columns:
+    raise ValueError(f"Missing columns: {sorted(missing_columns)}")
+
+df["signup_date"] = pd.to_datetime(df["signup_date"], errors="coerce")
+df = df.drop_duplicates(subset=["customer_id"])
+
+output_path.parent.mkdir(parents=True, exist_ok=True)
+df.to_csv(output_path, index=False)
+
+print(f"Saved {len(df)} records to {output_path}")
+```
+
+This workflow leaves the raw file unchanged. It standardizes column names, converts dates safely, removes duplicate customers only when `customer_id` is truly the unique record identifier, and validates required columns. Do not apply `drop_duplicates` automatically to every dataset; confirm the record grain and business rule first.
+
+## Quick Notes
+
+* The main purpose of EDA is to understand the data's structure, distributions, relationships between variables, data-quality issues, and potential risks.
+* At the first stage, inspect the dataset's dimensions (`shape`), the data type of each column (`dtypes`), missing values, and sample rows.
+* Outliers are not always invalid data that should be removed; examine why they occur and what they mean in the business context.
+* Correlation shows that variables move together; it does not mean causality on its own.
+* Data leakage can occur when a feature is included in a model without considering whether it is available at prediction time.
+* Examining segments and time breakdowns can make important issues hidden by overall averages visible.
+* A good EDA study is not a notebook full of hundreds of charts; it is an analysis that summarizes risks and decisions.
+
+## Resources
+
+### [Kaggle](https://www.kaggle.com/learn)
+
+A leading platform for data-science projects, competitions, and datasets.
+
+### [pandas Documentation](https://pandas.pydata.org/docs/)
+
+A primary source for EDA fundamentals such as DataFrame operations, data-type conversion, and missing-value management.
+
+### [seaborn Documentation](https://seaborn.pydata.org/)
+
+Seaborn's official documentation explains how to use charts to examine distributions, relationships between variables, and categorical groups.
+
+### [Matplotlib Documentation](https://matplotlib.org/stable/)
+
+A core reference for managing chart axes, titles, annotations, and layout details.
+
+### [Great Expectations Documentation](https://docs.greatexpectations.io/docs/)
+
+Explains the idea of turning data quality from observations left only in a notebook into continuously running, testable pipeline checks.

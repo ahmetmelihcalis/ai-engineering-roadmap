@@ -1,0 +1,306 @@
+---
+title: "Doğal Dil İşleme (NLP)"
+slug: "dogal-dil-isleme"
+order: 8
+description: "Doğal dil işleme temelleri, metin ön işleme, metin temsili, derin öğrenme tabanlı dil modelleri ve temel NLP görevleri."
+tags: ["Metin Ön İşleme", "Tokenization", "Kök Analizi", "TF-IDF", "Word Embeddings", "NLP Görevleri"]
+---
+
+## Genel Bakış
+
+**Doğal Dil İşleme (NLP)**, bilgisayarların insan dilini işlemesini, sınıflandırmasını, anlamlandırmasını veya üretmesini sağlayan yöntemler bütünüdür. Metin sınıflandırma, duygu analizi, varlık ismi tanıma, semantic search, özetleme ve soru yanıtlama bu alanın temel uygulamaları arasındadır.
+
+Yapay zeka projelerinde NLP, metin verisinin doğası nedeniyle özel dikkat gerektirebilir. Dil, bağlam, yazım hataları, ironi, etiket kalitesi, tokenization ve temsil yöntemi modelin sonucunu doğrudan etkileyebilir. Bu nedenle metin problemlerinde veri hazırlığı ve değerlendirme, model seçimi kadar önemli olabilir.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Metin Ön İşleme ve Veri Temizleme
+* Tokenization
+* Kök ve Gövde Analizi
+* Bag of Words, TF-IDF ve N-gram
+* Word Embeddings
+* Temel NLP Görevleri
+
+## Temel Kavramlar
+
+### Doğal Dil İşleme Temelleri
+
+Metin verisi, klasik tablo verisine kıyasla daha belirsiz bir yapıya sahiptir. Aynı kelime farklı bağlamlarda farklı anlamlar taşıyabilir. Olumsuzluk ekleri, ironi, yazım hataları, kısaltmalar veya iki dilin aynı cümlede kullanılması metnin anlamını değiştirebilir. Bu nedenle bir NLP problemine model seçerek değil, kullanıcının asıl ihtiyacını tanımlayarak başlamak daha sağlıklı bir yaklaşımdır.
+
+Buradaki ilk soru, sistemin metinle ne yapacağı olabilir. Hedef sabit bir etiket üretmekse **sınıflandırma**, metnin içinden belirli alanları ayıklamaksa **bilgi çıkarımı**, benzer içerikleri bulup getirmekse **retrieval**, yeni bir metin oluşturmaksa **generation** yaklaşımları değerlendirilebilir. Başarıyı ölçecek metrikler de seçilen göreve göre şekillenebilir.
+
+### Metin Ön İşleme
+
+**Metin Ön İşleme**, ham veriyi tamamen silmeden veya kalıcı olarak değiştirmeden metni modele uygun hale getirme sürecidir. Metindeki gereksiz boşlukları düzenlemek, bozuk karakterleri temizlemek ve Unicode biçimini standartlaştırmak genellikle ilk temizlik adımlarıdır. Ancak tüm metni küçük harfe çevirmek, noktalama işaretlerini yok etmek, stemming yapmak veya stopword'leri doğrudan atmak her proje için uygun bir hamle olmayabilir. Ürün kodları, kullanıcı adları, emojiler ve büyük harf kullanımı bazı problemlerde anlamlı sinyaller taşıyabilir.
+
+**Tokenization**, metni modelin işleyebileceği küçük birimlere böler. Klasik yöntemlerde bu birimler çoğunlukla kelimelerdir. Modern Transformer modellerinde ise kelimelerin alt parçaları kullanılır. Türkçedeki ekler, yabancı terimler ve yazım hataları toplam token sayısını doğrudan etkileyebileceği için, canlı ortamdaki gerçek metinlerin uzunluk dağılımını analiz etmek sistem tasarımı için yararlı olabilir.
+
+Veri temizleme sırasında boş kayıtları, tekrarları, HTML kalıntılarını ve kişisel verileri ayrıca incelemek faydalı olur. Temizlik kurallarının train, validation ve production ortamlarında aynı çalışıp çalışmadığı da kontrol edilebilir. Aksi takdirde model, eğitimde gördüğü düzenli metin yapısıyla gerçek dünyada karşılaşmadığında performans kayıpları yaşayabilir.
+
+**Stemming** ve **lemmatization** farklı yaklaşımlardır. Stemming, dilbilgisi kurallarını pek gözetmeden kelimenin sonunu kırparak kaba bir gövdeye indirger. Lemmatization ise kelimenin sözlükteki gerçek yalın halini bulmaya çalışır. Türkçe gibi eklemeli dillerde morfolojik çözümleme değerlidir; çünkü kökü bulurken zaman, kişi, hâl ve çoğul gibi özellikleri de ayırır. Bu bilgi klasik NLP görevlerinde kullanılabilir; ancak pretrained Transformer kullanırken metni aşırı sadeleştirmek, modelin eğitimde aşina olduğu doğal dil yapısını bozabilir.
+
+Sık kullanılan kelimeleri elemek için "stopword" listeleri sıkça kullanılır. Fakat "değil", "ama" veya soru sözcükleri cümlenin bütün anlamını değiştirebilir. Bu yüzden stopword temizliğini otomatik bir refleks haline getirmek yerine, önce baseline model üzerinde test edip etkisini ölçerek ilerlemek genellikle daha güvenilirdir.
+
+### Metin Temsili
+
+Modeller metni doğrudan işleyemediği için onlara sayısal bir temsil sunulur. **Bag of Words** ve **TF-IDF**, kelimelerin cümlede geçme sıklığına dayanan klasik yöntemlerdir. Sınırlı veriyle çalışan bir sınıflandırma problemi çözülüyorsa, bu yöntemler hızlı ve açıklanabilir bir baseline sağlayabilir.
+
+**Embedding** ise kelimeyi, cümleyi veya belgeyi yoğun bir vektörle ifade eder. Anlamca birbirine yakın olan metinlerin uzaydaki vektörleri de yakınlaşır. Semantic search, clustering ve RAG sistemlerinin temelinde bu yapı bulunur. Yüksek bir benzerlik skorunun her zaman doğru cevap anlamına gelmeyebileceğini göz önünde bulundurmak yararlı olur. Getirilen metnin kullanıcının niyetini gerçekten karşılayıp karşılamadığını uçtan uca test etmek de faydalı olabilir.
+
+Bag of Words yaklaşımı kelimelerin sırasını dikkate almaz. **N-gram** yaklaşımı ise yan yana gelen kelimeleri bir bütün olarak ele alıp "iyi değil" gibi kısa ama anlamı değiştiren kalıpları yakalamayı sağlar. Buna karşın sözlük boyutu hızla genişler ve nadir geçen n-gram'lar veriyi seyrekleştirebilir. Bu nedenle maksimum feature sayısı ve n-gram aralığı gibi hiperparametrelerin validation setindeki sonuçlara bakılarak seçilmesi tavsiye edilir.
+
+Word2Vec, GloVe ve FastText gibi **Word embedding** modelleri kelimelere sabit vektörler atar. "Yüz" kelimesi, "yüzünü yıkadı" veya "havuzda yüz öğrendi" cümlelerinde aynı vektörle temsil edilir. **Contextual embedding** modellerinde ise kelimenin vektörü içinde bulunduğu cümleye göre değişir. BERT gibi Transformer mimarileri bu yaklaşıma örnektir. Bu durum, contextual modellerin anlam belirsizliğinde neden daha etkili olduğunu açıklar.
+
+Bir cümle veya belge embedding'i seçerken modelin Türkçe desteğini, çalışılan domain terminolojisine yatkınlığını, token uzunluk limitini ve gerçek arama senaryolarındaki başarısını bir bütün olarak değerlendirmek yararlı olur.
+
+### Derin Öğrenme Tabanlı Dil Modelleri
+
+Transformer ve attention'ın mimari temeli Deep Learning modülündedir. NLP'de encoder modelleri anlama ve sınıflandırma, decoder modelleri ise üretim görevleri için değerlendirilir.
+
+Pretrained bir dil modeli için prompting, embedding çıkarma veya fine-tuning seçimi görevin hata türüne ve gecikme bütçesine göre yapılır. Fine-tuning karar çerçevesi Fine-tuning & Optimization modülündedir; burada amaç seçilen yöntemin görev başarısına katkı sağlayıp sağlamadığını ölçmektir.
+
+### Temel NLP Görevleri
+
+**Text Classification (Metin Sınıflandırma)**, metnin konusunu, kullanıcının niyetini veya duygusunu etiketler. **Named Entity Recognition (NER / Adlandırılmış Varlık Tanıma)**, cümlenin içindeki kişi, kurum, konum, tarih veya ürün kodu gibi belirli alanları bulup çıkarır. **Semantic Search (Anlamsal Arama)**, kullanıcının sorgusuna en uygun belge veya paragrafları eşleştirir. **Summarization (Özetleme)**, **Translation (Çeviri)** ve **Question Answering (Soru Yanıtlama)** temel NLP görevleri arasındadır.
+
+Değerlendirme kriterleri de göreve göre şekillenir. Sınıflandırma görevlerinde precision, recall, F1-score ve confusion matrix sıkça kullanılır. Çok etiketli veya dengesiz sınıf dağılımı olan problemlerde; her sınıfa eşit ağırlık veren **Macro-F1**, baskın sınıfın yönlendirebileceği **Micro-F1** veya sınıf büyüklüklerine göre değerlendiren **Weighted-F1** arasında bilinçli bir tercih yapmak yararlı olur.
+
+**Information Extraction (Bilgi Çıkarımı)** görevlerinde yakalanan metin aralığının doğruluğu, üretimde ise kaynak doğruluğu ve üslup birlikte değerlendirilir. Retrieval metrikleri ve kaynaklı cevap değerlendirmesinin ayrıntısı RAG & Agentic Systems modülündedir.
+
+### Dilbilimsel Analiz ve Anlam Belirsizliği
+
+**Morphological Analysis (Morfolojik Analiz)**, bir kelimenin kökünü ve aldığı eklerin dilbilgisel işlevlerini çözümler. **Part-of-Speech Tagging (POS / Sözcük Türü Etiketleme)** ise metindeki her bir token'a; isim, fiil, sıfat gibi sözcük türü etiketleri atar. Türkçede aynı yüzey biçimi birden fazla morfolojik anlama sahip olabileceği için kelimenin cümle içindeki bağlamını hesaba katmak büyük önem taşır.
+
+**Word Sense Disambiguation (WSD / Kelime Anlamı Belirsizliği Giderme)**, sesteş veya çok anlamlı bir kelimenin o cümlede hangi anlamıyla kullanıldığını belirlemeye çalışır. Burada yalnızca doğru tahmin üretmek değil, olası anlamları doğru biçimde ayırmak da önemlidir. Modern contextual dil modelleri bu ayrımı kendi vektör uzaylarında öğrenme eğilimindedir; yine de sektörel kullanımlarda bir alan sözlüğü üzerinden model hatalarını değerlendirmek kaliteyi artırabilir.
+
+**NER**, yalnızca varlığın türünü değil, metindeki başlangıç ve bitiş sınırlarını da doğru tespit etmeyi hedefler. Çıkarılan değeri standart formata dönüştürürken, orijinal halini veri yapısında korumak modelin karar mekanizmasını geriye dönük denetlemeyi kolaylaştırır.
+
+### Text Classification, Sentiment Analysis ve Recommendation Systems
+
+Sınıflandırma problemleri tek etiketli, çok etiketli veya hiyerarşik yapıya sahip olabilir. Etiket sınırları birbirine karışıyorsa, daha büyük bir modele geçmek yerine etiketleme rehberini netleştirmek genellikle sorunu kökünden çözer.
+
+**Sentiment Analysis (Duygu Analizi)**, metinleri olumlu, olumsuz veya nötr olarak gruplamaya çalışır. Ancak ironi, örtülü olumsuzluklar veya sadece belirli bir sektöre has jargonlar bu modelleri yanıltabilir; bu nedenle belirli alanlara özel hata analizleri yapılması önerilir.
+
+**Recommendation Systems (Öneri Sistemleri)**, salt bir NLP problemi olmaktan ziyade metin analizi ile kullanıcı etkileşim sinyallerinin harmanlandığı yapılardır. Metin embedding'leri içerik benzerliği kurmada yararlı bir sinyal sunsa da; sistem başarısının CTR, conversion, diversity ve cold-start gibi öneri sistemlerine özgü metriklerle ölçülmesi daha gerçekçi sonuçlar verir.
+
+## Çalışma Mantığı
+
+Bir NLP projesinde ilk adımlardan biri veri yapısını anlamaktır. Metnin kaynağını, içerdiği dilleri, etiketlerin kalitesini ve üretim ortamında sağlanabilecek gerçek verileri en baştan analiz etmek yararlı olur. Şablon tekrarları train ve test setlerine karışıyorsa aynı metnin iki tarafta görünmesi riskini ayrıca kontrol etmek faydalı olur; genel leakage çerçevesi Machine Learning modülündedir.
+
+İlk modelin olabildiğince basit ve anlaşılır tutulması iyi bir başlangıçtır. TF-IDF ve Logistic Regression tabanlı bir baseline, veri ve etiketlerdeki kalite sorunlarını hızlıca görünür kılar. Sonrasında daha karmaşık bir modele geçildiğinde, aradaki kalite artışı aynı metriklerle daha şeffaf bir şekilde ölçülebilir.
+
+Değerlendirme aşamasında sadece genel ortalama skora bakmak yerine, veriyi alt grup bazında okumak daha açıklayıcı sonuçlar verir. Çok kısa mesajlar, iki dilli cümleler, nadir görülen sınıflar ve sektörel terimler için ayrı raporlamalar yapmak; hatanın veri kaynağından mı, etiket tanımından mı yoksa modelin sınırlamalarından mı kaynaklandığını teşhis etmeyi kolaylaştırır.
+
+Klasik yöntemlerle modern yaklaşımlar birbirinin alternatifi olmak zorunda değildir. Sınıflandırma görevinde TF-IDF baseline kullanılırken, semantic search için contextual embedding'ler kullanılabilir veya bir NER çıktısı kural tabanlı (RegEx) bir doğrulamadan geçirilebilir. Sisteme yeni bir bileşen veya karmaşıklık eklendiğinde, bunun belirli bir hata grubunu çözdüğünü göstermek yararlı olur.
+
+## Kod Örnekleri
+
+### Ham Metni Koruyarak Ön İşleme
+
+```python
+import re
+import unicodedata
+
+def preprocess_text(value: str) -> str:
+    value = unicodedata.normalize("NFC", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+df["text_raw"] = df["text"].fillna("")
+df["text_clean"] = df["text_raw"].map(preprocess_text)
+
+```
+
+Bu yaklaşım, orijinal veriyi `text_raw` içinde güvenle tutarken, üzerinde çalışılacak metni `text_clean` olarak oluşturur. Sisteme yeni bir temizlik kuralı eklendiğinde, bunun model başarısına etkisinin aynı test kümesi üzerinde ölçülmesi önerilir.
+
+### TF-IDF ile Başlangıç Modeli
+
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+
+pipeline = Pipeline([
+    ("vectorizer", TfidfVectorizer(ngram_range=(1, 2), min_df=2)),
+    ("model", LogisticRegression(max_iter=1000)),
+])
+
+pipeline.fit(train_texts, train_labels)
+predictions = pipeline.predict(validation_texts)
+
+```
+
+Bu klasik mimari, hızlı eğitilmesi ve hangi kelimelerin tahmini etkilediğini şeffaf bir biçimde göstermesiyle öne çıkar. İlerleyen aşamalarda kullanılacak derin öğrenme tabanlı modellerin yarattığı değer, bu baseline üzerinden ölçülebilir.
+
+### Bag of Words ve N-Gram Karşılaştırması
+
+```python
+from sklearn.feature_extraction.text import CountVectorizer
+
+bow = CountVectorizer(ngram_range=(1, 1), min_df=2)
+ngram = CountVectorizer(ngram_range=(1, 2), min_df=2)
+
+bow_matrix = bow.fit_transform(train_texts)
+ngram_matrix = ngram.fit_transform(train_texts)
+
+print("BoW feature count:", bow_matrix.shape[1])
+print("N-gram feature count:", ngram_matrix.shape[1])
+
+```
+
+N-gram eklemek kısa kelime öbeklerini yakalama kabiliyetini artırır; ancak karşılığında boyut sayısını ve bellek tüketimini de artırır. N-gram kullanım kararı, validation setindeki performans değerlendirmelerine göre verilebilir.
+
+### Token Seviyesinde Çıktıyı Saklama
+
+```python
+entity = {
+    "text": "London",
+    "start": 33,
+    "end": 39,
+    "label": "LOCATION",
+    "normalized_value": "London",
+}
+
+```
+
+Adlandırılmış Varlık Tanıma sonucunda çıkarılan veri standartlaştırılsa bile, orijinal metin içindeki `start` ve `end` indekslerini tutmak modelin karar mekanizmasını geriye dönük takip edebilmek açısından pratik bir çözümdür. Bu görev NER olarak kısaltılır.
+
+### Python ile Tokenization, Stemming, Morfoloji, POS ve NER
+
+```python
+import stanza
+from nltk.stem import SnowballStemmer
+
+stanza.download("en")
+stemmer = SnowballStemmer("english")
+nlp = stanza.Pipeline(
+    "en",
+    processors="tokenize,mwt,pos,lemma,ner",
+)
+
+doc = nlp("Alice will attend the meeting in London tomorrow.")
+
+for sentence in doc.sentences:
+    for word in sentence.words:
+        print({
+            "token": word.text,
+            "stem": stemmer.stem(word.text.lower()),
+            "lemma": word.lemma,
+            "pos": word.upos,
+            "morphology": word.feats,
+        })
+
+for entity in doc.ents:
+    print(entity.text, entity.type)
+
+```
+
+Bu akış, tek bir metin üzerinde kelime parçalama, kök bulma, dilbilgisi analizi ve varlık çıkarma adımlarını bütünleşik olarak sunar. Canlı ortama çıkarken kullanılan kütüphane sürümünün sabitlenmesi tekrarlanabilirliği destekler.
+
+### Python ile Word Sense Disambiguation (WSD) için Başlangıç Modeli
+
+Bu örnekte `embedding_model`, önceden yüklenmiş bir SentenceTransformer modeli olarak varsayılır.
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+
+context = "The child learned to swim in the pool."
+sense_descriptions = [
+    "A person's face or facial expression",
+    "The verb meaning to move through water",
+    "The number one hundred",
+]
+
+context_vector = embedding_model.encode([context])
+sense_vectors = embedding_model.encode(sense_descriptions)
+scores = cosine_similarity(context_vector, sense_vectors)[0]
+
+selected_sense = sense_descriptions[scores.argmax()]
+
+```
+
+Bu örnek, cümlenin embedding'i ile olası anlamların açıklamalarını karşılaştıran basit bir temel sunar. Pratikteki asıl mühendislik çabası, `sense_descriptions` listesini besleyecek kaliteli bir sözlük veya etiketli veri envanteri oluşturma sürecinde yatar.
+
+### Python ile Duygu Analizi
+
+```python
+from transformers import pipeline
+
+model_id = "distilbert-base-uncased-finetuned-sst-2-english"
+sentiment = pipeline(
+    "text-classification",
+    model=model_id,
+)
+
+result = sentiment("The application failed to open again.")
+print(result)
+
+```
+
+Model seçiminde Hugging Face gibi platformlardan bir modeli doğrudan indirmek yerine, modelin ilgili dile, jargona ve ironi kullanımına uygunluğunu kurumun kendi veri setiyle test etmek yararlı olur. Modelin döndürdüğü skorun kesin bir gerçeklik değil, olasılıksal bir güven ölçütü olduğunu akılda tutmak da faydalı olabilir.
+
+### Python ile Metin Tabanlı Öneri Sistemi
+
+Bu örnekte `embedding_model`, önceden yüklenmiş bir SentenceTransformer modeli olarak varsayılır.
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+
+user_vector = embedding_model.encode([user_profile_text])
+item_vectors = embedding_model.encode(item_descriptions)
+scores = cosine_similarity(user_vector, item_vectors)[0]
+
+# argsort sorts scores from smallest to largest; [::-1] reverses the order.
+recommended_indices = scores.argsort()[-5:][::-1]
+recommendations = [items[index] for index in recommended_indices]
+
+```
+
+Bu content-based mantık salt metin benzerliği kurar. Gelişmiş bir öneri sistemi tasarlarken, metin benzerliğinin yanında kullanıcı etkileşim verileri, popülerlik dengesi ve diversity de mimariye dahil edilebilir.
+
+### Hataları Göreve Göre İnceleme
+
+```python
+errors = validation_df.loc[
+    validation_df["label"] != validation_df["prediction"],
+    ["text_raw", "label", "prediction", "language"],
+]
+
+print(errors.sample(min(20, len(errors)), random_state=42))
+
+```
+
+Modelin yanlış tahmin ettiği örneklerin yalnızca sayısına odaklanmak yerine; hatanın kaynağının yazım yanlışı, çok dilli içerik, eksik bağlam veya belirsiz etiket olup olmadığını kategorize etmek hedefe yönelik iyileştirmeleri kolaylaştırabilir.
+
+## Kısa Notlar
+
+* Metin ön işleme adımları uygulanırken, cümlenin anlamını ve önemli sinyallerini kaybetmemeye dikkat edilmelidir.
+* TF-IDF, metin sınıflandırma problemlerinde hâlâ hızlı, basit ve güçlü bir başlangıç yöntemi olabilir.
+* Word2Vec ve GloVe gibi yöntemler kelimeler için sabit embedding’ler üretirken, Transformer tabanlı modeller kelimenin bulunduğu bağlama göre farklı temsiller oluşturabilir.
+* Embedding’ler, metinler arasındaki anlamsal benzerliği temsil etmeye yardımcı olur; tek başına doğru cevabı garanti etmez.
+* Transformer modelleri, attention mekanizması sayesinde cümlenin farklı bölümleri arasındaki ilişkileri öğrenebilir ve özellikle eğitim sırasında paralel işlem avantajı sağlar.
+* NLP’de kullanılacak metrik, görevin türüne göre seçilmelidir. Örneğin metin üretiminde BLEU veya ROUGE, bilgi erişiminde ise Recall@k gibi metrikler kullanılabilir.
+* N-gramlar, kısa kelime veya karakter kalıplarını yakalamada etkilidir; ancak n değeri arttıkça bellek ve işlem maliyeti de artabilir.
+* Morfolojik analiz, POS etiketleme ve WSD, dilin biçimsel ve anlamsal yapısını daha ayrıntılı incelemek için kullanılan yöntemlerdir.
+
+## Kaynaklar
+
+### [Hugging Face Course](https://huggingface.co/learn/nlp-course/)
+
+Tokenization, Transformer mantığı ve modern NLP akışlarını uygulamalı olarak öğrenmek için oldukça kapsamlı bir başlangıç noktasıdır.
+
+### [spaCy Documentation](https://spacy.io/usage)
+
+Metin parçalama, NER ve production odaklı hızlı NLP pipeline'ları tasarlamak için kapsamlı bir teknik referanstır.
+
+### [Stanza Documentation](https://stanfordnlp.github.io/stanza/)
+
+Türkçe özelinde tokenization, lemmatization, POS, morfoloji ve NER bileşenlerini bir araya getiren resmi belgelendirmedir.
+
+### [Stanford CS224N: Natural Language Processing with Deep Learning](https://web.stanford.edu/class/cs224n/)
+
+Metin temsili, dil modellerinin matematiksel altyapısı ve temel NLP görevlerinin teorisi hakkında akademik düzeyde derinleşmek isteyenlere hitap eder.
+
+### [scikit-learn Text Feature Extraction](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction)
+
+Bag of Words, TF-IDF ve klasik metin sınıflandırma yöntemlerini pratik kod örnekleriyle hızlıca kavramak için ideal bir kaynaktır.

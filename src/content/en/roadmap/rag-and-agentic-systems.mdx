@@ -1,0 +1,216 @@
+---
+title: "RAG and Agentic Systems"
+slug: "rag-and-agentic-systems"
+order: 10
+description: "RAG integration, AI agents, tool use, memory, and MCP."
+tags: ["Chunking", "Embedding", "Retrieval", "Context Management", "Tool Use", "Evaluation"]
+---
+
+## Overview
+
+**Retrieval-Augmented Generation (RAG)** is an approach that lets a language model find relevant information from external sources and add it to the context before producing a response. The goal is to ensure that model output relies not only on model weights, but also on current and auditable sources.
+
+RAG works well with internal documents, product information, user-specific data, and frequently updated content. Use agentic systems when the model must decide how the application should call tools, retrieve information, or carry out specific steps.
+
+This module covers:
+
+* Document Preparation and Chunking
+* Embeddings and Vector Databases
+* Retrieval, Reranking, and Citations
+* Context Management
+* Agent Workflows, Tool Permissions, and Memory
+* Workflows, Security Boundaries, and Evaluation
+
+## Key Concepts
+
+### Why Is RAG Needed?
+
+Information learned by a model during training does not cover every organization's private data and can become outdated over time. RAG adds frequently changing product information to the context when needed. A detailed framework for fine-tuning decisions is in the Fine-Tuning and Optimization module.
+
+RAG does not solve every problem. If a source document is incorrect, outdated, or incomplete, the system cannot provide a reliable response either. In addition, finding the correct document does not mean that the model will interpret it correctly. For this reason, retrieval and response-generation stages are evaluated separately.
+
+### Document Preparation and Chunking
+
+The first step is ingesting documents into the system. Text is extracted from sources such as PDFs, web pages, tables, or support records; metadata such as title, section, date, language, product version, and access permission is preserved. Incorrect OCR output, lost table structure, or an outdated document version affects every later stage.
+
+Long documents are divided into meaningful pieces (chunks). Pieces that are too small can lose necessary context; pieces that are too large can carry irrelevant information and make retrieval and model attention harder. In an FAQ document, a question and answer can be kept in the same piece; in a technical document, a title and explanation can be kept together. Chunk size is evaluated with real user questions.
+
+### Embeddings and Indexing
+
+An **embedding (vector representation)** is produced for each piece and written to the index together with source information. Embeddings help find text that is semantically similar. The indexing pipeline should manage not only newly added documents, but also updated and deleted documents.
+
+Keeping a document's identity, version, and access level together with its piece is safer. Otherwise, producing accurate citations, removing old pieces, or searching only documents the user is authorized to access becomes difficult. When the embedding model changes, rebuilding the index may be necessary.
+
+### Retrieval, Filtering, and Reranking
+
+A user question is converted into an embedding and similar pieces are found. Semantic search is strong at meaning similarity; keyword search can work better for product codes, error numbers, and exact terms. Hybrid search combines these two approaches.
+
+Metadata filters apply boundaries such as date, language, product version, and access permission during search. An initial search can return a broad candidate list; a reranker moves more relevant pieces to the top. Reranking improves only the order. If the correct document is not among the candidates at all, ingestion, chunking, or retrieval should be examined first.
+
+### Building Context, Grounding, and Citations
+
+Selected pieces are added to the model context together with source identities. The model is instructed to rely only on these sources and to state this clearly when information cannot be found. Grounding means that claims in a response are supported by the supplied sources.
+
+A citation shows the user which document a response is based on. Rather than giving only a list of links at the end of a page, matching the relevant source section to the claim provides more accurate attribution. Having a citation alone is not enough; it is also useful to test whether the right source is connected to the right claim.
+
+### RAG Integration
+
+RAG integration is not only connecting a vector database. The application receives the user question, applies the access filter, runs retrieval, reranks results when necessary, builds context with source identities, and validates the model response. Citation display in the interface and the response given when no source is found are also part of the same flow.
+
+If a RAG result is passed to another product workflow, it is useful to preserve source, access, and security information. For example, if a support assistant produces a response from a policy document and then opens a support record, the record can retain the document version used and user consent. This creates an auditable connection between retrieval and action.
+
+### Moving to Agentic Systems
+
+A RAG system finds relevant documents and produces a response from that context. When a fixed retrieval flow is not enough because the next step depends on the input or an intermediate result, use a more flexible agent workflow.
+
+### Agent Workflows and Tool Selection
+
+An **AI agent** is a system that evaluates the current state to reach a specific goal and decides which tool to use or which step to follow. The basic agent loop can be thought of as: receive the task, call the required tool, observe the result, update the state when necessary, and check the stopping condition. The model is the decision-making component of this loop; authentication, authorization, and the actual execution of actions take place in the application layer.
+
+For the agent to make this decision reliably, giving the model a tool name alone is not enough. Each tool should clearly define what it does, when it should be used, which inputs it accepts, and what permission boundaries apply. Unnecessarily multiplying tools with overlapping purposes can increase the risk of an incorrect selection.
+
+An agent is not necessary for every task. For tasks with predetermined steps, an explicit and deterministic workflow can be safer, more predictable, and less costly. Agents add value particularly when the tool, source, or path to follow changes according to the input and intermediate results. Success should be assessed not by how many steps an agent takes, but by whether it completes the task correctly, safely, and at an acceptable cost.
+
+### Tool Permissions and Security Boundaries
+
+For tool use, it is safer to define input fields, permissions, timeouts, system behavior on failure, and the maximum number of steps clearly. A read-only operation such as search is not kept at the same permission level as sending email, deleting a record, or initiating payment. High-impact actions use user confirmation and application-side authorization checks.
+
+### Memory Management in Agents
+
+Memory in agentic systems can be used to retain relevant conversational context or user preferences when needed. Rather than storing every message without limit, what information is kept, how long it is retained, and how the user can delete it should be defined from the beginning. In particular, it is important to validate information written to long-term memory and ensure that it does not contain sensitive data.
+
+### MCP Tool and Resource Connections
+
+**MCP (Model Context Protocol)** is a standard that connects AI applications to tools and resources in external systems through a shared client-server model. It does not determine how an agent makes decisions or manages memory.
+
+An MCP server can expose readable data such as files or documents as resources, and capabilities such as querying a database or performing an operation as tools. Authorization, user confirmation, secret-key management, and validation of tool outputs remain the application's responsibility.
+
+### Agent Ecosystems and Multi-Agent Systems
+
+An agent ecosystem can consist of a model provider, tool layer, retrieval system, memory, workflow, and evaluation components. **LangChain**, **LlamaIndex**, and similar frameworks make connecting these components easier; however, they do not solve security and quality decisions by themselves.
+
+A multi-agent system is a structure in which multiple agents, each taking responsibility for different parts of a task, work together. However, because coordination adds latency and cost, it should be preferred only when roles and workflow are genuinely separable.
+
+### Agent Evaluation
+
+Agent evaluation does not look only at the final response. Questions such as whether the correct tool was selected, input was prepared correctly, an unnecessary call was made, the permission boundary was preserved, and the system stopped at the right time are recorded separately. In systems using memory, whether old or incorrect information affects a new task is also added to the test set.
+
+## How It Works
+
+A RAG system finds the relevant document and produces a response with this context. The workflow consists of ingesting the document, converting it to text while preserving its structure, splitting it into meaningful pieces, generating embeddings, indexing them with metadata, retrieving pieces relevant to the question, reranking when necessary, building context, and producing a sourced response. Making the input and output of every stage traceable is useful.
+
+### RAG Evaluation and Error Analysis
+
+Evaluation is divided into two main parts. Retrieval evaluation checks whether the correct source is found among the first results. Response-generation evaluation measures whether the response answers the question, stays within the sources, and uses citations correctly. This separation makes it easier to find at which stage an incorrect answer is created.
+
+### Separating a RAG Error into Stages
+
+For an incorrect answer, first check whether the expected document is in the index. Then check whether the correct chunk enters retrieval results, whether it is sent to the model after reranking, and whether the model uses the source correctly. This order finds the real point of failure instead of changing the model directly.
+
+In a representative question set, the expected document or section is marked for every question. Questions whose answer is not in the source and questions that request a document the user cannot access are also added to this set. In some cases, successful behavior is not producing a response, but clearly stating that information cannot be found or that authorization is insufficient.
+
+## Code Examples
+
+### Context That Preserves Source Identity
+
+```python
+def build_context(chunks: list[dict[str, str]]) -> str:
+    return "\n\n".join(
+        f"[{chunk['source_id']}] {chunk['text']}"
+        for chunk in chunks[:4]
+    )
+```
+
+If source identity is carried with the chunk, citations in model output can be matched to the actual document in the interface.
+
+### Measuring a Retrieval Result
+
+```python
+def recall_at_k(
+    retrieved_ids: list[str],
+    expected_ids: set[str],
+    k: int,
+) -> float:
+    if not expected_ids:
+        return 0.0
+    return len(set(retrieved_ids[:k]) & expected_ids) / len(expected_ids)
+```
+
+This metric shows how many expected documents appear in the first results. Whether the response is faithful to its source is a separate generation check.
+
+### A Tool with Defined Boundaries
+
+```python
+tool = {
+    "name": "get_order_status",
+    "input_schema": {"order_id": "string"},
+    "permission": "read_only",
+    "timeout_seconds": 5,
+    "max_attempts": 2,
+}
+```
+
+Preventing an agent from entering an infinite loop when a tool fails, and explaining the situation to the user after the defined number of attempts, provides a safer flow.
+
+### Separating Agent State and Memory
+
+```python
+agent_state = {
+    "task_id": task_id,
+    "step": 2,
+    "tool_results": [],
+    "remaining_steps": 3,
+}
+
+conversation_memory = {
+    "user_id": user_id,
+    "confirmed_preferences": [],
+    "expires_at": expires_at,
+}
+```
+
+Keeping temporary task state separate from information stored about a user across sessions makes retention and deletion rules clearer.
+
+### Evaluating an Agent Step
+
+```python
+agent_case = {
+    "request": "Find and summarize my order status.",
+    "allowed_tools": ["get_order_status"],
+    "forbidden_actions": ["cancel_order"],
+    "max_steps": 3,
+    "requires_confirmation": False,
+}
+```
+
+An evaluation case can define not only the expected response, but also usable tools and forbidden actions.
+
+## Quick Notes
+
+* RAG provides an LLM with additional context from external sources when it is needed.
+* A strong retrieval process should begin with clean, current, and trustworthy documents.
+* Chunking, metadata, and access filters should be considered together, because how information is divided and who can access it directly affect retrieval quality.
+* Embeddings help identify semantic similarity between texts, but they do not guarantee that a source is correct, trustworthy, or current.
+* Showing which sources a response relies on and providing citations make the output easier to verify.
+* In agentic systems, tool permissions, stopping conditions, and human confirmation where necessary should be defined clearly.
+* A RAG integration is not limited to retrieval; it also covers context construction, source display, the interface, and fallback behavior for error cases.
+* Memory is not about retaining every conversation indefinitely; it is about managing information needed in later steps in a controlled and purposeful way.
+* MCP is a protocol that gives AI applications standardized access to tools, resources, and prompt components.
+
+## Resources
+
+### [Introduction to Information Retrieval — Stanford](https://nlp.stanford.edu/IR-book/)
+
+A core source for retrieval, ranking, relevance, and evaluation metrics.
+
+### [Qdrant Documentation](https://qdrant.tech/documentation/)
+
+For studying embeddings, metadata filtering, hybrid search, and vector-search practices.
+
+### [Building Effective AI Agents — Anthropic](https://www.anthropic.com/engineering/building-effective-agents)
+
+A practical design guide for workflows, agents, tool use, and multi-agent structures.
+
+### [Model Context Protocol Specification](https://modelcontextprotocol.io/specification/2025-06-18/server/index)
+
+For studying MCP's tools, resources, and prompts components through the official documentation.

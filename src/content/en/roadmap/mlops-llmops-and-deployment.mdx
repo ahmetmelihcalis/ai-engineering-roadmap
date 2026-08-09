@@ -1,0 +1,86 @@
+---
+title: "MLOps, LLMOps, and Deployment"
+slug: "mlops-llmops-and-deployment"
+order: 12
+description: "Packaging, deployment, monitoring, data drift, model versioning, and LLMOps for production AI systems."
+tags: ["Model Artifact and Serving Contracts", "Serving", "Monitoring", "Versioning", "LLMOps", "Security"]
+---
+
+## Overview
+
+**Deployment** is the process of moving a trained model into an environment that users or systems can access. **MLOps (Machine Learning Operations)** is the engineering discipline that makes model development, release, monitoring, maintenance, and version management repeatable.
+
+This module covers:
+
+* Model Artifact and Serving Contracts
+* Serving Patterns
+* Monitoring, Feedback, and Data Drift
+* Versioning, Release, and Rollback
+* LLMOps, Prompt Versioning, and LLM Evaluation
+* Capacity, Security, and Privacy
+
+## General Information
+
+### Model Artifact and Serving Contracts
+
+Before deploying a model, it is necessary to define clearly which model artifact will be served and which data format the model expects. For this reason, managing model artifacts and data/API contracts is a core part of the MLOps process.
+
+**Model Artifact** refers to the saved form of a trained model. It can include model weights, a serialized model object, or a similar output. However, an artifact is not sufficient on its own. It should be evaluated together with the code that produced the model, feature order, encoder, scaler, and data assumptions used during training.
+
+**Prediction API Contract** defines which fields an API accepts, the types and formats those fields must have, and the output it produces. If the feature order or preprocessing steps used during training differ from the operations applied during serving, the model can produce incorrect predictions without raising an error.
+
+Using **schema validation** in a model API is a good starting point. It is also important to monitor changes that may emerge over time in the structure or meaning of incoming data. Expected value ranges, categories, and missing-data rates for critical fields can be defined in a **data contract**. When a new category, unexpected missingness, or an invalid value is observed, behaviors such as rejecting the request, applying a fallback, or routing it to human review can be determined in advance.
+
+### Serving Patterns
+
+**A Container** helps package an application and its dependencies in the same runtime environment. The API layer handles model loading, input validation, and prediction generation. **Batch Inference**, **Real-Time APIs**, and **Asynchronous Processing** are different serving patterns; the choice depends on user expectations, volume, and acceptable latency.
+
+Not every model needs to respond immediately over HTTP. A daily recommendation list, risk score, or generated report may cost less when run with batch inference. For work that can wait a few seconds, use asynchronous queues and status tracking.
+
+### Monitoring, Feedback, and Data Drift
+
+**Monitoring** goes beyond checking whether the server is up. Track input distributions, missing-field rates, latency, error rates, prediction distributions, and, when possible, actual business outcomes. **Data Drift** occurs when production inputs differ from training data. **Concept Drift** is a change in the relationship between inputs and targets.
+
+The true label may sometimes arrive days or weeks later. In this case, it can be more meaningful to monitor immediate technical metrics and delayed quality metrics separately. Feedback does not mean automatic retraining; data quality, representation problems, business rules, and model behavior can be examined first.
+
+The distribution of model outputs can also provide early warnings. If the prediction rate for one class drops to zero overnight, there may be an error in the feature pipeline or class index before the model itself. Defining an owner, threshold, and runbook for every alert makes intervention easier.
+
+### Versioning, Release, and Rollback
+
+Version code, the model, data schema, feature-processing pipeline, and configuration together. When a problem occurs, identifying the changed component and safely returning to the previous version becomes much easier. A rollback plan prepared before release also reduces risk.
+
+Trying a new version with predefined examples in test and staging environments is a good practice. In a gradual release, a limited portion of traffic is directed to the new version. In a parallel experiment, the new version can run alongside the current system without showing its outputs to users, and results can be compared. Setting thresholds in advance for API error rate, p95 latency, input-validation success, and business metrics supports a healthier release decision.
+
+### LLMOps
+
+**LLMOps** adapts MLOps principles to large-language-model systems, including prompt versioning, evaluation, and context management. In addition to classic model versioning, track the system message, prompt template, model version, and tool-call configuration together.
+
+Evaluation in an LLM application may not rely on a single accuracy metric. With an evaluation set appropriate for the task, response correctness, format compliance, safety, and, when needed, grounding in sources can be examined together. When a prompt or model changes, checking whether regression occurs in examples that previously worked well provides a useful safeguard.
+
+In systems using RAG, the document collection, embedding model, and index version also affect production behavior. Treat changes to these components like model changes so that response quality, retrieval success, and latency can be evaluated together.
+
+For LLMOps, track token usage, cost per request, latency, error rates, and user feedback. For tasks with hallucination or safety-violation risk, define a safety filter, human-review step, or fallback behavior in advance.
+
+### Capacity, Security, and Privacy
+
+In service design, average request volume alone is not enough. Account for peak concurrent traffic, model-load time, memory needs, and dependent-service limits. Load testing with representative input sizes and realistic concurrency can reveal that a model that is fast on small demo data behaves differently on long documents.
+
+Evaluating access control, rate limiting, and input limits in a model service is good practice. Logs can be used for debugging; however, it is important not to retain personal data or sensitive model output unnecessarily. Addressing requirements such as encryption, access logs, data-retention duration, and deletion requests at the beginning of system design can make later changes easier.
+
+## Resources
+
+### [FastAPI Documentation](https://fastapi.tiangolo.com/)
+
+A practical reference for input validation, API contracts, and the serving layer.
+
+### [Docker Documentation](https://docs.docker.com/)
+
+A core resource for packaging application dependencies and creating a repeatable runtime environment.
+
+### [MLflow Model Registry Documentation](https://mlflow.org/docs/latest/ml/model-registry/)
+
+Explains the core concepts of experiment, artifact, and model-version tracking.
+
+### [Google SRE](https://sre.google/)
+
+Offers a systems perspective on observability, reliability objectives, and operational ownership.

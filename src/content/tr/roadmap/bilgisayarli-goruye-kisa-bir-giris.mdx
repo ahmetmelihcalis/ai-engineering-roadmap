@@ -1,0 +1,65 @@
+---
+title: "Bilgisayarlı Görüye Kısa Bir Giriş"
+slug: "bilgisayarli-goruye-kisa-bir-giris"
+order: 7
+description: "Görüntü verisiyle çalışmanın temel kavramlarına ve dikkat edilmesi gereken noktalara kısa bir giriş."
+tags: ["Görüntü Sınıflandırma", "Nesne Tespiti", "Segmentasyon", "YOLO", "Veri Artırma", "Transfer Learning"]
+---
+
+## Genel Bakış
+
+**Bilgisayarlı Görü**, görüntü ve video verilerinden anlam çıkarmaya odaklanan yapay zeka alanıdır. Nesne tanıma, görüntüdeki bölgeleri ayırma, belge üzerindeki alanları bulma ve üretim hattındaki kusurları tespit etme bu alanın yaygın kullanım örnekleridir.
+
+Bu modül, bilgisayarlı görüye kısa bir giriş sunar. Amaç bilgisayarlı görüyü bütün ayrıntılarıyla öğretmek değil; görüntü verisinin tablo ve metin verisinden neden farklı ele alındığını göstermek ve temel kavramları tanıtmaktır. CNN'in mimari temelleri Derin Öğrenme modülünde ele alınır; burada görüntü sınıflandırma, nesne tespiti, bölütleme, veri artırma ve transfer learning gibi uygulamalara odaklanılır.
+
+## Genel Bilgi
+
+### Görüntü Verisinin Doğası
+
+Bir görüntü, bilgisayar açısından sayılardan oluşan bir yapıdır. Renkli görseller çoğunlukla kırmızı, yeşil ve mavi olmak üzere üç kanaldan oluşur. Modelin gördüğü yapı genellikle bir **Tensör**dür; kanalların sırası, çözünürlük ve piksel değer aralığı modelin davranışını doğrudan etkiler.
+
+Örneğin eğitim sırasında 0 ile 1 arasına ölçeklenen bir görüntü, üretimde 0 ile 255 aralığında gönderilirse beklenmedik sonuçlar doğabilir. Bu nedenle görüntünün nasıl hazırlandığı, model dosyası kadar etkili olabilir.
+
+Çözünürlük, görüntünün genişlik ve yükseklik bilgisidir. Görüntünün yeniden boyutlandırılması, kırpılması veya sıkıştırılması modelin göreceği ayrıntı düzeyini değiştirir. Çok düşük çözünürlük küçük nesneleri görünmez hale getirebilir; çok yüksek çözünürlük ise maliyeti ve bellek kullanımını artırabilir.
+
+### Temel Görüntü Problemleri
+
+**Görüntü Sınıflandırma**, görüntünün tamamına bir sınıf verir: Fotoğrafta kedi var mı, ürün hasarlı mı gibi. **Nesne Tespiti**, görüntüdeki nesnenin yerini bir **Sınırlayıcı Kutu**yla bulur. **Segmentasyon** ise her pikselin hangi nesneye ait olduğunu belirler.
+
+Bu problem türleri birbirine benzese de farklı etiketler, başarı ölçütleri ve kullanıcı beklentileri gerektirir. Bir sınıflandırma modeli için uygun değerlendirme, segmentasyon projesi için yeterli olmayabilir.
+
+**YOLO (You Only Look Once)**, bir görüntüdeki nesnelerin sınıfını ve konumunu tek bir forward pass'te tahmin eden yaygın bir nesne tespiti ailesidir. Sınırlayıcı kutuların koordinatlarını, her kutudaki nesnenin sınıfını ve ilgili tahmin skorunu birlikte üretir. Hızlı çalışması nedeniyle gerçek zamanlı kamera akışları, üretim hattı denetimi ve güvenlik uygulamalarında sık kullanılır.
+
+YOLO ile çalışırken etiketlerin sınırlayıcı kutu biçimi ve sınıf adları bakımından tutarlı hazırlanması faydalı olur. Değerlendirmede yalnızca doğruluk yerine, kutunun gerçek nesneyle ne kadar örtüştüğünü de hesaba katan **IoU** ve **mAP** gibi nesne tespitine özgü ölçütler kullanılabilir.
+
+Bilgisayarlı görünün OCR, yüz algılama, poz tahmini, tıbbi görüntü analizi, otonom sürüş, belge işleme ve kalite kontrol gibi birçok kullanım alanı vardır. Bu alanların hepsi görüntüyle çalışır; ancak veri toplama, etiketleme ve hata maliyetleri birbirinden farklıdır.
+
+### Yöntemler, Araçlar ve Veri Setleri
+
+**Evrişim**, görüntünün küçük bölgelerinde örüntü arama yöntemidir. Kenar, doku, köşe ve şekil gibi görsel ipuçları bu yolla yakalanabilir. Güncel modeller yalnızca evrişim kullanmaz; Transformer tabanlı görsel modeller de görüntüyü parçalara ayırarak işleyebilir.
+
+Bilgisayarlı görü çalışmalarında PyTorch ve TensorFlow/Keras en sık kullanılan çerçevelerdendir. PyTorch tarafında `torchvision`; hazır veri setleri, görüntü dönüşümleri ve önceden eğitilmiş modeller için kullanılır. TensorFlow tarafında ise Keras API ile benzer bir model kurma, eğitme ve değerlendirme akışı kurulabilir.
+
+CIFAR-10, MNIST, Fashion-MNIST ve ImageNet, bilgisayarlı görüyü öğrenirken sık kullanılan örnek veri setleridir. CIFAR-10; uçak, otomobil, kuş, kedi, geyik, köpek, kurbağa, at, gemi ve kamyon gibi 10 sınıftan oluşan küçük görüntüler içerir. Bu veri setleri gerçek bir ürün problemini temsil etmeyebilir; ancak görüntü sınıflandırmanın mantığını anlamak için iyi bir başlangıç sağlar.
+
+Görüntü projelerinde **Transfer Learning** uygulanırken ImageNet gibi kaynak veri ile hedef görüntülerin ışık, açı, cihaz, arka plan ve sınıf yapısı bakımından ne kadar benzer olduğu değerlendirilebilir. Transfer learning’in genel mantığı Derin Öğrenme modülünde ele alınır; bilgisayarlı görüde ise kaynak ve hedef veri arasındaki dağılım farkını dikkate almak faydalı olur.
+
+### Veri Kalitesi ve Deney Pratikleri
+
+Görüntü projelerinde model kurmadan önce veri setini incelemek çoğu zaman faydalı olur. Görüntüler farklı cihazlardan mı geliyor? Işık, arka plan ve açı değişiyor mu? Aynı sınıf için yeterli çeşitlilik var mı? Etiketler aynı kuralla mı hazırlanmış? Bu soruların cevabı, daha büyük bir model seçmekten daha büyük fark yaratabilir.
+
+Etiketleme kalitesi bilgisayarlı görü projelerinde önemli bir rol oynar. Nesne tespitinde kutuların nesneyi ne kadar sıkı sardığı, bölütlemede maske sınırlarının ne kadar tutarlı çizildiği, sınıflandırmada ise sınıfların ne kadar net ayrıldığı model davranışını belirgin biçimde etkileyebilir.
+
+**Veri Artırma (Data Augmentation)**, eğitim görüntülerinde anlamı koruyan sınırlı değişiklikler yapmaktır. Hafif kırpma veya parlaklık değişimi bazı projelerde veri çeşitliliğini artırabilir. Ancak görüntüyü gereğinden fazla bozmak, modelin gerçek hayatta karşılaşmayacağı örnekleri öğrenmesine yol açabilir.
+
+### Değerlendirme ve Etik
+
+Hata analizini görsel olarak da yapmak yararlı olur. Yüksek doğruluk oranı, modelin zor örneklerde iyi çalıştığı anlamına gelmez. Yanlış tahmin edilen birkaç görüntüyü açmak, modelin gölgeyi hasarla, arka planı nesneyle veya benzer iki sınıfı birbiriyle karıştırıp karıştırmadığını gösterebilir.
+
+Görüntüde yüz, plaka, belge veya özel bir ortam bulunuyorsa gizlilik ve kullanım iznini ayrıca değerlendirmek önemlidir. Hata örneklerini saklamak veya paylaşmak teknik inceleme açısından anlamlı olabilir; ancak bu örnekler kişisel ya da kurumsal bilgi de taşıyabilir.
+
+## Kaynaklar
+
+### [Roboflow](https://roboflow.com/)
+
+Görüntü veri setlerini etiketlemek, düzenlemek, veri artırma uygulamak ve YOLO gibi nesne tespiti modellerini eğitip dağıtmak için sık kullanılan pratik bir platform.

@@ -1,0 +1,546 @@
+---
+title: "Makine Öğrenmesi"
+slug: "makine-ogrenmesi"
+order: 5
+description: "Veriden öğrenen modeller kurmak, değerlendirmek ve iyileştirmek için temel makine öğrenmesi akışı."
+tags: ["Denetimli Öğrenme", "Özellik ve Hedef", "Veri Bölme", "Regresyon", "Sınıflandırma", "Overfitting"]
+---
+
+## Genel Bakış
+
+**Makine Öğrenmesi**, verideki örüntülerden yararlanarak tahmin veya karar üreten modeller geliştirme alanıdır. Klasik programlamada kurallar doğrudan yazılır; makine öğrenmesinde ise model bu ilişkileri örnek veriler üzerinden öğrenir.
+
+Yapay zeka projelerinde makine öğrenmesi; problem tanımı, veri hazırlığı, hedef değişken seçimi, model eğitimi ve değerlendirme adımlarını birlikte düşünmeyi gerektirebilir. Yalnızca algoritma seçmek yeterli olmayabilir; modelin hangi veriden öğrendiği, hangi ölçütle değerlendirildiği ve yeni veride nasıl davranacağı da önem taşır.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Denetimli, Denetimsiz ve Pekiştirmeli Öğrenme
+* Özellikler ve Hedef Değişken
+* Eğitim, Doğrulama ve Test Kümeleri
+* Regresyon, Sınıflandırma ve Başlangıç Karşılaştırması
+* Ölçüt Seçimi ve Sınıf Dengesizliği
+* Feature Engineering, Overfitting, Underfitting ve Cross-Validation
+* Data Leakage ve Hata Analizi
+
+## Temel Kavramlar
+
+Bu bölüm, model kurma sürecindeki temel kararları ele alır: doğru hedefi seçmek, veriyi değerlendirme için ayırmak, uygun ölçütü belirlemek ve hatalardan öğrenmek. Amaç, "Model gerçekten yeni veride de çalışıyor mu?" sorusuna güvenilir yanıt verebilmektir.
+
+### Makine Öğrenmesi Nedir?
+
+Model, eğitim verisindeki örneklerden girdiler ile hedef arasındaki ilişkiyi öğrenir. Başarı yalnızca eğitim verisindeki sonuçla değil, modelin daha önce görmediği yeni veride ürettiği tahminlerle değerlendirilir.
+
+Örneğin:
+
+* Bir evin satış fiyatını tahmin etmek
+* Gelen bir e-postanın spam olup olmadığını belirlemek
+* Müşterileri alışveriş davranışlarına göre gruplamak
+* Bir kullanıcının sıradaki tıklamasını öngörmek
+
+Bu yüzden makine öğrenmesi yalnızca algoritma seçmek değildir; doğru problemi tanımlamak, uygun veriyi modele sunmak ve başarıyı doğru metriklerle ölçmek anlamına gelir.
+
+### Denetimli, Denetimsiz ve Pekiştirmeli Öğrenme
+
+Makine öğrenmesi problemlerinde ilk adımlardan biri, problemin hangi öğrenme türüne ait olduğunu belirlemektir. En temel ayrım şu üç ana başlıktan oluşur:
+
+* **Denetimli Öğrenme:** Etiketli veriyle çalışır. Modelin öğrenmesi için hem girdi hem de bilinen doğru cevap bulunur. Örneğin bir evin özellikleri ve gerçekleşmiş satış fiyatı birlikte veriliyorsa, bu denetimli öğrenme problemidir.
+* **Denetimsiz Öğrenme:** Etiketsiz veriyle çalışır. Modelin önünde net bir doğru cevap yoktur; amaç verinin içindeki doğal yapıyı, benzerlikleri, saklı grupları veya anormallikleri ortaya çıkarmaktır.
+* **Pekiştirmeli Öğrenme:** Model ya da ajan, bir ortamda deneme yanılma yoluyla eylemler gerçekleştirir ve aldığı ödül sinyaline göre uzun vadede daha iyi bir strateji öğrenmeye çalışır.
+
+Klasik makine öğrenmesinde en sık karşılaşılan senaryolar regresyon ve sınıflandırmadır. Bu nedenle modül ağırlıklı olarak denetimli öğrenmeye odaklanacaktır.
+
+### Özellikler ve Hedef Değişken
+
+Makine öğrenmesi projelerindeki en temel ayrımlardan biri **Özellik** ve **Hedef Değişken** kavramlarıdır. Özellikler, modelin karar verirken baktığı girdi alanlarıdır. Hedef değişken ise modelin tahmin etmeye çalıştığı değerdir.
+
+Örneğin bir ev fiyat tahmini probleminde:
+
+* Metrekare
+* Oda sayısı
+* Bina yaşı
+* Konum bilgisi
+gibi alanlar özellik olarak kullanılır. Tahmin edilmek istenen satış fiyatı ise hedef değişkendir.
+
+Bu ayrımı en baştan netleştirmek proje tasarımı için yararlı olur. Problem tanımı zayıf kaldığında, yanlış özelliklere odaklanmak veya yanlış hedefi tahmin etmeye çalışmak tüm modelleme sürecini yanlış yöne taşıyabilir.
+
+### Eğitim, Doğrulama ve Test Kümeleri
+
+Bir modelin öğrenip öğrenmediğini anlamak için tüm veriyi aynı anda kullanmak yanıltıcıdır. Modeli eğittiğimiz veriyle test edersek, sadece ezber yeteneğini ölçmüş oluruz. Bu yüzden veriyi genellikle üç parçaya ayırmak standart ve güvenilir bir yaklaşımdır:
+
+* **Eğitim Kümesi:** Modelin üzerinde çalıştığı ve ilişkileri öğrendiği veridir.
+* **Doğrulama Kümesi:** Farklı hiperparametreleri karşılaştırmak ve modelin gidişatını izlemek için kullanılır.
+* **Test Kümesi:** Eğitimin sonunda modelin yeni verideki performansını ölçmek için ayrı tutulur.
+
+Özetle, model eğitim verisini ezberlemiş olabilir; ancak daha önce görmediği yeni veriler karşısında nasıl performans gösterdiğini değerlendirmek daha anlamlıdır. Test verisini eğitim sürecinden ayrı tutmak bu karşılaştırmayı daha güvenilir hale getirebilir.
+
+### Denetimli Öğrenme
+
+Yukarıda değindiğimiz gibi supervised learning yani denetimli öğrenme, girdi ve doğru cevabın birlikte bulunduğu verilerle çalışır. En yaygın problem türleri genellikle ikiye ayrılır:
+
+* **Regresyon:** Tahmin edilmek istenen şey fiyat veya sıcaklık gibi sürekli ve sayısal bir değerse kullanılır.
+* **Sınıflandırma:** Tahmin edilmek istenen şey spam/spam değil veya kedi/köpek gibi belirli bir sınıf ya da kategori ise kullanılır.
+
+İyi bir denetimli öğrenme akışı kurarken şu adımları izlemek projeyi daha yönetilebilir kılar:
+
+1. Problemi iş hedefine uygun tanımlamak.
+2. Anlamlı özellik ve etiket tasarımını seçmek.
+3. Veriyi train/validation/test olarak izole etmek.
+4. Karmaşık modellere geçmeden basit bir baseline kurmak.
+5. Modeli probleme en uygun metrikle değerlendirmek.
+6. Hata analizine göre modeli yinelemeli olarak iyileştirmek.
+
+### Regresyon
+
+**Regresyon**, modelden bir kategori değil sayısal bir miktar tahmin etmesini beklediğimiz senaryoları kapsar.
+
+Örneğin:
+
+* Bir evin ne kadara satılacağı,
+* Müşterinin sepet tutarının ne olacağı,
+* Gelecek ayın enerji tüketimi gibi öngörüler regresyon problemleridir.
+
+Burada amaç yalnızca tahmin üretmek değil, tahminin gerçek değerden ne kadar saptığını ölçebilmektir.
+
+Algoritma Karşılaştırma Tablosu:
+
+<table data-mobile-table="algorithms">
+  <thead>
+    <tr>
+      <th>Algoritma</th>
+      <th>Temel Mantık</th>
+      <th>Ne Zaman İyi Başlangıç Olur?</th>
+      <th>Dikkat Edilecek Nokta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Linear Regresyon</td>
+      <td>Hedef değişkeni özelliklerin doğrusal birleşimi olarak modellemeye çalışır. Basitçe y = w1x1 + w2x2 + ... + b şeklinde yazılabilir.</td>
+      <td>İlişki yaklaşık olarak doğrusal görünüyorsa ve yorumlanabilirlik ön plandaysa iyi bir başlangıç olabilir.</td>
+      <td>Doğrusal olmayan ilişkilerde sınırlı kalabilir. Aykırı değerlerden de etkilenebilir.</td>
+    </tr>
+    <tr>
+      <td>Ridge / Lasso Regresyon</td>
+      <td>Lineer regresyon mantığını korur ama ek ceza terimiyle katsayıları daha kontrollü hale getirir. Ridge genelde **L2**, Lasso ise **L1** cezası kullanır.</td>
+      <td>Feature sayısı arttığında, gereksiz karmaşıklığı sınırlamak veya daha dengeli katsayılar elde etmek için kullanılabilir.</td>
+      <td>Ceza gücü dikkatli ayarlanmazsa model gereğinden fazla sadeleşebilir.</td>
+    </tr>
+    <tr>
+      <td>Decision Tree Regresyon</td>
+      <td>Veri uzayını kurallarla parçalara ayırır ve her bölgede ayrı tahmin yapar. Bu yüzden doğrusal ilişki varsayımına bağlı değildir.</td>
+      <td>Feature ile hedef arasındaki ilişki daha parçalı, eşikli veya kural tabanlı görünüyorsa ilginç sonuçlar verebilir.</td>
+      <td>Kolay overfit olabilir. Küçük veri değişikliklerinde yapı hızlı değişebilir.</td>
+    </tr>
+    <tr>
+      <td>Random Forest Regression</td>
+      <td>Birden fazla karar ağacının çıktısını birleştirir. Bu sayede tek ağaca göre varyansı azaltmaya çalışır.</td>
+      <td>Tek ağaçtan daha dengeli sonuç isteniyorsa ve ilişki doğrusal olmaktan uzakta görünüyorsa iyi bir aday olabilir.</td>
+      <td>Yorumlanabilirlik azalır. Güçlü bir seçenek olsa da her veri setinde en uygun tercih olmayabilir.</td>
+    </tr>
+  </tbody>
+</table>
+
+Bu bölümde algoritmaları ezberlemekten çok; hangi modelin daha kolay yorumlanabildiğini, hangisinin daha esnek davrandığını ve hangisinin overfitting riskine daha açık olduğunu kavramak hedeflenir.
+
+### Sınıflandırma
+
+**Sınıflandırma**, hedef değişkenin sayısal bir değerden ziyade bir kategori veya sınıf olduğu problemleri ifade eder.
+
+Örneğin:
+
+* Bir işlemin dolandırıcılık içerip içermediği,
+* Bir müşterinin aboneliğini yenileyip yenilemeyeceği,
+* Bir görseldeki nesnenin ne olduğu sınıflandırma kapsamına girer.
+
+Bazı sınıflandırma modelleri, sınıf tahmininin yanında bir skor veya olasılık değeri de üretir. Bu değerler, karar eşiğini problemin gereksinimlerine göre ayarlamak için kullanılabilir.
+
+Algoritma Karşılaştırma Tablosu:
+
+<table data-mobile-table="algorithms">
+  <thead>
+    <tr>
+      <th>Algoritma</th>
+      <th>Temel Mantık</th>
+      <th>Ne Zaman İyi Başlangıç Olur?</th>
+      <th>Dikkat Edilecek Nokta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Logistic Regresyon</td>
+      <td>Doğrusal birleşimi bir olasılığa dönüştürür. İkili sınıflandırmada karar sınırını sigmoid benzeri yapı üzerinden kurar.</td>
+      <td>Baseline kurarken çok sık iyi başlangıçtır. Hızlıdır ve yorumlaması görece kolaydır.</td>
+      <td>Çok karmaşık ve doğrusal olmayan karar yapılarında yetersiz kalabilir.</td>
+    </tr>
+    <tr>
+      <td>Decision Tree Sınıflandırma</td>
+      <td>Feature'lara göre eşik tabanlı kurallar kurarak sınıf kararı verir.</td>
+      <td>Hangi feature'ın kararı etkilediğini daha görünür okumak için kullanılabilir.</td>
+      <td>Kolay overfit olabilir. Tek ağaç yapısı kararsız olabilir.</td>
+    </tr>
+    <tr>
+      <td>Random Forest Sınıflandırma</td>
+      <td>Birden fazla karar ağacının çıktısını birleştirerek daha dengeli sınıf kararı üretmeye çalışır.</td>
+      <td>Tek bir ağacın ezberleme riskini azaltmak ve daha dengeli performans almak için iyi adaydır.</td>
+      <td>Yorumlamak daha zordur. Hesaplama maliyeti tek ağaca göre yüksektir.</td>
+    </tr>
+    <tr>
+      <td>KNN Sınıflandırma</td>
+      <td>Yeni örneği, en yakın komşularının sınıfına bakarak etiketler. Uzaklık mantığına dayanır.</td>
+      <td>Benzer örneklerin yakın uzayda toplandığı problemler için sezgisel bir başlangıç olabilir.</td>
+      <td>Scaling ihtiyacı belirgindir. Feature ölçekleri bozuksa sonuç belirgin biçimde sapabilir.</td>
+    </tr>
+    <tr>
+      <td>Naive Bayes Sınıflandırma</td>
+      <td>Feature'lar arası bağımsızlık varsayımıyla olasılık hesaplar ve en olası sınıfı seçer.</td>
+      <td>Özellikle bazı metin ve basit sınıflandırma problemlerinde şaşırtıcı derecede pratik olabilir.</td>
+      <td>Varsayımları güçlüdür. Bu yüzden her veri yapısında aynı ölçüde iyi sonuç vermeyebilir.</td>
+    </tr>
+    <tr>
+      <td>SVM Sınıflandırma</td>
+      <td>Sınıfları ayıran karar sınırını, mümkünse en geniş marjin ile kurmaya çalışır.</td>
+      <td>Karar sınırı önemliyse ve feature uzayı özenli hazırlanmışsa değerlendirilebilir.</td>
+      <td>Parametre ve ölçek hassasiyeti vardır. Büyük veri setlerinde daha maliyetli olabilir.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Başlangıç Karşılaştırması
+
+Baseline, geliştirilen karmaşık modelin gerçekten ek değer üretip üretmediğini anlamaya yardımcı olan başlangıç referansıdır. Çoğu projede ilk soru "En gelişmiş model nasıl kurulur?" yerine, "Basit bir referans yaklaşıma göre ne kadar değer üretiliyor?" olabilir.
+
+Örneğin; regresyon probleminde "sürekli genel ortalamayı tahmin eden" veya sınıflandırma probleminde "her zaman en baskın sınıfı tahmin eden" çok basit bir yaklaşım baseline olarak kullanılabilir. Kullanılan Random Forest modeli bu basit yaklaşımı anlamlı bir farkla geçemiyorsa, model çalışıyor görünse bile iş açısından yeterli değer üretmiyor olabilir. Hızlı bir baseline kurmak, projeyi gereksiz karmaşıklıktan korur.
+
+### Değerlendirme Ölçütleri
+
+Bir modelin kalitesini "Çoğunu doğru tahmin etti" diyerek ölçemeyiz. İşin doğasına ve hatanın maliyetine göre doğru metriği seçmek, modelin gerçek değerini ortaya çıkarır.
+
+Regresyonda Sık Görülen Metrikler:
+
+<table data-mobile-table="regression-metrics">
+  <thead>
+    <tr>
+      <th>Metrik</th>
+      <th>Matematiksel Fikir</th>
+      <th>Nasıl Okunur?</th>
+      <th>Dikkat Edilecek Nokta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MAE</td>
+      <td>Her örnek için `abs(y_true - y_pred)` hesaplanır ve bu değerlerin ortalaması alınır.</td>
+      <td>Tahminlerin ortalama olarak gerçek değerden ne kadar saptığını daha doğrudan gösterir.</td>
+      <td>Büyük hataları ekstra sert cezalandırmaz. Bu yüzden outlier etkisini MSE kadar büyütmez.</td>
+    </tr>
+    <tr>
+      <td>MSE</td>
+      <td>Her örnekte gerçek değer ile tahmin arasındaki farkın karesi alınır ve bu değerlerin ortalaması hesaplanır.</td>
+      <td>Hata kareye alındığı için büyük sapmalar metriği daha fazla büyütür.</td>
+      <td>Birimi hedef değişkenin karesine döner. Bu yüzden yorumu doğrudan sezgisel olmayabilir.</td>
+    </tr>
+    <tr>
+      <td>RMSE</td>
+      <td>Önce MSE hesaplanır, sonra bu değerin karekökü alınır.</td>
+      <td>Hata büyüklüğünü hedef değişkenin ölçeğine daha yakın biçimde okumayı sağlar.</td>
+      <td>Büyük hatalara duyarlılığı MSE'den gelir; ama yorumlaması MAE'ye göre bazen daha sezgiseldir.</td>
+    </tr>
+    <tr>
+      <td>R²</td>
+      <td>Modelin hata toplamını, verinin toplam değişkenliğiyle karşılaştıran bir oran gibi okunur.</td>
+      <td>Modelin, basit ortalama tahmine göre ne kadar açıklayıcı olduğunu yorumlamak için kullanılır.</td>
+      <td>Tek başına yeterli değildir. Yüksek R² her zaman iyi iş sonucu anlamına gelmez; hata büyüklüğünü ayrıca okumak faydalı olur.</td>
+    </tr>
+  </tbody>
+</table>
+
+Sınıflandırma Metrikleri Özeti:
+
+<table data-mobile-table="classification-metrics">
+  <thead>
+    <tr>
+      <th>Metrik</th>
+      <th>Ne Ölçer?</th>
+      <th>Ne Zaman Önemli Olur?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Accuracy</td>
+      <td>Toplam doğru tahmin oranını</td>
+      <td>Sınıflar dengeliyse ve hata türleri benzer önemdeyse</td>
+    </tr>
+    <tr>
+      <td>Precision</td>
+      <td>Pozitif dediğin örneklerin ne kadarının gerçekten pozitif olduğunu</td>
+      <td>Yanlış pozitiflerin maliyeti yüksekse</td>
+    </tr>
+    <tr>
+      <td>Recall</td>
+      <td>Gerçek pozitiflerin ne kadarını yakaladığını</td>
+      <td>Kaçırılan pozitifler kritikse</td>
+    </tr>
+    <tr>
+      <td>F1 Score</td>
+      <td>Precision ile recall dengesini</td>
+      <td>Tek başına accuracy yeterli değilse</td>
+    </tr>
+    <tr>
+      <td>Confusion Matrix</td>
+      <td>Hataların hangi sınıflarda toplandığını</td>
+      <td>Modelin tam olarak nerede karıştığını görmek için</td>
+    </tr>
+  </tbody>
+</table>
+
+Örneğin kanser teşhisi gibi hastalığı kaçırmanın bedelinin ağır olduğu durumlarda veya kredi kartı sahteciliği problemlerinde salt Accuracy oranına bakmak yanıltıcı olabilir. Bu durumlarda Recall veya Precision gibi hedefe yönelik metrikleri izlemek daha sağlıklıdır.
+
+### Class Imbalance (Sınıf Dengesizliği)
+
+Class imbalance, sınıfların veri içinde belirgin ölçüde dengesiz dağılmasıdır. Eğer 10.000 kredi kartı işleminin sadece 120 tanesi dolandırıcılık ise, ortada ciddi bir sınıf dengesizliği var demektir.
+
+Böyle bir veri setinde model hiçbir şey öğrenmeyip her işlemi "güvenli" olarak etiketlese bile %98.8 oranında yüksek bir Accuracy skoru elde edebilir. Ancak bu model iş açısından faydasızdır; zira asıl yakalanmak istenen nadir sınıfı büyük ölçüde gözden kaçırmıştır.
+
+Churn, sahtecilik, arıza tespiti ve tıbbi teşhis gibi problemler genelde dengesizdir. Bu durumlarda yüksek Accuracy skoruna aldanmamak; modeli Precision, Recall, F1 Score ile değerlendirmek ve eğitim/test ayrımını sınıf oranlarını koruyacak şekilde yapmak güvenilir sonuçlar üretmenin anahtarıdır. Bu yönteme **Stratified Split** denir.
+
+### Feature Engineering
+
+Birçok makine öğrenmesi projesinde başarı, yalnızca seçilen algoritmaya değil modele sunulan feature'ların kalitesine de bağlı olabilir. Makine öğrenmesi modelleri iş mantığını doğrudan göremez; yalnızca kendisine verilen kolonlar üzerinden öğrenir.
+
+Örneğin ham bir "tarih" kolonunu doğrudan modele vermek yerine;
+
+* Haftanın hangi günü olduğu,
+* Resmi tatil olup olmadığı,
+* Sezonluk değişimler
+gibi alt özelliklere parçalamak modelin verideki ilişkileri daha iyi yakalamasını sağlayabilir. Benzer şekilde, oranlar üretmek veya kullanıcıların geçmiş davranışlarından hareketle toplam/ortalama değerler çıkarmak modelin kullanabileceği sinyalleri artırır.
+
+Model için anlamsız olan verilerle çalışmak performansı düşürebilir. Kategori içeren alanların encoding ile sayısal forma dönüştürülmesi, eksik verilerin iş mantığına uygun doldurulması ve bazı algoritmalar için verinin aynı ölçeğe çekilmesi Feature Engineering sürecinin temel parçalarıdır. Bu ölçekleme ihtiyacı özellikle SVM veya KNN gibi uzaklık ve marjin duyarlı yöntemlerde belirgindir.
+
+### Overfitting ve Underfitting
+
+**Overfitting**, modelin eğitim setini gereğinden fazla ezberleyerek yeni veriler karşısında başarısız olması durumudur. **Underfitting** ise modelin çok yüzeysel kalarak ne eğitim verisini ne de yeni veriyi yeterince iyi öğrenebilmesi halidir.
+
+Modelin eğitim skoru yüksek görünüyor ama validation skoru belirgin biçimde düşükse, model genel eğilimleri öğrenmek yerine eğitim örneklerine aşırı uyum sağlamış olabilir. Bu durum overfitting olarak adlandırılır. Tersine, her iki skor da hedeflenenin çok altındaysa model fazla basittir veya veri yeterli değildir; bu durum underfitting olarak anılır.
+
+Bu dengeyi bulmak için modelin karmaşıklığını ayarlamak, veriyi zenginleştirmek, regularization tekniklerini denemek ve sonuçları validation setleri üzerinden izlemek yararlı olabilir. Regularization, modelin gereksiz karmaşıklığını sınırlamaya yardımcı olan düzenlileştirme yöntemlerini ifade eder.
+
+### Cross-Validation
+
+Veri kısıtlıysa, veriyi bir kez train/validation olarak bölmek model başarısını değerlendirmek için yeterince güvenli olmayabilir. Tek bir kesitin sonucuna güvenmek yerine **Cross-Validation (Çapraz Doğrulama)** yaklaşımıyla daha dengeli bir ölçüm yapılabilir.
+
+En sık kullanılan **K-fold çapraz doğrulamada** veri k parçaya ayrılır, model k kez sıfırdan eğitilir ve her seferinde farklı bir parça validation için, kalan parçalar ise eğitim için kullanılır. Sonuçların ortalaması, modelin farklı senaryolardaki performansı hakkında daha güvenilir bir tablo sunar.
+
+### Data Leakage
+
+Data leakage, modelin gerçek hayatta tahmin anında elinde olmayacak bir bilgiyi eğitim sırasında dolaylı bir yoldan öğrenmesi durumudur. Kağıt üzerinde veya geliştirme ortamında yüksek başarı yakalayan ancak production ortamında beklenen performansı gösteremeyen modellerde en sık görülen nedenlerden biridir.
+
+Örneğin:
+
+* Tahmin edilmek istenen hedefe çok yakın, hedefin bir sonucu olan bir kolonun girdi olarak verilmesi,
+* Train/Test ayrımı yapılmadan önce tüm verinin topluca standardize edilmesi,
+* Zaman serilerinde geleceğe ait bir bilginin geçmişteki eğitim verisine sızması.
+
+Bu gibi sızıntılar model performansını olduğundan iyi gösterebilir. Sızıntıları önlemenin en temel yolu, veri bölme işlemlerini en baştan titizlikle yapmak ve tüm preprocessing adımlarını önce sadece train verisinde öğrenip daha sonra test verisine uygulamaktır.
+
+### Denetimsiz Öğrenme
+
+Elinizde bir etiket yoksa, amaç doğru bir tahminde bulunmak değil verideki grupları ve örüntüleri ortaya çıkarmaktır. **Unsupervised Learning (Denetimsiz Öğrenme)**, benzerlikleri, kümeleri veya saklı örüntüleri görünür hâle getirmeye çalışır.
+
+* Kullanıcıları segmentlere ayırmak,
+* Veri içindeki anomali ve sahtecilik davranışlarını öbeklemek,
+* Yüzlerce kolonluk bir verisetini daha az boyutta sadeleştirmek
+bu alanın en sık kullanıldığı problemlerdir. "Doğru bir cevap" olmadığı için burada başarıyı metriklerden ziyade iş değeri, görsel analizler ve çıkan kümelerin anlamlılığı belirler.
+
+### Kümeleme
+
+Kümeleme, birbirine benzeyen veri noktalarını aynı grupta toplamaya çalışan yaklaşımdır. Önceden belirlenmiş bir "kategori" yoktur, model verideki yoğunluğa veya uzaklığa göre doğal gruplar oluşturur. Müşteri segmentasyonu ve içerik gruplama klasik örneklerdendir.
+
+Yaygın algoritmalar:
+
+* **K-Means**, önceden belirtilen küme sayısına göre verileri merkezler etrafında toplar.
+* **Hierarchical Clustering**, veriler arasındaki yakınlıklara göre adım adım bir ağaç yapısı inşa eder.
+* **DBSCAN**, yoğunluk temelli bir kümeleme algoritmasıdır ve kümelere uymayan aykırı noktaları belirleyebilir.
+
+### Pekiştirmeli Öğrenme
+
+Reinforcement learning, ortamla etkileşime giren bir ajanın aldığı aksiyonlar sonucunda edindiği ödül veya ceza sinyalleriyle en uygun stratejiyi öğrenme sürecidir.
+
+Klasik tablo verilerinden ziyade; oyun yapay zekaları, robotik, tavsiye sistemleri ve otonom karar mekanizmalarında öne çıkar. Amacı tek bir anlık doğru tahmini bulmak değil, uzun vadede kazanımı en üst düzeye çıkaracak davranış dizisini öğrenmektir.
+
+### Hata Analizi
+
+Bir model kurduktan sonra skor düşük gelirse yapılacak ilk şey farklı bir algoritmaya geçmek değildir. Hata analizi, modelin hata yaptığı noktaları ayrıntılı inceleme sürecidir.
+
+Örneğin;
+
+* Model sadece belirli bir sınıfta mı hata yapıyor?
+* Hatalar eksik bırakılmış verilerde mi toplanıyor?
+* Etiketleme sürecinde mi bir tutarsızlık var?
+gibi soruların cevapları; model mimarisinden çok verinin kalitesi, feature'ların yetersizliği veya metriklerin yanlış yorumlanması hakkında bilgi verir. İyileştirme süreci bu hataların analiz edilmesiyle başlar.
+
+## Çalışma Mantığı
+
+Makine öğrenmesi çoğu zaman lineer bir süreçten ziyade, sürekli geri beslemelerle dönen iteratif bir döngüdür. Akış genellikle şu temel adımlardan oluşur:
+
+1. **Problem Tanımı:** Hangi iş hedefinin destekleneceği ve başarının neye göre tanımlanacağı belirlenir.
+2. **Veri Hazırlama:** Eksik verilerin işlenmesi, sızıntı kontrolleri ve verinin modele uygun formata getirilmesi.
+3. **Model Kurma:** Gereksiz karmaşıklıktan kaçınarak anlaşılabilir bir baseline ile başlamak.
+4. **Değerlendirme:** Doğru metrikleri kullanarak modelin başarılı ve zayıf kaldığı yönleri ölçmek.
+5. **İyileştirme:** Hata analizlerinden yola çıkarak feature'ları zenginleştirmek veya hiperparametreleri ayarlamak.
+
+Kısacası, bir model eğitip skora bakmak işin yalnızca bir parçasıdır; başarılı bir makine öğrenmesi uygulamasında veri, model ve iş hedefi birlikte yönetilmelidir.
+
+## Kod Örnekleri
+
+Bu bölümde büyük projelerden ziyade, anlatılan temel akışın kodda nasıl uygulanacağı gösterilecektir.
+
+### Eğitim/Test Ayrımı
+
+Modeli daha önce görmediği veri üzerinde test edebilmek için veriyi baştan doğru şekilde bölmek iyi bir başlangıçtır.
+
+```python
+from sklearn.model_selection import train_test_split
+
+X = df[["age", "income", "session_count"]]
+y = df["churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y,
+)
+
+```
+
+Sınıflar dengesizse, burada kullanılan `stratify=y` parametresi veri setindeki sınıf oranlarının eğitim ve test kümelerinde yaklaşık olarak korunmasını sağlar. Bu parametre sınıfları eşitlemez; yalnızca bölme işleminden sonra orijinal dağılımın korunmasına yardım eder.
+
+random_state=42, rastgele yapılan işlemlerin her çalıştırmada aynı sonucu üretmesini sağlar. 42 özel bir değer değildir; sabit kaldığı sürece herhangi bir tam sayı kullanılabilir. Böylece veri ayrımı ve deney sonuçları tekrar üretilebilir olur.
+
+### Basit Regresyon Örneği
+
+Regresyon problemlerinde amaç sayısal bir miktar tahmin etmektir. Aşağıdaki örnek, ev fiyatı gibi sayısal bir hedefi doğrusal mantıkla bulmaya çalışır.
+
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+X = df[["square_meters", "room_count", "building_age"]]
+y = df["price"]
+
+X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+)
+
+model = LinearRegression()
+model.fit(X_train_reg, y_train_reg)
+
+predictions_reg = model.predict(X_test_reg)
+
+print(predictions_reg[:5])
+
+```
+
+Model yalnızca eğitim verisiyle eğitilir; tahminler ise eğitim sırasında görülmeyen `X_test_reg` üzerinden alınır. Böylece `y_test_reg` ile karşılaştırılan sonuç, modelin yeni verideki performansını gösterir.
+
+### Basit Sınıflandırma Örneği
+
+Amaç sayısal bir çıktı değil de bir kategori (örneğin kullanıcının churn edip etmeyeceği) olduğunda, sınıflandırma modelleri devreye girer.
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+X = df[["age", "income", "session_count"]]
+y = df["churn"]
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+
+print(predictions[:5])
+
+```
+
+Görüldüğü gibi `LogisticRegression`, hızlı bir baseline kurarken ikili sınıflandırma problemleri için işlevseldir.
+
+### Basit Kümeleme Örneği
+
+Etiketsiz veri olduğunda, model benzer veri noktalarını aynı grupta buluşturmak için kullanılabilir.
+
+```python
+from sklearn.cluster import KMeans
+
+X = df[["annual_spend", "session_count"]]
+
+model = KMeans(n_clusters=3, random_state=42)
+clusters = model.fit_predict(X)
+
+df["cluster"] = clusters
+
+print(df[["annual_spend", "session_count", "cluster"]].head())
+
+```
+
+Model her bir satıra bir küme (cluster) ataması yapar. Çıkan bu kümelerin iş açısından ne anlama geldiğini görselleştirerek ve sektör bilgisi katarak yorumlamak genellikle veri bilimcinin görevidir.
+
+### Metrik Hesaplama Örneği
+
+Sonuçları yalnızca elde etmek yerine, uygun metriklerle şeffaf biçimde ölçmek daha anlamlı olabilir.
+
+```python
+from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error
+
+y_test_class = [1, 0, 1, 0, 1]
+predictions_class = [1, 0, 0, 0, 1]
+
+classification_accuracy = accuracy_score(y_test_class, predictions_class)
+classification_f1 = f1_score(y_test_class, predictions_class)
+
+print("Accuracy:", classification_accuracy)
+print("F1 Score:", classification_f1)
+
+y_test_reg = [210_000, 185_000, 260_000]
+predictions_reg = [205_000, 193_000, 252_000]
+
+regression_mae = mean_absolute_error(y_test_reg, predictions_reg)
+print("MAE:", regression_mae)
+
+```
+
+Sınıflandırma ve regresyon için farklı metrik kümeleri kullanılır. İş probleminin doğası, seçilecek metriği doğrudan etkileyebilir.
+
+## Kısa Notlar
+
+* Makine öğrenmesi yalnızca bir algoritma tercihi değil, uçtan uca ele alınabilecek bir veri çözümleme sürecidir.
+* Kullanılan verinin kalitesi ve anlamı, kurulan modelin performansını doğrudan etkileyebilir.
+* Baseline modeller olmadan, başarı skorunun gerçekten tatmin edici olup olmadığını anlamak zordur.
+* Hedef sınıfların dengesiz olması, bazı metrikleri aşırı yüksek ve yanıltıcı gösterebilir.
+* Modelin başarısı çoğu zaman algoritmadan çok tasarlanan feature'ların kalitesine bağlıdır.
+* Data leakage, model geliştirilirken projenin kağıt üzerinde başarılı ama pratikte başarısız görünmesine yol açan önemli bir risktir.
+
+## Kaynaklar
+
+### [scikit-learn Documentation](https://scikit-learn.org/stable/)
+
+Klasik makine öğrenmesi uygulamaları için endüstri standardı niteliğindeki kütüphanenin belgeleridir; algoritmalar, ön işleme araçları ve metrik kullanımları için uygulamalı bir referanstır.
+
+### [LazyPredict](https://github.com/shankarpandala/lazypredict)
+
+Birden fazla temel modeli hızlıca karşılaştırarak ilk baseline'ı oluşturmak için kullanılabilir. Sonuçları nihai model seçimi yerine daha ayrıntılı deneylere başlangıç noktası olarak değerlendirmek gerekir.
+
+### [Google Machine Learning Crash Course](https://developers.google.com/machine-learning/crash-course)
+
+Makine öğrenmesi kavramlarını görsel ve sezgisel örneklerle sunan, başlangıç seviyesindekilerin temel yaklaşımı kavraması için dengeli bir kaynaktır.
+
+### [StatQuest](https://www.youtube.com/@statquest)
+
+Karmaşık istatistiksel mantıkları ve popüler makine öğrenmesi algoritmalarını olabildiğince basitleştirerek anlatan video serilerinden oluşur.
+
+### [Hands-On Machine Learning](https://github.com/ageron/handson-ml3)
+
+Scikit-learn ve TensorFlow tabanlı örnekler üzerinden pratik ve üretim odaklı sezgi geliştirmek isteyenler için piyasadaki en kapsamlı kitaplardan biridir.

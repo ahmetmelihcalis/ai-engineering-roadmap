@@ -1,0 +1,458 @@
+---
+title: "SQL and Database Architecture"
+slug: "sql-and-database-architecture"
+order: 2
+description: "SQL and database fundamentals for querying, relating, and modeling data clearly."
+tags: ["SELECT", "Filtering", "GROUP BY", "JOIN", "CTE", "Indexes"]
+---
+
+## Overview
+
+**SQL** is a query language for reading, filtering, sorting, combining, and summarizing data in relational databases. Tables, rows, columns, keys, and relationships are its core concepts.
+
+In AI and data projects, SQL is a key part of data preparation before modeling. It is used to inspect raw data, filter relevant records, join tables, check data quality, and pass cleaner data to Python workflows.
+
+The following topics will be covered in this module:
+
+* Basic `SELECT` usage, filtering, sorting, and `LIMIT`
+* Aggregation, `GROUP BY`, and `JOIN`
+* Subqueries and CTEs
+* `VIEW`, indexes, normalization, and transactions
+
+The examples focus on the everyday needs of data scientists and analysts.
+
+## Basic Concepts
+
+This section explains not just SQL commands, but why data is structured and related in particular ways.
+
+### What Is SQL?
+
+SQL is the foundational language for working with relational databases. It does more than retrieve data: it also plays an important role in data preparation for reporting, product analytics, and machine learning workflows.
+
+In the real world, SQL is often used for:
+
+* Filtering relevant records from hundreds of millions of rows,
+* Excluding unnecessary or invalid data from analysis,
+* Preparing time series and sequences in the correct format,
+* Producing metrics such as revenue and active-user counts,
+* Combining related tables from different systems into a useful result set.
+
+### Table, Row, Column
+
+In relational databases, we organize data in Excel-like tables. Each table usually represents a single topic, such as orders. Rows hold individual records pertaining to that subject, and columns hold the properties of that record, such as name, date or amount.
+
+For example, in a `users` table:
+
+* Each row represents a new user.
+* Columns such as `id`, `name`, `email` contain the information of that user.
+
+A simple mental model:
+
+```text
+users
++----+--------+-------+
+| id | name | email |
++----+--------+-------+
+| 1 | Alice | alice@example.com |
+| 2 | Bob | bob@example.com |
++----+--------+-------+
+
+```
+
+### Primary Key and Foreign Key
+
+A **primary key** uniquely identifies a record among millions of rows. In many schemas, this role is assigned to an `id` column.
+
+A **foreign key** connects a record in one table to a record in another. For example, the `user_id` column in the `orders` table identifies the customer in the `users` table who placed an order.
+
+The relationship between these keys determines which tables will be connected via which fields in `JOIN` operations.
+
+### SELECT
+
+`SELECT` tells the database which columns to return. It is the starting point for most SQL queries.
+
+```sql
+SELECT id, name
+FROM users;
+
+```
+
+The `*` symbol can be used to see all columns in a table:
+
+```sql
+SELECT *
+FROM users;
+
+```
+
+When first exploring a table, using `*` can be convenient. In production, selecting only the columns you need reduces unnecessary reads and helps maintain performance.
+
+### WHERE
+
+Rather than retrieving every record, use `WHERE` to return only rows that match the relevant conditions.
+
+```sql
+SELECT name, department
+FROM employees
+WHERE department = 'AI';
+
+```
+
+Multiple conditions can be combined with logical operators (`AND`, `OR`):
+
+```sql
+SELECT name, score
+FROM students
+WHERE score >= 80
+  AND department = 'Data';
+
+```
+
+This is the basic tool for defining the audience to analyze or filtering anomalies such as `age < 0`.
+
+### ORDER BY
+
+The `ORDER BY` command arranges results in a meaningful order. It sorts from smallest to largest by default; add `DESC` to sort from largest to smallest.
+
+```sql
+SELECT name, score
+FROM students
+ORDER BY score DESC;
+
+```
+
+Sorting is useful for finding the highest scores, the 10 most recently added records, or the most expensive products.
+
+### LIMIT
+
+When first examining a table with millions of rows, retrieving every row can put unnecessary load on the system. `LIMIT` lets you inspect a small sample safely.
+
+```sql
+SELECT *
+FROM orders
+LIMIT 10;
+
+```
+
+### COUNT, SUM, AVG
+
+Sometimes a summary is more useful than reading data row by row. In those cases, use aggregation functions:
+
+* `COUNT`: Returns the number of rows (how many records there are).
+* `SUM`: Adds values in numeric columns (for example, total revenue).
+* `AVG`: Averages numerical values.
+
+Examples:
+
+```sql
+SELECT COUNT(*) AS total_users
+FROM users;
+
+```
+
+```sql
+SELECT SUM(total_amount) AS revenue
+FROM orders;
+
+```
+
+```sql
+SELECT AVG(price) AS average_price
+FROM products;
+
+```
+
+Naming a result column with `AS` (an alias) makes reports easier to read.
+
+### GROUP BY
+
+`GROUP BY` lets us summarize by category instead of reducing the whole table to one number. It is commonly used with aggregate functions such as `COUNT`, `SUM`, and `AVG`.
+
+```sql
+SELECT department, COUNT(*) AS total
+FROM employees
+GROUP BY department;
+
+```
+
+This returns employee counts by department rather than a single total.
+
+Another example:
+
+```sql
+SELECT category, AVG(price) AS average_price
+FROM products
+GROUP BY category;
+
+```
+
+This approach is often used for comparisons across product categories or time periods such as months.
+
+### JOIN
+
+In real projects, related data often lives in different tables. Users might be stored in one table and their orders in another. `JOIN` combines that data into a meaningful result set.
+
+```sql
+SELECT users.name, orders.total_amount
+FROM users
+JOIN orders ON users.id = orders.user_id;
+
+```
+
+In this example, the `users` and `orders` tables are joined through the user ID: the `id` and `user_id` fields. An `INNER JOIN` returns only records with a matching row in both tables.
+
+### Subquery
+
+Sometimes filtering requires an intermediate result. A query nested inside another query is called a **subquery**.
+
+```sql
+SELECT name
+FROM products
+WHERE price > (
+  SELECT AVG(price)
+  FROM products
+);
+
+```
+
+The database first runs the query in parentheses to calculate the average product price. The outer query then returns products priced above that average.
+
+### CTE (Common Table Expressions)
+
+As queries gain joins and subqueries, they can become difficult to read. A CTE (`WITH` clause) keeps a query clear by breaking it into small, named temporary results.
+
+```sql
+WITH high_scores AS (
+  SELECT name, score
+  FROM students
+  WHERE score > 80
+)
+SELECT *
+FROM high_scores;
+
+```
+
+Breaking a complex problem into smaller steps makes the query easier for a team to read and maintain.
+
+### View
+
+If a frequently used query has complex filters and joins, save it as a **view** rather than rewriting it every time.
+
+```sql
+CREATE VIEW active_users AS
+SELECT id, name, email
+FROM users
+WHERE is_active = true;
+
+```
+
+You can then query the result with `SELECT * FROM active_users;`, much like a regular table.
+
+### Index
+
+Searching a table with millions of rows by scanning every record can be slow. An **index**, much like an index in a book, helps the database find data more quickly.
+
+For example, if users are frequently searched by email address, indexing the `email` column can reduce query time from seconds to milliseconds. Indexing every column is not a good idea, however, because inserts become slower and storage costs increase.
+
+### Normalization
+
+Separating the data into relevant tables without unnecessary repetition of the same information is called **Normalization**. This approach can reduce storage cost and update inconsistencies.
+
+### Transaction
+
+Sometimes several database operations must succeed or fail as one unit. A **transaction** ensures that all changes are committed together or, if an error occurs, none are kept. Reverting those changes is called a **rollback (reverting changes)**.
+
+It protects data from corruption, especially in money transfers or transactions that require simultaneous updating of multiple interconnected tables.
+
+## How It Works
+
+When using SQL, knowing query syntax is not enough. You also need to understand how data is distributed across tables and how the schema is designed.
+
+When looking at a table for the first time, we focus not only on the column names but also on what the table represents in business processes. For example, in an `orders` table, customer demographic data could be kept in the `users` table and the product category could be kept in the `products` table.
+
+Use these questions when designing a SQL query:
+
+* Which metrics or columns does the task require?
+* Which tables contain that information, and which fields link them?
+* Which filters should narrow the data?
+* Should the result remain a raw list or be summarized with `GROUP BY`?
+
+In data and AI projects, SQL is often the first control layer. Filtering invalid data, outliers, or unusable historical periods in SQL can be faster and more efficient than moving the entire workload to Python and pandas.
+
+## Code Examples
+
+The following examples show how these structures combine in practical queries.
+
+### Basic Column Selection
+
+```sql
+SELECT id, name, email
+FROM users;
+
+```
+
+Selecting only the required columns instead of using `*` reduces the reading load of the database.
+
+### Filtering
+
+```sql
+SELECT name, department
+FROM employees
+WHERE department = 'Data';
+
+```
+
+This filters the target group to analyze instead of retrieving every record.
+
+### Numeric Condition
+
+```sql
+SELECT name, score
+FROM students
+WHERE score >= 75;
+
+```
+
+Comparison operators such as greater than or equal to (`>=`) define numeric conditions.
+
+### Sorting and Limit
+
+```sql
+SELECT name, score
+FROM students
+ORDER BY score DESC
+LIMIT 5;
+
+```
+
+This is a standard pattern for finding the five highest-scoring records.
+
+### Number of Records Calculation
+
+```sql
+SELECT COUNT(*) AS total_orders
+FROM orders;
+
+```
+
+This quickly shows the current size of the table.
+
+### Averaging
+
+```sql
+SELECT AVG(score) AS average_score
+FROM students;
+
+```
+
+This aggregation helps show the general level of the values.
+
+### Grouping
+
+```sql
+SELECT department, COUNT(*) AS total_employee
+FROM employees
+GROUP BY department;
+
+```
+
+This produces a readable summary by department.
+
+### Joining Tables with JOIN
+
+```sql
+SELECT users.name, orders.total_amount
+FROM users
+JOIN orders ON users.id = orders.user_id;
+
+```
+
+This combines user and order information in a single result set.
+
+### Finding Above Average Products
+
+```sql
+SELECT name, price
+FROM products
+WHERE price > (
+  SELECT AVG(price)
+  FROM products
+);
+
+```
+
+Instead of writing a fixed number, it calculates the average dynamically with a subquery and creates a flexible filter.
+
+### More Readable Structure with CTE
+
+```sql
+WITH department_counts AS (
+  SELECT department, COUNT(*) AS total
+  FROM employees
+  GROUP BY department
+)
+SELECT *
+FROM department_counts
+ORDER BY total DESC;
+
+```
+
+This query first creates the `department_counts` intermediate result, then sorts and returns it.
+
+### Simple View Definition
+
+```sql
+CREATE VIEW recent_orders AS
+SELECT id, user_id, total_amount
+FROM orders
+WHERE created_at >= '2025-01-01';
+
+```
+
+Instead of repeatedly writing an "orders after 2025" filter, this rule is stored as a view.
+
+### Transaction Logic
+
+```sql
+BEGIN;
+
+UPDATE accounts
+SET balance = balance - 100
+WHERE id = 1;
+
+UPDATE accounts
+SET balance = balance + 100
+WHERE id = 2;
+
+COMMIT;
+
+```
+
+If the system fails after deducting money from account 1, the transfer must not leave the accounts inconsistent. `BEGIN` and `COMMIT` ensure that the operations succeed together.
+
+## Quick Notes
+
+* Tables represent entities, rows represent individual records, and columns represent attributes; inspect data with that structure in mind.
+* A primary key uniquely identifies each record in a table; a foreign key references a record in another table to create a relationship between tables.
+* In production systems, selecting only the columns you need instead of using `SELECT *` avoids unnecessary reads.
+* `WHERE` filters records that are irrelevant to the analysis at the start of a query.
+* `ORDER BY ... DESC` sorts results from highest to lowest. Used with `LIMIT 10`, it can list the top 10 values.
+* Use `LIMIT` to avoid unnecessary load when first exploring large tables.
+* Combine `GROUP BY` with `COUNT`, `SUM`, and `AVG` to read data at a summary level.
+* Before joining tables, verify that their shared columns have compatible values and types.
+* CTEs make long, complex queries easier for a team to read.
+* Indexes can speed up reads but slow down writes; balance query performance against write cost.
+
+## Resources
+
+### [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+
+An authoritative reference for standard SQL syntax, indexing, transactions, and database behavior.
+
+### [SQLBolt](https://sqlbolt.com/)
+
+An interactive, browser-based introduction to learning SQL through practice.
+
+### [Use The Index, Luke](https://use-the-index-luke.com/)
+
+A plain-language guide to how database engines use indexes, including B-trees, and how to improve slow queries.

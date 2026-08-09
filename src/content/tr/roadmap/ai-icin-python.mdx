@@ -1,0 +1,1183 @@
+---
+title: "AI için Python"
+slug: "ai-icin-python"
+order: 1
+description: "AI çalışmalarında Python temelleri."
+tags: ["Python Syntax", "Veri Tipleri", "Fonksiyonlar", "Dosya İşlemleri", "Type Hint", "OOP ve Test"]
+---
+
+## Genel Bakış
+
+**Python**, okunabilir syntax ve geniş kütüphane ekosistemiyle veri bilimi ve yapay zeka çalışmalarında sık kullanılan genel amaçlı bir programlama dilidir. Değişkenler, veri tipleri, fonksiyonlar, dosya işlemleri ve modüler yapı gibi temel özellikleri sayesinde küçük scriptlerden büyük veri işleme akışlarına kadar farklı ölçeklerde kullanılabilir.
+
+Yapay zeka projelerinde Python; veriyi okuma, temizleme, dönüştürme, model denemelerini otomatikleştirme, dosyalarla çalışma ve sonuçları test edilebilir hale getirme süreçlerinde önemli bir rol oynar.
+
+Bu nedenle Python temeli, sonraki SQL, EDA, machine learning ve MLOps modülleri için pratik bir başlangıç noktasıdır.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Python Syntax Temelleri
+* Veri Tipleri, Operatörler ve Koşul İfadeleri
+* Döngüler, Fonksiyonlar, Listeler ve Sözlükler
+* Slicing, Dosya İşlemleri ve Hata Yönetimi
+* Modül Kullanımı ve Type Hint
+* OOP, Generator Yapısı ve Test Yazma
+
+## Temel Kavramlar
+
+### Python Sözdizimi Temelleri
+
+Yeni bir dil öğrenirken ilk görmek istediğimiz şey, yazdığımız kodun çıktı üretmesidir. Bu nedenle işe `print` fonksiyonuyla çıktı alarak başlamak, kodumuzun gerçekten çalışıp çalışmadığını anında görmemizi sağlar.
+
+En basit haliyle:
+
+```python
+print("Hello, Python")
+
+```
+
+Programlamanın özü veri almak, işlemek ve çıktı üretmektir. İlk adımlarda çıktı üretmeye odaklanıp, ilerleyen aşamalarda sürece kullanıcıdan veya dosyalardan veri alma mantığını da ekleyeceğiz.
+
+Kodumuzun ne yaptığını gelecekteki kendimize veya takım arkadaşlarımıza anlatmak için yorum satırlarını (comments) kullanırız. Python'da bunun için `#` işareti yeterlidir:
+
+```python
+# Bu satır bir yorumdur
+print("Hello")
+
+```
+
+Karşılaştırma operatörleri (`==`, `!=`, `>`, `<`, `>=`, `<=`), mantıksal kararlar alırken iki değeri birbiriyle kıyaslamamızı sağlar.
+
+```python
+age = 20
+print(age >= 18)
+
+```
+
+Birden fazla koşulu bir araya getirmek için `and`, `or` ve `not` gibi mantıksal operatörler kullanılır.
+
+```python
+age = 20
+has_ticket = True
+
+print(age >= 18 and has_ticket)
+
+```
+
+Python'un en karakteristik özelliklerinden biri, kod bloklarını süslü parantezlerle değil girintilerle ayırmasıdır. Bu sayede kod daha okunabilir hale gelir.
+
+```python
+age = 20
+
+if age >= 18:
+    print("Adult")
+else:
+    print("Not adult")
+
+```
+
+Bu örnekte `if` ve `else` altındaki boşluklar (girintiler), o kod bloğunun sınırlarını belirler. Doğru girinti kullanımı Python'da yalnızca görsel bir tercih değil, kodun çalışma kuralıdır.
+
+### Veri Tipleri
+
+Python'da her değerin bir tipi vardır. AI ve veri bilimi projelerinde veri tiplerini doğru tanımak kritik bir konudur; çünkü modelleri beslemeden önce elimizdeki verinin metin mi, tam sayı mı yoksa ondalıklı bir değer mi olduğunu bilmek faydalı olur.
+
+Temel veri tiplerine şöyle bir bakabiliriz:
+
+```python
+name = "Python"
+age = 30
+price = 19.99
+is_active = True
+
+```
+
+Burada:
+
+* `str`: Metinsel verileri,
+* `int`: Tam sayıları,
+* `float`: Ondalıklı sayıları,
+* `bool`: Doğru/yanlış durumlarını temsil eder.
+
+Örneğin, bir CSV dosyasından yaş bilgisi çektiğinizde bu genellikle metin olarak (string) gelir:
+
+```python
+age = "21"
+
+```
+
+Bunu matematiksel bir işlemde kullanabilmek için dönüştürmemiz (type conversion) gerekebilir:
+
+```python
+age = int(age)
+
+```
+
+Bu tarz tip dönüşümleri, veri temizleme adımlarının en temel ve en sık kullanılan parçalarındandır.
+
+### Koşul İfadeleri
+
+Programlarımızın farklı senaryolarda farklı tepkiler verebilmesi için koşul ifadelerinden (`if`, `elif`, `else`) faydalanırız.
+
+Örneğin, elimizdeki veride boş bir hücre (eksik değer) olup olmadığını şöyle yakalayabiliriz:
+
+```python
+value = ""
+
+if value == "":
+    print("Missing value")
+else:
+    print("Valid value")
+
+```
+
+Veri projelerinde bu yapıyı genellikle şu işler için kullanırız:
+
+* Eksik veya geçersiz değerleri ayıklamak,
+* Dosya yollarını kontrol etmek,
+* Modelin ürettiği skorlara göre etiketler oluşturmak.
+
+Gerçek bir projeye daha yakın bir örnek düşünelim:
+
+```python
+score = 0.82
+
+if score >= 0.90:
+    label = "high confidence"
+elif score >= 0.70:
+    label = "medium confidence"
+else:
+    label = "low confidence"
+
+print(label)
+
+```
+
+Bu basit kurgu, ileride yapay zeka modellerinin ürettiği olasılık skorlarını kullanıcı dostu etiketlere çevirme mantığına benzer.
+
+### Döngüler
+
+Tekrar eden işlemleri manuel yapmak yerine döngüleri (`for`, `while`) kullanarak süreci otomatikleştiririz.
+
+Bir listedeki elemanları tek tek gezmek için `for` döngüsü çok pratiktir:
+
+```python
+names = ["Alice", "Bob", "Charlie"]
+
+for name in names:
+    print(name)
+
+```
+
+Veri biliminde döngüleri genellikle binlerce veri satırı üzerinde işlem yapmak için kurarız:
+
+```python
+scores = [80, 65, 90, 45]
+
+passed_scores = []
+
+for score in scores:
+    if score >= 60:
+        passed_scores.append(score)
+
+print(passed_scores)
+
+```
+
+Bu örnekte, notların üzerinden tek tek geçip sadece belirli bir eşiği aşanları yeni bir listeye topluyoruz. İleride dosyadaki satırları okurken, hatalı verileri ayıklarken veya temel istatistikler hesaplarken hep bu mantığı kullanacağız.
+
+#### Enumerate ve Zip
+
+Döngü kurarken bazen sadece verinin kendisine değil, o verinin kaçıncı sırada olduğuna (indeksine) da ihtiyaç duyulur. Bu durumda `enumerate` fonksiyonu kullanılır.
+
+```python
+students = ["Alice", "Bob", "Charlie"]
+
+for index, student in enumerate(students, start=1):
+    print(index, student)
+
+```
+
+Bu özellik veri satırlarını numaralandırmak veya hatalı bir satırın dosyadaki yerini (satır numarasını) loglamak için kullanılabilir.
+
+`zip` ise iki veya daha fazla listeyi aynı anda, yan yana dolaşmak için kullanılır.
+
+```python
+columns = ["name", "age", "department"]
+values = ["Alice", "20", "AI"]
+
+for column, value in zip(columns, values):
+    print(column, value)
+
+```
+
+Bu yapı, tablo kolonları ile satır değerlerini eşleştirirken sıkça kullanılır.
+
+### Koleksiyon Yapıları
+
+Birden fazla veriyi düzenli biçimde bir arada tutmak için koleksiyon yapılarını kullanırız.
+
+En sık karşılaşacağınız yapılar:
+
+* `list`
+* `tuple`
+* `dict`
+* `set`
+
+#### List
+
+Listeler; eleman ekleyip çıkarabildiğimiz, sıralı yapılardır.
+
+```python
+numbers = [10, 20, 30, 40]
+
+```
+
+Bir dosyadaki satırları, model tahmin skorlarını veya sütun isimlerini listelerde tutmak yaygındır.
+
+```python
+rows = ["name,age", "Alice,20", "Bob,22"]
+
+```
+
+#### Dict (Sözlük)
+
+Sözlükler, verileri "anahtar-değer" (key-value) çiftleri halinde tutar. Bir veri satırını anlamlı özelliklerle temsil etmek için pratik yöntemlerden biridir.
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "department": "Software Engineering"
+}
+
+```
+
+Örneğin, tablodan okunan bir satırı sözlük yapısında tutmak, kodu daha okunabilir kılar:
+
+```python
+row = {
+    "product_name": "Laptop",
+    "price": 25000,
+    "category": "Technology"
+}
+
+```
+
+#### Set
+
+Set yapısı, içerisinde sadece "benzersiz" elemanlar barındırır.
+
+```python
+categories = {"AI", "Data", "Software", "AI"}
+print(categories)
+
+```
+
+Binlerce satırlık veride tekrarlayan değerleri temizlemek ve sadece farklı olanları görmek için Set kullanmak pratik bir çözümdür.
+
+#### Tuple
+
+Tuple, oluşturulduktan sonra içeriği değiştirilemeyen sıralı bir yapıdır.
+
+```python
+point = (10, 20)
+
+```
+
+Genellikle sabit kalmasını istediğiniz koordinatlar, veritabanı ayarları veya küçük veri grupları için tercih edilir.
+
+#### Indexing ve Slicing
+
+Liste veya string gibi sıralı bir verinin belirli bir elemanına ulaşmak için indeksler kullanılır.
+
+```python
+skills = ["Python", "SQL", "Pandas"]
+
+print(skills[0])  # İlk eleman
+print(skills[-1]) # Son eleman
+
+```
+
+Verinin sadece belli bir kesitini almak istiyorsak dilimleme (slicing) yaparız:
+
+```python
+text = "machinelearning"
+
+print(text[0:7])
+print(text[7:])
+
+```
+
+Slicing mantığı, veri kümelerini (train/test) ayırırken veya metinleri parçalarken oldukça kullanışlıdır.
+
+### Fonksiyonlar
+
+Büyüyen kodlarımızı daha yönetilebilir, test edilebilir ve tekrar kullanılabilir hale getirmek için fonksiyonları kullanırız. Temiz kod yazmanın en temel adımı işlemleri mantıklı fonksiyonlara bölmektir.
+
+Basit bir fonksiyon:
+
+```python
+def greet(name):
+    return f"Hello, {name}"
+
+```
+
+Örneğin, farklı kaynaklardan gelen dağınık kolon isimlerini standart bir formata çeviren bir fonksiyon yazalım:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+```
+
+Bu fonksiyon şu işlemleri gerçekleştirir:
+
+* `strip` ile baştaki ve sondaki boşlukları atar.
+* `lower` ile harfleri küçültür.
+* `replace` ile boşlukları alt çizgiye çevirir.
+
+Kullanımı şöyledir:
+
+```python
+column = " Product Name "
+normalized = normalize_column_name(column)
+
+print(normalized)
+# Çıktı: product_name
+
+```
+
+Fonksiyon tasarlarken şu prensipler dikkate alınabilir:
+
+* Her fonksiyonun "tek bir amaca" hizmet etmesine özen göstermek,
+* Ne iş yaptığını açıkça anlatan isimler seçmek,
+* Girdi (parametre) ve çıktı (return) mantığını net kurmak.
+
+#### Type Hint
+
+Python esnek ve dinamik tipli bir dildir; ancak büyük projelerde hangi fonksiyonun ne tür bir veri beklediğini açıkça göstermek okunabilirliği artırır. Type Hint (Tip Belirteçleri) bu amaçla kullanılır.
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+```
+
+Bu kullanım Python'u katı kurallı bir dile dönüştürmez; hatalı tipte bir değer verilse bile kod çalışmaya devam edebilir. Ancak Type Hint kullanmak:
+
+* Takım arkadaşlarınızın fonksiyonun beklentisini anında anlamasını sağlar.
+* Kullanılan editörün daha isabetli kod önerileri sunmasını sağlar.
+* İleride oluşabilecek hataları kod okuma aşamasında fark etmenizi sağlar.
+
+Veri odaklı güzel bir örnek:
+
+```python
+def calculate_average(values: list[float]) -> float:
+    return sum(values) / len(values)
+
+```
+
+Sadece tanımlamaya bakarak bu fonksiyonun bir ondalıklı sayılar listesi beklediğini ve sonuç olarak tek bir ondalıklı sayı döndüreceğini anlayabiliriz.
+
+### Dosya Okuma ve Yazma
+
+Gerçek dünyada veriler çoğunlukla dosyalardan veya veritabanlarından gelir. Bu nedenle temel dosya okuma ve yazma işlemlerini bilmek kritik bir adımdır.
+
+`pathlib` kütüphanesi ile bir dosya okuma örneği:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+content = path.read_text(encoding="utf-8")
+print(content)
+
+```
+
+Eğer veriyi satır satır işlemek isterseniz:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+lines = path.read_text(encoding="utf-8").splitlines()
+
+for line in lines:
+    print(line)
+
+```
+
+Boş satırları filtreleyerek temiz bir okuma yapmak için yardımcı bir fonksiyon:
+
+```python
+from pathlib import Path
+
+def load_lines(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text().splitlines()
+        if line.strip()
+    ]
+
+```
+
+Dosyaya yeni bir veri veya rapor yazmak:
+
+```python
+from pathlib import Path
+
+path = Path("output.txt")
+
+path.write_text("Hello Python", encoding="utf-8")
+
+```
+
+Bu işlemler; veriyi hazırlama, temizlenen veriyi kaydetme ve sonuç raporları üretme gibi akışların temelini oluşturur.
+
+#### With Kullanımı
+
+Büyük dosyalarla çalışırken dosyayı okuduktan sonra kapatmayı unutmak bellek sorunlarına yol açabilir. `with` bloğunu kullanmak, işimiz bittiğinde dosyanın otomatik ve güvenli bir şekilde kapanmasını garanti eder.
+
+```python
+from pathlib import Path
+
+path = Path("notes.txt")
+
+with path.open("r", encoding="utf-8") as file:
+    for line in file:
+        print(line.strip())
+
+```
+
+Tek seferlik kısa okumalarda `Path.read_text()` pratik olsa da; dosyanın satır satır işlenmesi gereken durumlarda `with path.open(...)` kullanmak daha kontrollü bir yöntemdir.
+
+#### CSV, JSON ve Text Dosyaları
+
+Veri dünyasında en çok vakit geçireceğiniz dosya türlerine kısaca değinelim.
+
+##### CSV
+
+Tablo şeklindeki yapısal verileri saklamak için standart formattır. Python'daki `csv` modülü ile okumak oldukça rahattır:
+
+```python
+import csv
+from pathlib import Path
+
+path = Path("students.csv")
+
+with path.open("r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        print(row)
+
+```
+
+`DictReader` kullanarak her satırı bir sözlük (dictionary) formatında almak, verileri isimleriyle (örneğin `row["age"]`) okumamızı sağlar.
+
+##### JSON
+
+Özellikle API yanıtlarında, konfigürasyon dosyalarında ve karmaşık, iç içe geçmiş veri yapılarında JSON kullanılır.
+
+```python
+import json
+from pathlib import Path
+
+path = Path("profile.json")
+
+data = json.loads(path.read_text(encoding="utf-8"))
+
+print(data["name"])
+
+```
+
+### Hata Yönetimi
+
+Gerçek dünyada veriler her zaman beklediğimiz gibi düzenli gelmez. Hatalı bir hücre, bulunamayan bir dosya veya ulaşılamayan bir API yüzünden programın aniden durmasını istemeyiz. Hata yönetimi (`try-except`), programımıza esneklik katar.
+
+Örneğin bir metni sayıya çevirirken oluşabilecek hatayı şöyle yumuşatabiliriz:
+
+```python
+value = "abc"
+
+try:
+    number = int(value)
+except ValueError:
+    print("This value cannot be converted to an integer.")
+
+```
+
+Veya okunmak istenen dosya yerinde yoksa programın çökmesini engellemek için:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+try:
+    content = path.read_text()
+except FileNotFoundError:
+    print("File not found.")
+
+```
+
+Burada amacımız hataları görmezden gelmek değildir. Amaç, hatanın tam olarak nerede ve neden gerçekleştiğini anlaşılır biçimde yakalamak; sistemin kontrollü olarak devam etmesini veya durmasını sağlamaktır.
+
+### Modül Kullanımı
+
+Bütün kodu tek bir dosyaya (örneğin `main.py`) yığmak bir süre sonra işleri yönetilemez hale getirir. Python'da kodu sorumluluklarına göre farklı `.py` modüllerine ayırmak projeyi daha düzenli kılar.
+
+Örneğin, temizlik fonksiyonlarımızı `cleaner.py` adlı bir modülde toplayabiliriz:
+
+```python
+# cleaner.py
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+```
+
+Sonra bu fonksiyonu ana dosyada içe aktarıp (import) kullanabiliriz:
+
+```python
+# main.py
+from cleaner import normalize_column_name
+
+column = normalize_column_name(" Product Name ")
+print(column)
+
+```
+
+#### Script Akışı ve `if __name__ == "__main__"`
+
+Yazdığınız bir Python dosyası başka bir yere import edildiğinde içindeki bazı kodların (örneğin test çıktılarının) otomatik olarak çalışmasını istemeyebilirsiniz. Bu durumu engellemek için ana çalışma akışını `if __name__ == "__main__":` bloğunun altına alırız.
+
+```python
+def main():
+    print("Program started")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+Bu yapı; küçük veri scriptlerinde kodun giriş noktasını belirginleştirir ve uygulamanın daha kontrollü biçimde modülerleşmesini sağlar.
+
+### Kütüphane ve Ortam Yönetimi
+
+Yapay zeka projelerinde yalnızca kodu değil, proje ortamını da düzenli tutmak önemlidir. Farklı projelerin birbiriyle çakışmayan kütüphane sürümlerine (örneğin bir projede Pandas 1.x, diğerinde Pandas 2.x) ihtiyacı olabilir.
+
+#### Virtual Environment (Sanal Ortam)
+
+Her proje için izole bir sanal ortam oluşturmak önerilen bir pratiktir.
+
+Sanal ortam (virtual environment) oluşturmak için:
+
+```bash
+python -m venv .venv
+
+```
+
+Aktifleştirmek için (Mac/Linux):
+
+```bash
+source .venv/bin/activate
+
+```
+
+Aktifleştirmek için (Windows):
+
+```bash
+.venv\Scripts\activate
+
+```
+
+Artık indireceğiniz her kütüphane sadece bu projenin içine kurulacaktır.
+
+#### Dependency Dosyaları
+
+Projenizi takım arkadaşınızla paylaşırken veya bir sunucuya yüklerken, projenin bağımlılıklarını kaydetmek gerekir. Bu amaçla `requirements.txt` kullanılır.
+
+Kullandığınız paketleri kaydetmek:
+
+```bash
+pip freeze > requirements.txt
+
+```
+
+Başka bir bilgisayarda o paketleri kurmak:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+### Nesne Yönelimli Programlama (OOP)
+
+Python'da her şeyi sınıf (class) yazarak çözmek zorunda değiliz. Küçük veri scriptlerinde fonksiyonlar genellikle yeterlidir. Ancak proje büyüdüğünde, durumu ve o duruma ait davranışları bir arada tutmak için OOP mantığı kodu daha düzenli kılabilir.
+
+#### Encapsulation (Kapsülleme)
+
+Dışarıdan doğrudan müdahale edilmesini istemediğimiz ayarları veya verileri korumak için kullanırız. Python'da ismin başına konan tek alt çizgi (`_`), "Bu değişken içeride kalmalı" anlamına gelen yaygın bir işarettir (naming convention).
+
+```python
+class APIClient:
+    def __init__(self, api_key: str):
+        self._api_key = api_key
+
+    def masked_key(self) -> str:
+        return self._api_key[:3] + "***"
+
+```
+
+#### Inheritance (Kalıtım) ve Abstraction (Soyutlama)
+
+Kalıtım (inheritance), ortak özellik ve davranışları bir üst sınıfta toplayıp alt sınıfların bunları yeniden kullanmasını sağlar. Soyutlama (abstraction) ise sistemin ortak kuralını ve zorunlu davranışlarını tanımlar; her alt sınıf bu davranışın kendi ihtiyacına uygun ayrıntısını uygular.
+
+```python
+from abc import ABC, abstractmethod
+
+
+class ModelRunner(ABC):
+    @abstractmethod
+    def predict(self, value: str) -> str:
+        """Each model defines its own prediction behavior."""
+
+class SentimentRunner(ModelRunner):
+    def predict(self, value: str) -> str:
+        return "positive"
+
+```
+
+#### Polymorphism (Çok Biçimlilik)
+
+Aynı metodun farklı nesnelerde farklı biçimde davranabilmesidir.
+
+```python
+class TextCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().lower()
+
+class TitleCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().title()
+
+```
+
+İki sınıf da `clean()` metoduna sahiptir ama işi yapış şekilleri farklıdır.
+
+### Generators ve `yield`
+
+Milyonlarca satırlık bir veri setini veya büyük bir log dosyasını aynı anda belleğe yüklemek sistemi zorlayabilir. `yield` anahtar kelimesi, fonksiyonun veriyi toptan vermek yerine "ihtiyaç duyuldukça, tek tek" üretmesini sağlar.
+
+```python
+def generate_numbers(limit: int):
+    for number in range(limit):
+        yield number
+
+for number in generate_numbers(3):
+    print(number)
+
+```
+
+Bu yaklaşım, büyük veri akışlarını parça parça okuyup işlemek için pratik bir çözümdür.
+
+### Test Yazma
+
+Geliştirdiğimiz veri temizleme adımlarının veya kolon dönüştürücülerin gerçekten doğru çalışıp çalışmadığını bilmek isteriz. Python dünyasında bunun için genellikle `pytest` kütüphanesi kullanılır.
+
+Test edilecek fonksiyonumuz:
+
+```python
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+```
+
+Yazacağımız basit bir test:
+
+```python
+def test_normalize_column_name():
+    result = normalize_column_name(" Product Name ")
+    assert result == "product_name"
+
+```
+
+Makine öğrenmesinde bir modelin tahmini her zaman kesin olmayabilir. Ancak modele girmeden önce yaptığımız veri hazırlığı, metin temizliği ve formatlama adımlarını test etmek güvenilirliği artırır.
+
+## Çalışma Mantığı
+
+Python öğrenirken temel kuralları (syntax) ezberlemek başlangıç için yeterli görünse de, asıl hedefimiz bu kuralları mantıklı programlara dönüştürebilme becerisidir.
+
+AI ve veri projelerinde zamanımızın çok büyük bir kısmı; veriyi bir dosyadan güvenle okumak, içindeki tutarsızlıkları ve eksikleri yakalamak, metinleri standardize etmek ve sonucu analiz edilebilir bir formata (veya dosyaya) getirmekle geçer.
+
+Örneğin, basit bir dictionary yalnızca bir kod örneği değil, veritabanından gelen tek bir "kaydı" temsil edebilir:
+
+```python
+row = {
+    "name": "Alice",
+    "age": "20",
+    "department": "Software Engineering"
+}
+
+```
+
+Eğer modeli yaş bilgisi ile besleyeceksek, yaşın bir metin (`"20"`) olarak kalması sorun yaratır. Bu yüzden şu küçük dokunuş veri hazırlığının ilk adımıdır:
+
+```python
+row["age"] = int(row["age"])
+
+```
+
+### Temiz Kod İlkeleri
+
+Temiz kod yazmak; sadece makinenin değil, kodu okuyacak olan insanların da işini kolaylaştırmak demektir. Bir kod parçasının sadece "çalışıyor" olması yeterli değildir; sürdürülebilir olması da uzun vadede değer katar.
+
+Daha az okunaklı bir yaklaşım:
+
+```python
+x = [" Product Name ", " PRICE ", "Category "]
+y = []
+
+for i in x:
+    y.append(i.strip().lower().replace(" ", "_"))
+
+print(y)
+
+```
+
+Çok daha sürdürülebilir, okunaklı ve takım çalışmasına uygun versiyonu:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+columns = [" Product Name ", " PRICE ", "Category "]
+normalized_columns = []
+
+for column in columns:
+    normalized_columns.append(normalize_column_name(column))
+
+print(normalized_columns)
+
+```
+
+Temiz kod alışkanlığı geliştirmek için değişken isimlerini kısa değil anlamlı seçmek, her bir fonksiyonu tek bir göreve odaklamak ve veri çekme/işleme/kaydetme süreçlerini mantıksal olarak birbirinden ayırmak sağlam bir temel oluşturur.
+
+## Kod Örnekleri
+
+Aşağıdaki örnekler, yukarıda konuştuğumuz teorik bilgilerin AI ve veri odaklı düşünme pratiğiyle yoğrulmuş halleridir.
+
+### Değişkenler ve Veri Tipleri
+
+```python
+student_name = "Alice"
+student_age = 20
+average_score = 82.5
+is_active = True
+
+print(student_name)
+print(student_age)
+print(average_score)
+print(is_active)
+
+```
+
+E-ticaret verisine dayalı bir örnek:
+
+```python
+product_name = "Laptop"
+price = 25000.0
+in_stock = True
+
+print(product_name, price, in_stock)
+
+```
+
+### Metin İşlemleri
+
+Özellikle NLP (Doğal Dil İşleme) alanında metin verilerini standardize etmek kritik önem taşır.
+
+```python
+text = "  Python For AI  "
+clean_text = text.strip().lower()
+print(clean_text)
+# Çıktı: python for ai
+
+```
+
+Kolon isimlerini standardize etme örneği:
+
+```python
+column_name = "Product Name"
+normalized_column = column_name.lower().replace(" ", "_")
+print(normalized_column)
+# Çıktı: product_name
+
+```
+
+### Liste Kullanımı
+
+```python
+scores = [80, 90, 75, 60]
+
+total = sum(scores)
+average = total / len(scores)
+print(average)
+
+```
+
+Liste üzerinden bir filtreleme (şartlı döngü) yapalım:
+
+```python
+scores = [80, 45, 90, 50, 70]
+passed_scores = []
+
+for score in scores:
+    if score >= 60:
+        passed_scores.append(score)
+
+print(passed_scores)
+
+```
+
+List Comprehension (tek satırda liste oluşturma) ile aynı işlemin daha kısa hali:
+
+```python
+scores = [80, 45, 90, 50, 70]
+passed_scores = [score for score in scores if score >= 60]
+print(passed_scores)
+
+```
+
+### İndeksleme ve Dilimleme
+
+```python
+skills = ["Python", "SQL", "Pandas", "NumPy"]
+
+print(skills[0])
+print(skills[-1])
+print(skills[1:3])
+
+```
+
+String (metin) verisinde slicing örneği:
+
+```python
+text = "artificial intelligence"
+
+print(text[:10])
+print(text[11:])
+
+```
+
+### Enumerate ve Zip
+
+Satırları numaralandırmak:
+
+```python
+students = ["Alice", "Bob", "Charlie"]
+
+for index, student in enumerate(students, start=1):
+    print(index, student)
+
+```
+
+İki bağımsız listeyi karşılıklı eşleştirmek (`zip`):
+
+```python
+columns = ["name", "age", "department"]
+values = ["Alice", "20", "AI"]
+
+for column, value in zip(columns, values):
+    print(column, value)
+
+```
+
+### Sözlük Kullanımı
+
+Bir satırın, anlamlı kolon isimleriyle (key) tutulması:
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "department": "Software Engineering"
+}
+
+print(student["name"])
+print(student["department"])
+
+```
+
+Okunan satırdaki veri tipini dönüştürerek güncellemek:
+
+```python
+row = {
+    "product_name": "Laptop",
+    "price": "25000",
+    "category": "Technology"
+}
+
+row["price"] = float(row["price"])
+print(row)
+
+```
+
+### Fonksiyon Örneği
+
+Tek bir metinsel değeri dönüştürmek için tasarladığımız fonksiyon:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+result = normalize_column_name(" Product Name ")
+print(result)
+
+```
+
+Bu fonksiyonu bir listenin tamamına uygulamak:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+columns = [" Product Name ", " PRICE ", "Category Name"]
+normalized_columns = []
+
+for column in columns:
+    normalized_columns.append(normalize_column_name(column))
+
+print(normalized_columns)
+
+```
+
+### Dosya Okuma
+
+Tüm metni tek seferde içeri almak:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+content = path.read_text(encoding="utf-8")
+
+print(content)
+
+```
+
+Okunabilirliği ve güvenliği artırmak için yardımcı bir satır okuyucu:
+
+```python
+from pathlib import Path
+
+def load_lines(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+lines = load_lines(Path("data.txt"))
+print(lines)
+
+```
+
+### `with` Kullanımı
+
+Dosyayı güvenle kapatmak için context manager (`with`) kullanımı:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+with path.open("r", encoding="utf-8") as file:
+    for line in file:
+        print(line.strip())
+
+```
+
+### CSV Okuma
+
+Tablo formundaki verileri sözlük yapısında içeri almak:
+
+```python
+import csv
+from pathlib import Path
+
+path = Path("students.csv")
+
+with path.open("r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        print(row)
+
+```
+
+### Eksik Değer Kontrolü
+
+Veri setindeki boş değerleri (missing values) yakalayan basit ama etkili fonksiyonlar:
+
+```python
+def is_missing(value: str) -> bool:
+    return value.strip() == ""
+
+print(is_missing(""))
+print(is_missing("Python"))
+
+```
+
+Tüm satırı kontrol etmek:
+
+```python
+row = {
+    "name": "Alice",
+    "age": "",
+    "department": "Software Engineering"
+}
+
+for key, value in row.items():
+    if value == "":
+        print(f"Missing value found in column: {key}")
+
+```
+
+### Basit Doğrulama Raporu
+
+Bir tablodaki eksik verilerin sayısını ve oranını raporlamak:
+
+```python
+rows = [
+    {"name": "Alice", "age": "20"},
+    {"name": "Alice", "age": ""},
+    {"name": "", "age": "22"}
+]
+
+missing_count = 0
+
+for row in rows:
+    for value in row.values():
+        if value == "":
+            missing_count += 1
+
+print(f"Missing value count: {missing_count}")
+
+```
+
+### Hata Yönetimi
+
+Hatalı veya kirli bir verinin programı durdurmasını engellemek için sade bir çözüm (`None` döndürmek):
+
+```python
+def convert_to_int(value: str) -> int | None:
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+print(convert_to_int("20"))
+print(convert_to_int("abc"))
+
+```
+
+### `__name__ == "__main__"` Kullanımı
+
+Modül import edildiğinde otomatik çalışmasını istemediğimiz ana program akışını koruma yöntemi:
+
+```python
+def main():
+    print("CSV cleaning script started")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+### Temel OOP Örneği
+
+Sınıflarla veriyi ve metotları bir araya getirmek (Encapsulation):
+
+```python
+class APIClient:
+    def __init__(self, api_key: str):
+        self._api_key = api_key
+
+    def masked_key(self) -> str:
+        return self._api_key[:3] + "***"
+
+```
+
+Temel şablonu belirleyip detayları alt sınıfa bırakmak (Inheritance & Abstraction):
+
+```python
+class ModelRunner:
+    def predict(self, text: str) -> str:
+        raise NotImplementedError("This method must be defined in a subclass.")
+
+class SentimentRunner(ModelRunner):
+    def predict(self, text: str) -> str:
+        return "positive"
+
+```
+
+Aynı amaca hizmet eden ama farklı uygulanan temizlik sınıfları (Polymorphism):
+
+```python
+class TextCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().lower()
+
+class TitleCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().title()
+
+```
+
+### Küçük Test Örneği
+
+Kodunuzun çalıştığını manuel denemek yerine kodla otomatikleştirmek (`pytest` vb.):
+
+```python
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+def test_normalize_column_name():
+    result = normalize_column_name(" Product Name ")
+    assert result == "product_name"
+
+```
+
+## Kısa Notlar
+
+* Python'da kod bloklarının sınırları süslü parantezlerle değil girintilerle belirlenir.
+* Değişken ve fonksiyon isimlerinde kısaltma yapmak yerine ne iş yaptıklarını açıkça anlatan isimler seçmek kodun ömrünü uzatır.
+* `strip`, `lower`, `replace` gibi string işlemleri, veri hazırlama ve NLP süreçlerinde sık kullanılan araçlardır.
+* Listeler aynı yapıdaki çok sayıda veriyi, sözlükler ise kolon isimlendirmeleri gibi anahtarlı yapıları tutmak için idealdir.
+* Tek bir fonksiyonun birden fazla görevi üstlenmesi yerine, tek bir amaca odaklanması tercih edilebilir.
+* Type hint kullanmak, hem geliştirme sürecinde editör yardımı sağlar hem de kodun okunabilirliğini artırır.
+* `with` yapısını kullanmak dosya, veritabanı veya ağ bağlantısı gibi dış kaynakları güvenilir biçimde yönetmeyi sağlar.
+* `try-except` bloklarında amaç hataları gizlemek değil, hata türüne göre sistemi uygun biçimde yönlendirmektir.
+* Sanal ortamlar, projelerde paket çakışmalarını önler ve ekip içi tekrarlanabilirliği destekler.
+* `requirements.txt`, proje bağımlılıklarını kaydeder ve aynı ortamın başka bir makinede yeniden kurulmasını kolaylaştırır.
+
+## Kaynaklar
+
+### [Python Documentation](https://docs.python.org/3/)
+
+Python'un en kapsamlı ve en doğru kaynağıdır. Özellikle veri yapıları, dosya yönetimi ve hata yakalama başlıklarını ilk elden öğrenmek için idealdir.
+
+### [pytest Documentation](https://docs.pytest.org/)
+
+Kodun test edilebilirliğini artırmak ve basit fonksiyon testleri (unit test) yazmak için ihtiyaç duyulan pratik örnekler burada yer alır.
+
+### [The Python Packaging User Guide](https://packaging.python.org/)
+
+Projelerin nasıl paketleneceğini, sanal ortamların (`venv`) nasıl kurulacağını ve dependency (bağımlılık) yönetiminin nasıl yapılacağını anlatan endüstri standardı rehberdir.
+
+### [LeetCode](https://leetcode.com/) / [HackerRank](https://www.hackerrank.com/)
+
+Python ile algoritma ve veri yapıları alıştırması yapmak için en iyi platformlar.

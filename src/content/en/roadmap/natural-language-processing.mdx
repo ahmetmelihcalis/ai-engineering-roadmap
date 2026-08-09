@@ -1,0 +1,282 @@
+---
+title: "Natural Language Processing (NLP)"
+slug: "natural-language-processing"
+order: 8
+description: "Natural language processing foundations, text preprocessing, text representation, deep-learning language models, and core NLP tasks."
+tags: ["Text Preprocessing", "Tokenization", "Stemming", "TF-IDF", "Word Embeddings", "NLP Tasks"]
+---
+
+## Overview
+
+**Natural Language Processing (NLP)** is a collection of methods that lets computers process, classify, understand, or generate human language. Text classification, sentiment analysis, named entity recognition, semantic search, summarization, and question answering are among the core applications in this field.
+
+In AI projects, NLP can require special care because of the nature of text data. Language, context, spelling errors, irony, label quality, tokenization, and representation method can directly affect a model's result. For this reason, data preparation and evaluation can be as important as model selection in text problems.
+
+This module covers:
+
+* Text Preprocessing and Data Cleaning
+* Tokenization
+* Stem and Lemma Analysis
+* Bag of Words, TF-IDF, and N-grams
+* Word Embeddings
+* Core NLP Tasks
+
+## Key Concepts
+
+### Natural Language Processing Foundations
+
+Text data has a more ambiguous structure than classical tabular data. The same word can carry different meanings in different contexts. Negation suffixes, irony, spelling errors, abbreviations, or using two languages in the same sentence can change a text's meaning. For this reason, starting an NLP problem by defining the user's actual need rather than selecting a model is healthier.
+
+Start by deciding what the system should do with text. Use **classification** to produce a fixed label, **information extraction** to extract specific fields, **retrieval** to find similar content, and **generation** to create new text. Choose success metrics to match the selected task.
+
+### Text Preprocessing
+
+**Text Preprocessing** is the process of making text suitable for a model without deleting or permanently changing raw data completely. Organizing unnecessary whitespace, cleaning broken characters, and standardizing Unicode form are generally the first cleaning steps. However, lowercasing all text, removing punctuation, stemming, or directly dropping stopwords may not be appropriate for every project. Product codes, user names, emojis, and capitalization can carry meaningful signals in some problems.
+
+**Tokenization** divides text into small units a model can process. In classical methods, these units are mostly words. Modern Transformer models use subword pieces instead. In Turkish, suffixes, foreign terms, and spelling errors can directly affect total token count, so analyze the length distribution of real production texts when designing the system.
+
+During data cleaning, it is useful to examine empty records, duplicates, HTML residue, and personal data separately. Whether cleaning rules work the same in training, validation, and production can also be checked. Otherwise, the model can lose performance when it encounters the real world with a different structure from the clean text it saw in training.
+
+**Stemming** and **lemmatization** are different approaches. Stemming reduces a word to a rough stem by clipping its end without strictly following grammatical rules. Lemmatization tries to find the word's actual dictionary form. Morphological analysis is valuable in agglutinative languages such as Turkish because it separates properties such as tense, person, case, and plurality while finding the root. This information can be used in classical NLP tasks; however, when using a pretrained Transformer, simplifying text too aggressively can disrupt the natural-language structure the model saw during training.
+
+Stopword lists are often used to remove frequently occurring words. However, words such as “not,” “but,” or question words can change the entire meaning of a sentence. For this reason, rather than making stopword cleaning an automatic reflex, it is generally more reliable to test it on a baseline model first and proceed by measuring its effect.
+
+### Text Representation
+
+Because models cannot process text directly, they receive a numerical representation. **Bag of Words** and **TF-IDF** are classical methods based on how frequently words occur in a sentence. If solving a classification problem with limited data, these methods can provide a fast and explainable baseline.
+
+An **Embedding** represents a word, sentence, or document as a dense vector. Vectors for semantically similar texts are also close in vector space. This representation underpins semantic search, clustering, and RAG systems. A high similarity score does not always mean the retrieved text answers the user's question, so verify it with end-to-end tests.
+
+The Bag of Words approach does not consider word order. The **N-gram** approach handles adjacent words as a whole, making it possible to capture short but meaning-changing patterns such as “not good.” On the other hand, vocabulary size expands quickly and rare n-grams can make data sparse. For this reason, it is recommended to choose hyperparameters such as maximum feature count and n-gram range by looking at validation-set results.
+
+Word2Vec, GloVe, and FastText **word-embedding** models assign fixed vectors to words. The word “face” is represented by the same vector in “washed their face” and “learned to swim in the pool.” In **contextual embedding** models, a word's vector changes according to the sentence it appears in. Transformer architectures such as BERT are examples of this approach. This explains why contextual models are more effective with ambiguity.
+
+When choosing a sentence or document embedding, consider the model's Turkish support, suitability for domain terminology, token-length limit, and performance in real search scenarios together.
+
+### Deep Learning-Based Language Models
+
+The architectural foundations of Transformer and attention are in the Deep Learning module. In NLP, encoder models are evaluated for understanding and classification, while decoder models are evaluated for generation tasks.
+
+For a pretrained language model, the choice between prompting, embedding extraction, or fine-tuning depends on the task's error type and latency budget. The fine-tuning decision framework is in the Fine-Tuning and Optimization module; the goal here is to measure whether the selected method contributes to task success.
+
+### Core NLP Tasks
+
+**Text Classification** labels a text's topic, the user's intent, or its sentiment. **Named Entity Recognition (NER)** finds and extracts particular fields from a sentence, such as a person, organization, location, date, or product code. **Semantic Search** matches documents or paragraphs most suitable for a user's query. **Summarization**, **Translation**, and **Question Answering** are among core NLP tasks.
+
+Evaluation criteria also take shape according to the task. Precision, recall, F1-score, and confusion matrix are frequently used in classification tasks. In problems with multi-label or imbalanced class distributions, it is useful to consciously choose among **Macro-F1**, which gives equal weight to every class; **Micro-F1**, which can be guided by the dominant class; and **Weighted-F1**, which evaluates classes by their size.
+
+In **Information Extraction** tasks, the correctness of the captured text span is evaluated; in generation, source accuracy and style are evaluated together. Details of retrieval metrics and sourced-response evaluation are in the RAG and Agentic Systems module.
+
+### Linguistic Analysis and Word-Sense Ambiguity
+
+**Morphological Analysis** analyzes a word's root and the grammatical functions of its suffixes. **Part-of-Speech Tagging (POS)** assigns each token in text a word-class label such as noun, verb, or adjective. Because the same surface form can have more than one morphological meaning in Turkish, considering the word's context in a sentence is very important.
+
+**Word Sense Disambiguation (WSD)** tries to determine which meaning of a homonymous or polysemous word is used in that sentence. It is important not only to make the right prediction, but also to distinguish possible meanings correctly. Modern contextual language models tend to learn this distinction in their own vector spaces; still, evaluating model errors through a domain glossary can improve quality in industry use.
+
+NER aims to identify not only an entity's type but also its correct start and end boundaries in text. When converting an extracted value to a standard format, preserving its original form in the data structure makes it easier to audit the model's decision process retrospectively.
+
+### Text Classification, Sentiment Analysis, and Recommendation Systems
+
+Classification problems can have single-label, multi-label, or hierarchical structures. If label boundaries are confused, clarifying the labeling guide usually solves the problem at its root more effectively than moving to a larger model.
+
+**Sentiment Analysis** tries to group texts as positive, negative, or neutral. However, irony, implicit negativity, or jargon specific to a certain industry can mislead these models; for this reason, domain-specific error analysis is recommended.
+
+**Recommendation Systems** are structures where text analysis and user-interaction signals are blended rather than being only an NLP problem. Although text embeddings provide a useful signal for building content similarity, measuring system success with recommendation-system-specific metrics such as CTR, conversion, diversity, and cold start gives more realistic results.
+
+## How It Works
+
+One of the first steps in an NLP project is understanding the data structure. From the outset, analyze the text source, languages present, label quality, and the data available in production. If repeated templates appear in both train and test sets, check for the risk of the same text leaking into both; the Machine Learning module covers the general leakage framework.
+
+Keeping the first model as simple and understandable as possible is a good start. A baseline based on TF-IDF and Logistic Regression quickly makes quality problems in data and labels visible. When moving to a more complex model later, the quality improvement can be measured more transparently with the same metrics.
+
+During evaluation, reading data by subgroup instead of looking only at the overall average score provides more explanatory results. Creating separate reports for very short messages, bilingual sentences, rare classes, and domain terms makes it easier to diagnose whether an error comes from the data source, label definition, or model limitations.
+
+Classical methods and modern approaches do not have to compete. A classification task might use a TF-IDF baseline, semantic search might use contextual embeddings, and an NER output might pass through rule-based (RegEx) validation. Whenever you add a component or complexity, show that it addresses a specific error group.
+
+## Code Examples
+
+### Preprocessing While Preserving Raw Text
+
+```python
+import re
+import unicodedata
+
+def preprocess_text(value: str) -> str:
+    value = unicodedata.normalize("NFC", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+df["text_raw"] = df["text"].fillna("")
+df["text_clean"] = df["text_raw"].map(preprocess_text)
+```
+
+This approach safely retains original data in `text_raw` while creating `text_clean` as the text to work on. When a new cleaning rule is added to the system, measuring its effect on model success on the same test set is recommended.
+
+### A Baseline Model with TF-IDF
+
+```python
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+
+pipeline = Pipeline([
+    ("vectorizer", TfidfVectorizer(ngram_range=(1, 2), min_df=2)),
+    ("model", LogisticRegression(max_iter=1000)),
+])
+
+pipeline.fit(train_texts, train_labels)
+predictions = pipeline.predict(validation_texts)
+```
+
+This classical architecture stands out because it trains quickly and transparently shows which words affect a prediction. The value created by deep-learning models used in later stages can be measured against this baseline.
+
+### Comparing Bag of Words and N-Grams
+
+```python
+from sklearn.feature_extraction.text import CountVectorizer
+
+bow = CountVectorizer(ngram_range=(1, 1), min_df=2)
+ngram = CountVectorizer(ngram_range=(1, 2), min_df=2)
+
+bow_matrix = bow.fit_transform(train_texts)
+ngram_matrix = ngram.fit_transform(train_texts)
+
+print("BoW feature count:", bow_matrix.shape[1])
+print("N-gram feature count:", ngram_matrix.shape[1])
+```
+
+Adding n-grams improves the ability to capture short word groups; however, it also increases dimension count and memory consumption. The decision to use n-grams can be made according to performance evaluation on the validation set.
+
+### Storing Token-Level Output
+
+```python
+entity = {
+    "text": "London",
+    "start": 33,
+    "end": 39,
+    "label": "LOCATION",
+    "normalized_value": "London",
+}
+```
+
+Even when data extracted after Named Entity Recognition is standardized, retaining the `start` and `end` indices in the original text is a practical solution for tracking the model's decision process retrospectively. This task is abbreviated as NER.
+
+### Tokenization, Stemming, Morphology, POS, and NER with Python
+
+```python
+import stanza
+from nltk.stem import SnowballStemmer
+
+stanza.download("en")
+stemmer = SnowballStemmer("english")
+nlp = stanza.Pipeline("en", processors="tokenize,mwt,pos,lemma,ner")
+doc = nlp("Alice will attend the meeting in London tomorrow.")
+
+for sentence in doc.sentences:
+    for word in sentence.words:
+        print({"token": word.text, "stem": stemmer.stem(word.text.lower()), "lemma": word.lemma, "pos": word.upos, "morphology": word.feats})
+
+for entity in doc.ents:
+    print(entity.text, entity.type)
+```
+
+This flow presents tokenization, stemming, grammatical analysis, and entity extraction together on a single text. Fixing the library version used when moving to production supports reproducibility.
+
+### A Starter Model for Word Sense Disambiguation with Python
+
+This example assumes that `embedding_model` is a preloaded SentenceTransformer model.
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+
+context = "The child learned to swim in the pool."
+sense_descriptions = [
+    "A person's face or facial expression",
+    "The verb meaning to move through water",
+    "The number one hundred",
+]
+
+context_vector = embedding_model.encode([context])
+sense_vectors = embedding_model.encode(sense_descriptions)
+scores = cosine_similarity(context_vector, sense_vectors)[0]
+selected_sense = sense_descriptions[scores.argmax()]
+```
+
+This example provides a simple baseline that compares a sentence embedding with descriptions of possible meanings. In practice, the main engineering effort lies in creating a quality dictionary or labeled-data inventory that will feed `sense_descriptions`.
+
+### Sentiment Analysis with Python
+
+```python
+from transformers import pipeline
+
+model_id = "distilbert-base-uncased-finetuned-sst-2-english"
+sentiment = pipeline("text-classification", model=model_id)
+result = sentiment("The application failed to open again.")
+print(result)
+```
+
+Rather than downloading directly from platforms such as Hugging Face, it is useful to test whether a model is suitable for the relevant language, jargon, and use of irony with the organization's own dataset. It is also useful to remember that a model score is a probabilistic confidence measure, not a certain reality.
+
+### A Text-Based Recommendation System with Python
+
+This example assumes that `embedding_model` is a preloaded SentenceTransformer model.
+
+```python
+from sklearn.metrics.pairwise import cosine_similarity
+
+user_vector = embedding_model.encode([user_profile_text])
+item_vectors = embedding_model.encode(item_descriptions)
+scores = cosine_similarity(user_vector, item_vectors)[0]
+
+# argsort sorts scores from smallest to largest; [::-1] reverses the order.
+recommended_indices = scores.argsort()[-5:][::-1]
+recommendations = [items[index] for index in recommended_indices]
+```
+
+This content-based logic builds only text similarity. When designing an advanced recommendation system, user-interaction data, popularity balance, and diversity can also be included alongside text similarity.
+
+### Examining Errors by Task
+
+```python
+errors = validation_df.loc[
+    validation_df["label"] != validation_df["prediction"],
+    ["text_raw", "label", "prediction", "language"],
+]
+
+print(errors.sample(min(20, len(errors)), random_state=42))
+```
+
+Rather than focusing only on the number of examples a model predicts incorrectly, categorizing whether an error comes from a spelling mistake, multilingual content, missing context, or an ambiguous label can make targeted improvements easier.
+
+## Quick Notes
+
+* When applying text-preprocessing steps, take care not to lose a sentence's meaning or important signals.
+* TF-IDF can still be a fast, simple, and strong starting method for text-classification problems.
+* Methods such as Word2Vec and GloVe produce static embeddings for words, while Transformer-based models can create different representations depending on a word's context.
+* Embeddings help represent semantic similarity between texts; they do not guarantee the correct answer on their own.
+* Transformer models can learn relationships between different parts of a sentence through attention, which offers a parallel-processing advantage, especially during training.
+* The metric used in NLP should be selected according to the task type. For example, BLEU or ROUGE can be used for text generation, while Recall@k can be used for information retrieval.
+* N-grams are effective at capturing short word or character patterns; however, memory and computational cost can increase as the value of n grows.
+* Morphological analysis, POS tagging, and WSD are methods for examining a language's formal and semantic structure in greater detail.
+
+## Resources
+
+### [Hugging Face Course](https://huggingface.co/learn/nlp-course/)
+
+A comprehensive starting point for learning tokenization, Transformer logic, and modern NLP workflows through practice.
+
+### [spaCy Documentation](https://spacy.io/usage)
+
+A comprehensive technical reference for text tokenization, NER, and designing fast production-focused NLP pipelines.
+
+### [Stanza Documentation](https://stanfordnlp.github.io/stanza/)
+
+Official documentation that brings together tokenization, lemmatization, POS, morphology, and NER components for Turkish.
+
+### [Stanford CS224N: Natural Language Processing with Deep Learning](https://web.stanford.edu/class/cs224n/)
+
+For those who want to study the theory of text representation, the mathematical foundations of language models, and core NLP tasks at an academic level.
+
+### [scikit-learn Text Feature Extraction](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction)
+
+An ideal resource for quickly understanding Bag of Words, TF-IDF, and classical text-classification methods through practical code examples.

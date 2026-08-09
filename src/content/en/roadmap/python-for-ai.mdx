@@ -1,0 +1,1183 @@
+---
+title: "Python for AI"
+slug: "python-for-ai"
+order: 1
+description: "Python basics in AI work."
+tags: ["Python Syntax", "Data Types", "Functions", "File Operations", "Type Hint", "OOP and Testing"]
+---
+
+## Overview
+
+**Python** is a general-purpose programming language widely used in data science and artificial intelligence because of its readable syntax and extensive library ecosystem. Its variables, data types, functions, file operations, and modular structure make it suitable for everything from small scripts to large data-processing workflows.
+
+In artificial intelligence projects, Python is used to read, clean, and transform data; automate model experiments; work with files; and make results testable.
+
+The Python foundation is therefore a practical starting point for subsequent SQL, EDA, machine learning and MLOps modules.
+
+The following topics will be covered in this module:
+
+* Python Syntax Fundamentals
+* Data Types, Operators and Conditionals
+* Loops, Functions, Lists and Dictionaries
+* Slicing, File Operations, and Error Handling
+* Module Usage and Type Hint
+* OOP, Generators, and Testing
+
+## Basic Concepts
+
+### Python Syntax Basics
+
+The first thing we want to see when learning a new language is that the code we write produces output. Therefore, starting by printing with the `print` function allows us to immediately see whether our code actually works.
+
+In its simplest form:
+
+```python
+print("Hello, Python")
+
+```
+
+The essence of programming is to receive data, process it and produce output. In the first steps, we will focus on producing output, and in the following stages, we will add the logic of receiving data from the user or files to the process.
+
+We use comments to tell our future selves or teammates what our code does. In Python, the `#` sign is sufficient for this:
+
+```python
+# This line is a comment
+print("Hello")
+
+```
+
+Comparison operators (`==`, `!=`, `>`, `<`, `>=`, `<=`) allow us to compare two values with each other when making logical decisions.
+
+```python
+age = 20
+print(age >= 18)
+
+```
+
+Logical operators such as `and`, `or` and `not` are used to combine multiple conditions.
+
+```python
+age = 20
+has_ticket = True
+
+print(age >= 18 and has_ticket)
+
+```
+
+One of the most characteristic features of Python is that it separates blocks of code with indentations, not curly brackets. In this way, the code becomes more readable.
+
+```python
+age = 20
+
+if age >= 18:
+    print("Adult")
+else:
+    print("Not adult")
+
+```
+
+In this example, the spaces (indentation) under `if` and `else` determine the boundaries of that block of code. Proper indentation is not just a visual preference in Python, it is a rule of thumb for the code to work.
+
+### Data Types
+
+In Python, every value has a type. Identifying data types correctly is important in AI and data science projects because, before supplying data to a model, we need to know whether a value is text, an integer, or a decimal number.
+
+We can take a look at the basic data types as follows:
+
+```python
+name = "Python"
+age = 30
+price = 19.99
+is_active = True
+
+```
+
+Here:
+
+* `str`: Text data,
+* `int`: Integers,
+* `float`: Decimal numbers,
+* `bool`: Represents true/false states.
+
+For example, when you pull age information from a CSV file, it usually comes as text (string):
+
+```python
+age = "21"
+
+```
+
+To use it in a mathematical operation, we may need to convert its type:
+
+```python
+age = int(age)
+
+```
+
+Such type conversions are one of the most basic and frequently used parts of data cleaning steps.
+
+### Conditional Statements
+
+We use conditional statements (`if`, `elif`, `else`) so that our programs can respond differently in different scenarios.
+
+For example, we can detect whether there is an empty cell (missing value) in our data as follows:
+
+```python
+value = ""
+
+if value == "":
+    print("Missing value")
+else:
+    print("Valid value")
+
+```
+
+In data projects, we usually use this structure for the following tasks:
+
+* Filtering out missing or invalid values,
+* Checking file paths,
+* Creating labels based on the scores produced by the model.
+
+Let's consider an example closer to a real project:
+
+```python
+score = 0.82
+
+if score >= 0.90:
+    label = "high confidence"
+elif score >= 0.70:
+    label = "medium confidence"
+else:
+    label = "low confidence"
+
+print(label)
+
+```
+
+This simple setup is similar to the logic of converting probability scores produced by artificial intelligence models into user-friendly labels in the future.
+
+### Loops
+
+Instead of performing repetitive operations manually, we automate the process by using loops (`for`, `while`).
+
+The `for` loop makes it easy to iterate through the elements of a list one at a time:
+
+```python
+names = ["Alice", "Bob", "Charlie"]
+
+for name in names:
+    print(name)
+
+```
+
+In data science, we often set up loops to operate on thousands of rows of data:
+
+```python
+scores = [80, 65, 90, 45]
+
+passed_scores = []
+
+for score in scores:
+    if score >= 60:
+        passed_scores.append(score)
+
+print(passed_scores)
+
+```
+
+In this example, we go through the notes one by one and collect only those that exceed a certain threshold into a new list. We will use this logic in the future when reading lines from the file, debugging erroneous data, or calculating basic statistics.
+
+#### Enumerate and Zip
+
+When creating a loop, sometimes not only the data itself, but also the rank (index) of that data is needed. In this case, the `enumerate` function is used.
+
+```python
+students = ["Alice", "Bob", "Charlie"]
+
+for index, student in enumerate(students, start=1):
+    print(index, student)
+
+```
+
+This feature can be used to number lines of data or to log the location (line number) of an erroneous line in the file.
+
+Use `zip` to iterate over two or more lists in parallel.
+
+```python
+columns = ["name", "age", "department"]
+values = ["Alice", "20", "AI"]
+
+for column, value in zip(columns, values):
+    print(column, value)
+
+```
+
+This structure is frequently used when matching table columns and row values.
+
+### Collection Structures
+
+We use collection structures to keep multiple data together in an organized manner.
+
+The structures you will encounter most frequently are:
+
+* `list`
+* `tuple`
+* `dict`
+* `set`
+
+#### List
+
+Lists are ordered structures whose elements can be added or removed.
+
+```python
+numbers = [10, 20, 30, 40]
+
+```
+
+It is common to keep rows, model prediction scores, or column names from a file in lists.
+
+```python
+rows = ["name,age", "Alice,20", "Bob,22"]
+
+```
+
+#### Dict (Dictionary)
+
+Dictionaries store data in "key-value" pairs. It is one of the practical methods to represent a row of data with meaningful features.
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "department": "Software Engineering"
+}
+
+```
+
+For example, keeping a row read from a table in a dictionary structure makes the code more readable:
+
+```python
+row = {
+    "product_name": "Laptop",
+    "price": 25000,
+    "category": "Technology"
+}
+
+```
+
+#### Set
+
+The set structure contains only "unique" elements.
+
+```python
+categories = {"AI", "Data", "Software", "AI"}
+print(categories)
+
+```
+
+Sets are a practical way to remove duplicate values from large datasets and keep only unique entries.
+
+#### Tuple
+
+A tuple is an ordered structure whose content cannot be changed after it is created.
+
+```python
+point = (10, 20)
+
+```
+
+It is generally preferred for coordinates, database settings or small data groups that you want to remain constant.
+
+#### Indexing and Slicing
+
+Indexes are used to access a specific element of sequential data such as a list or string.
+
+```python
+skills = ["Python", "SQL", "Pandas"]
+
+print(skills[0]) # First element
+print(skills[-1]) # Last element
+
+```
+
+If we want to get only a certain section of the data, we do slicing:
+
+```python
+text = "machinelearning"
+
+print(text[0:7])
+print(text[7:])
+
+```
+
+Slicing logic is very useful when separating datasets (train/test) or fragmenting texts.
+
+### Functions
+
+We use functions to make our growing code more manageable, testable and reusable. The most basic step in writing clean code is to divide operations into logical functions.
+
+A simple function:
+
+```python
+def greet(name):
+    return f"Hello, {name}"
+
+```
+
+For example, let's write a function that converts scattered column names from different sources into a standard format:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+```
+
+This function performs the following operations:
+
+* Removes leading and trailing spaces with `strip`.
+* Converts letters to lowercase with `lower`.
+* Converts spaces to underscores with `replace`.
+
+Its usage is as follows:
+
+```python
+column = " Product Name "
+normalized = normalize_column_name(column)
+
+print(normalized)
+# Output: product_name
+
+```
+
+The following principles can be taken into account when designing functions:
+
+* Ensure each function has a single purpose.
+* Choose names that clearly describe what the function does.
+* Define inputs (parameters) and outputs (return values) clearly.
+
+#### Type Hints
+
+Python is flexible and dynamically typed. In large projects, however, making each function’s expected data types explicit improves readability. Type hints serve this purpose.
+
+```python
+def add(a: int, b: int) -> int:
+    return a + b
+
+```
+
+Type hints do not make Python rigid: code can still run when a value of the wrong type is passed. They do, however,
+
+* Help teammates understand what a function expects at a glance.
+* Enable more accurate code suggestions from editors.
+* Make potential errors easier to catch during code review.
+
+A good data-driven example:
+
+```python
+def calculate_average(values: list[float]) -> float:
+    return sum(values) / len(values)
+
+```
+
+From the definition alone, we can tell that this function expects a list of floating-point values and returns a single floating-point value.
+
+### Reading and Writing Files
+
+In the real world, data mostly comes from files or databases. Therefore, knowing basic file reading and writing operations is a critical step.
+
+An example of reading a file with the `pathlib` library:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+content = path.read_text(encoding="utf-8")
+print(content)
+
+```
+
+If you want to process the data line by line:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+lines = path.read_text(encoding="utf-8").splitlines()
+
+for line in lines:
+    print(line)
+
+```
+
+A helper function to get a clean read by filtering out empty lines:
+
+```python
+from pathlib import Path
+
+def load_lines(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text().splitlines()
+        if line.strip()
+    ]
+
+```
+
+Writing new data or report to the file:
+
+```python
+from pathlib import Path
+
+path = Path("output.txt")
+
+path.write_text("Hello Python", encoding="utf-8")
+
+```
+
+These operations underpin workflows such as preparing data, saving cleaned data, and producing result reports.
+
+#### Using With
+
+When working with large files, forgetting to close the file after reading it can cause memory problems. Using the `with` block ensures that the file is closed automatically and safely when we are done.
+
+```python
+from pathlib import Path
+
+path = Path("notes.txt")
+
+with path.open("r", encoding="utf-8") as file:
+    for line in file:
+        print(line.strip())
+
+```
+
+Although `Path.read_text()` is practical for short, one-off reads, `with path.open(...)` is a more controlled approach when a file must be processed line by line.
+
+#### CSV, JSON and Text Files
+
+Let's briefly cover the file types you will work with most often in data projects.
+
+##### CSV
+
+CSV is a standard format for storing structured tabular data and is easy to read with Python’s `csv` module:
+
+```python
+import csv
+from pathlib import Path
+
+path = Path("students.csv")
+
+with path.open("r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        print(row)
+
+```
+
+Retrieving each row in a dictionary format using `DictReader` allows us to read the data by name (e.g. `row["age"]`).
+
+##### JSON
+
+JSON is especially used in API responses, configuration files, and complex, nested data structures.
+
+```python
+import json
+from pathlib import Path
+
+path = Path("profile.json")
+
+data = json.loads(path.read_text(encoding="utf-8"))
+
+print(data["name"])
+
+```
+
+### Error Management
+
+In the real world, data does not always arrive as orderly as we expect. We don't want the program to stop suddenly because of a faulty cell, a file that can't be found, or an API that can't be reached. Error handling (`try-except`) adds flexibility to our program.
+
+For example, we can handle the error that occurs when converting text to a number:
+
+```python
+value = "abc"
+
+try:
+    number = int(value)
+except ValueError:
+    print("This value cannot be converted to an integer.")
+
+```
+
+Or to prevent the program from crashing if the file you want to read is not there:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+try:
+    content = path.read_text()
+except FileNotFoundError:
+    print("File not found.")
+
+```
+
+The goal is not to ignore errors. It is to identify where and why an error occurred, then let the system continue or stop in a controlled way.
+
+### Module Usage
+
+Piling all the code into a single file (e.g. `main.py`) will make things unmanageable after a while. In Python, separating the code into different `.py` modules according to their responsibilities makes the project more organized.
+
+For example, we can collect our cleaning functions in a module called `cleaner.py`:
+
+```python
+# cleaner.py
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+```
+
+Then we can import and use this function in the main file:
+
+```python
+# main.py
+from cleaner import normalize_column_name
+
+column = normalize_column_name(" Product Name ")
+print(column)
+
+```
+
+#### Script Flow and `if __name__ == "__main__"`
+
+When a Python file is imported by another module, you may not want certain code, such as test output, to run automatically. Put the main workflow under `if __name__ == "__main__":` to prevent that.
+
+```python
+def main():
+    print("Program started")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+This structure clarifies the entry point in small data scripts and supports more controlled modularization.
+
+### Library and Environment Management
+
+In artificial intelligence projects, it is important to keep not only the code but also the project environment organized. Different projects may need non-conflicting library versions (e.g. Pandas 1.x in one project, Pandas 2.x in another).
+
+#### Virtual Environment
+
+Creating an isolated virtual environment for each project is a recommended practice.
+
+To create a virtual environment:
+
+```bash
+python -m venv .venv
+
+```
+
+To activate (Mac/Linux):
+
+```bash
+source .venv/bin/activate
+
+```
+
+To activate (Windows):
+
+```bash
+.venv\Scripts\activate
+
+```
+
+Any packages you install will now be isolated to this project.
+
+#### Dependency Files
+
+When sharing a project with a teammate or deploying it to a server, you need a record of its dependencies. `requirements.txt` provides that record.
+
+Saving the packages you use:
+
+```bash
+pip freeze > requirements.txt
+
+```
+
+Installing those packages on another computer:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+### Object Oriented Programming (OOP)
+
+You do not need classes for every problem in Python. Functions are often enough for small data scripts. As a project grows, however, OOP can help keep related state and behavior together.
+
+#### Encapsulation
+
+Encapsulation protects settings or data that should not be modified directly from outside an object. In Python, a leading single underscore (`_`) is a common convention that signals an internal attribute.
+
+```python
+class APIClient:
+    def __init__(self, api_key: str):
+        self._api_key = api_key
+
+    def masked_key(self) -> str:
+        return self._api_key[:3] + "***"
+
+```
+
+#### Inheritance and Abstraction
+
+Inheritance collects shared properties and behavior in a superclass so that subclasses can reuse them. Abstraction defines the system’s common rule and required behavior; each subclass implements the details that suit its own needs.
+
+```python
+from abc import ABC, abstractmethod
+
+
+class ModelRunner(ABC):
+    @abstractmethod
+    def predict(self, value: str) -> str:
+        """Each model defines its own prediction behavior."""
+
+class SentimentRunner(ModelRunner):
+    def predict(self, value: str) -> str:
+        return "positive"
+
+```
+
+#### Polymorphism
+
+The same method can behave differently on different objects.
+
+```python
+class TextCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().lower()
+
+class TitleCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().title()
+
+```
+
+Both classes have a `clean()` method, but the way they do the job is different.
+
+### Generators and `yield`
+
+Loading a data set with millions of lines or a large log file into memory at the same time can strain the system. The `yield` keyword allows the function to produce data "one by one, as needed" rather than giving it all in bulk.
+
+```python
+def generate_numbers(limit: int):
+    for number in range(limit):
+        yield number
+
+for number in generate_numbers(3):
+    print(number)
+
+```
+
+This approach is a practical solution for reading and processing large data streams piece by piece.
+
+### Test Writing
+
+We want to know whether the data cleaning steps or column converters we developed actually work correctly. In the Python world, the `pytest` library is usually used for this.
+
+Our function to test:
+
+```python
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+```
+
+A simple test we will write:
+
+```python
+def test_normalize_column_name():
+    result = normalize_column_name(" Product Name ")
+    assert result == "product_name"
+
+```
+
+In machine learning, a model's prediction may not always be accurate. However, testing the data preparation, text cleaning and formatting steps we do before entering the model increases reliability.
+
+## How It Works
+
+While memorizing the basic rules (syntax) while learning Python seems sufficient to start with, our main goal is the ability to turn these rules into logical programs.
+
+Much of the work in AI and data projects involves safely reading data from files, detecting inconsistencies and missing values, standardizing text, and producing an analyzable dataset.
+
+For example, a simple dictionary might represent a single "record" from the database, not just a code sample:
+
+```python
+row = {
+    "name": "Alice",
+    "age": "20",
+    "department": "Software Engineering"
+}
+
+```
+
+If we are going to feed the model with age information, it would be a problem if the age remained as a text (`"20"`). So this little touch is the first step in data preparation:
+
+```python
+row["age"] = int(row["age"])
+
+```
+
+### Clean Code Guidelines
+
+Writing clean code makes work easier not only for the machine but also for the people who read it. Code that merely “works” is not enough; maintainability matters in the long term.
+
+A less readable approach:
+
+```python
+x = [" Product Name ", " PRICE ", "Category "]
+y = []
+
+for i in x:
+    y.append(i.strip().lower().replace(" ", "_"))
+
+print(y)
+
+```
+
+A much more maintainable, readable and team-friendly version:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+columns = [" Product Name ", " PRICE ", "Category "]
+normalized_columns = []
+
+for column in columns:
+    normalized_columns.append(normalize_column_name(column))
+
+print(normalized_columns)
+
+```
+
+Choosing variable names that are meaningful rather than short, focusing each function on a single task, and logically separating data extraction/processing/saving processes form a solid foundation for developing clean code habits.
+
+## Code Examples
+
+The examples below are the theoretical knowledge we talked about above, mixed with AI and data-driven thinking practice.
+
+### Variables and Data Types
+
+```python
+student_name = "Alice"
+student_age = 20
+average_score = 82.5
+is_active = True
+
+print(student_name)
+print(student_age)
+print(average_score)
+print(is_active)
+
+```
+
+An example based on e-commerce data:
+
+```python
+product_name = "Laptop"
+price = 25000.0
+in_stock = True
+
+print(product_name, price, in_stock)
+
+```
+
+### Text Operations
+
+Especially in the field of NLP (Natural Language Processing), standardizing text data is critical.
+
+```python
+text = "  Python For AI  "
+clean_text = text.strip().lower()
+print(clean_text)
+# Output: python for ai
+
+```
+
+Example of standardizing column names:
+
+```python
+column_name = "Product Name"
+normalized_column = column_name.lower().replace(" ", "_")
+print(normalized_column)
+# Output: product_name
+
+```
+
+### List Usage
+
+```python
+scores = [80, 90, 75, 60]
+
+total = sum(scores)
+average = total / len(scores)
+print(average)
+
+```
+
+Let's do a filtering (conditional loop) over the list:
+
+```python
+scores = [80, 45, 90, 50, 70]
+passed_scores = []
+
+for score in scores:
+    if score >= 60:
+        passed_scores.append(score)
+
+print(passed_scores)
+
+```
+
+A shorter version of the same process as List Comprehension (creating a list in one line):
+
+```python
+scores = [80, 45, 90, 50, 70]
+passed_scores = [score for score in scores if score >= 60]
+print(passed_scores)
+
+```
+
+### Indexing and Slicing
+
+```python
+skills = ["Python", "SQL", "Pandas", "NumPy"]
+
+print(skills[0])
+print(skills[-1])
+print(skills[1:3])
+
+```
+
+Example of slicing in string (text) data:
+
+```python
+text = "artificial intelligence"
+
+print(text[:10])
+print(text[11:])
+
+```
+
+### Enumerate and Zip
+
+Numbering the lines:
+
+```python
+students = ["Alice", "Bob", "Charlie"]
+
+for index, student in enumerate(students, start=1):
+    print(index, student)
+
+```
+
+Concatenating two independent lists (`zip`):
+
+```python
+columns = ["name", "age", "department"]
+values = ["Alice", "20", "AI"]
+
+for column, value in zip(columns, values):
+    print(column, value)
+
+```
+
+### Dictionary Usage
+
+Keeping a row with meaningful column names (key):
+
+```python
+student = {
+    "name": "Alice",
+    "age": 20,
+    "department": "Software Engineering"
+}
+
+print(student["name"])
+print(student["department"])
+
+```
+
+To update the data type in the read line by converting it:
+
+```python
+row = {
+    "product_name": "Laptop",
+    "price": "25000",
+    "category": "Technology"
+}
+
+row["price"] = float(row["price"])
+print(row)
+
+```
+
+### Function Example
+
+The function we designed to convert a single textual value:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+result = normalize_column_name(" Product Name ")
+print(result)
+
+```
+
+Applying this function to an entire list:
+
+```python
+def normalize_column_name(column_name: str) -> str:
+    return column_name.strip().lower().replace(" ", "_")
+
+columns = [" Product Name ", " PRICE ", "Category Name"]
+normalized_columns = []
+
+for column in columns:
+    normalized_columns.append(normalize_column_name(column))
+
+print(normalized_columns)
+
+```
+
+### Reading File
+
+Read the entire file at once:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+content = path.read_text(encoding="utf-8")
+
+print(content)
+
+```
+
+A helpful line reader to improve readability and security:
+
+```python
+from pathlib import Path
+
+def load_lines(path: Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+lines = load_lines(Path("data.txt"))
+print(lines)
+
+```
+
+### Using `with`
+
+Use a context manager (`with`) to close the file safely:
+
+```python
+from pathlib import Path
+
+path = Path("data.txt")
+
+with path.open("r", encoding="utf-8") as file:
+    for line in file:
+        print(line.strip())
+
+```
+
+### CSV Reading
+
+Importing data in tabular form into a dictionary structure:
+
+```python
+import csv
+from pathlib import Path
+
+path = Path("students.csv")
+
+with path.open("r", encoding="utf-8") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        print(row)
+
+```
+
+### Missing Value Checking
+
+Simple but effective functions for detecting missing values in a dataset:
+
+```python
+def is_missing(value: str) -> bool:
+    return value.strip() == ""
+
+print(is_missing(""))
+print(is_missing("Python"))
+
+```
+
+Checking the entire line:
+
+```python
+row = {
+    "name": "Alice",
+    "age": "",
+    "department": "Software Engineering"
+}
+
+for key, value in row.items():
+    if value == "":
+        print(f"Missing value found in column: {key}")
+
+```
+
+### Simple Verification Report
+
+Reporting the number (quality) of missing data in a table:
+
+```python
+rows = [
+    {"name": "Alice", "age": "20"},
+    {"name": "Alice", "age": ""},
+    {"name": "", "age": "22"}
+]
+
+missing_count = 0
+
+for row in rows:
+    for value in row.values():
+        if value == "":
+            missing_count += 1
+
+print(f"Missing value count: {missing_count}")
+
+```
+
+### Error Management
+
+A simple solution to prevent incorrect or dirty data from stopping the program (returning `None`):
+
+```python
+def convert_to_int(value: str) -> int | None:
+    try:
+        return int(value)
+    except ValueError:
+        return None
+
+print(convert_to_int("20"))
+print(convert_to_int("abc"))
+
+```
+
+### `__name__ == "__main__"` Usage
+
+Method to protect the main program flow that we do not want to run automatically when the module is imported:
+
+```python
+def main():
+    print("CSV cleaning script started")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+### Basic OOP Example
+
+Bringing data and methods together with classes (Encapsulation):
+
+```python
+class APIClient:
+    def __init__(self, api_key: str):
+        self._api_key = api_key
+
+    def masked_key(self) -> str:
+        return self._api_key[:3] + "***"
+
+```
+
+Determine the basic template and leave the details to the subclass (Inheritance & Abstraction):
+
+```python
+class ModelRunner:
+    def predict(self, text: str) -> str:
+        raise NotImplementedError("This method must be defined in a subclass.")
+
+class SentimentRunner(ModelRunner):
+    def predict(self, text: str) -> str:
+        return "positive"
+
+```
+
+Cleaning classes that serve the same purpose but are implemented differently (Polymorphism):
+
+```python
+class TextCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().lower()
+
+class TitleCleaner:
+    def clean(self, value: str) -> str:
+        return value.strip().title()
+
+```
+
+### Small Test Sample
+
+Automating with code (`pytest` etc.) instead of manually testing that your code works:
+
+```python
+def normalize_column_name(name: str) -> str:
+    return name.strip().lower().replace(" ", "_")
+
+def test_normalize_column_name():
+    result = normalize_column_name(" Product Name ")
+    assert result == "product_name"
+
+```
+
+## Quick Notes
+
+* In Python, the boundaries of code blocks are determined by indentations, not curly brackets.
+* Choosing names that clearly explain what they do instead of abbreviating variable and function names prolongs the life of the code.
+* String operations such as `strip`, `lower`, and `replace` are frequently used in data preparation and NLP workflows.
+* Lists are ideal for storing large amounts of data in the same structure, and dictionaries are ideal for storing keyed structures such as column naming.
+* It may be preferable for a single function to focus on a single purpose rather than undertaking multiple tasks.
+* Using type hint both provides editor assistance during the development process and increases the readability of the code.
+* Using the `with` structure helps manage external resources such as files, databases, and network connections reliably.
+* The purpose of `try-except` blocks is not to hide errors, but to direct the system appropriately based on the error type.
+* Virtual environments prevent package conflicts between projects and support reproducibility across a team.
+* `requirements.txt` records a project's dependencies and makes it easier to recreate the same environment on another machine.
+
+## Resources
+
+### [Python Documentation](https://docs.python.org/3/)
+
+It is Python’s most comprehensive and authoritative reference, especially for data structures, file handling, and exception handling.
+
+### [pytest Documentation](https://docs.pytest.org/)
+
+Practical examples needed to increase the testability of the code and write simple function tests (unit tests) are included here.
+
+### [The Python Packaging User Guide](https://packaging.python.org/)
+
+This industry-standard guide explains how to package projects, set up virtual environments (`venv`), and manage dependencies.
+
+### [LeetCode](https://leetcode.com/) / [HackerRank](https://www.hackerrank.com/)
+
+Best platforms to practice algorithms and data structures with Python.

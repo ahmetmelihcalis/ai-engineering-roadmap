@@ -1,0 +1,86 @@
+---
+title: "Fine-Tuning ve Optimizasyon"
+slug: "fine-tuning-ve-optimizasyon"
+order: 11
+description: "Optimizasyon, değerlendirme döngüsü, maliyet kontrolü, gecikme ve quantization."
+tags: ["Fine-Tuning Kararı", "Veri Seti Hazırlığı", "Hiperparametreler", "Canlı Kullanım", "Maliyet"]
+---
+
+## Genel Bakış
+
+**Fine-Tuning**, önceden eğitilmiş bir modeli belirli bir görev, üslup veya alanın dili ve gereksinimleri için ek veriyle uyarlama yöntemidir. Modelin genel bilgisini baştan öğretmekten çok, belirli bir çıktı biçimini veya davranış kalıbını daha tutarlı hale getirmek için kullanılır.
+
+Yapay zeka projelerinde fine-tuning kararı; kalite, maliyet, gecikme, veri gizliliği ve bakım yüküyle birlikte değerlendirilebilir.
+
+Bazı problemler şu yaklaşımlarla çözülebilir:
+
+* Prompt Düzenleme
+* RAG
+* Quantization
+* Caching (Önbellekleme)
+* Daha Küçük Model Seçimi
+
+Bu nedenle fine-tuning her durumda ilk seçenek değildir.
+
+Bu modülde şu başlıklar işlenecektir:
+
+* Fine-Tuning Kararı
+* Veri Seti Hazırlığı
+* Hiperparametre Denemeleri
+* Çevrimdışı Değerlendirmeden Canlı Ortama Geçiş
+* Tahmin Çalıştırma Maliyetini İyileştirme
+* Kalite Artışını Ölçme
+* Bakım Takvimi
+
+## Genel Bilgi
+
+### Uyarlama Seçenekleri
+
+**Prompt Tasarımı**, model davranışını istekte verilen talimat ve örneklerle yönlendirir. **RAG**, güncel veya özel bilgiyi bağlama ekler. Fine-tuning, model ağırlıklarını örnekler üzerinden değiştirir. Bu yöntemler birbirinin alternatifi olmak zorunda değildir; ancak her biri farklı hata türünü çözer.
+
+Sık güncellenen kurumsal bilgi için fine-tuning yerine RAG genellikle daha uygundur. Tutarlı bir çıktı biçimi veya tekrar eden alan dili için fine-tuning değerlendirilebilir. Önce bu ayrımı yapmak, doğru yaklaşımı seçmeyi kolaylaştırır.
+
+### Eğitim Verisi ve Veri Kalitesi
+
+Fine-tuning verisi, hedeflenen davranışın açık örneklerinden oluşur. Örnek sayısından önce kalite, tutarlılık ve temsil gücü önemlidir. Çelişkili cevaplar, gizli kişisel veri, yanlış etiket veya canlı ortamda hiç görülmeyecek sentetik kalıplar modelin davranışını kötüleştirebilir.
+
+Eğitim, doğrulama ve test ayrımını burada da korumak faydalı olur. Test örnekleri eğitim verisine sızarsa gerçek genellenebilirliği ölçmek zorlaşır.
+
+### Parametre Verimli Fine-Tuning
+
+**PEFT** yaklaşımları, tüm model ağırlıklarını güncellemek yerine daha küçük ek parametre kümelerini eğitir. **LoRA** gibi yöntemler daha düşük hesaplama ve bellek ihtiyacıyla uyarlama sağlayabilir. Yine de veri, değerlendirme ve yayına alma karmaşıklığı ortadan kalkmaz.
+
+### Quantization, Caching ve Model Yönlendirme
+
+**Quantization**, ağırlıkları daha düşük hassasiyetle temsil ederek bellek ve bazen gecikme maliyetini azaltır. Kalite üzerindeki etkisini ilgili görevde ölçmek yararlı olur. **Önbellekleme (Caching)**, aynı veya benzer isteklere yeniden hesaplama yapmadan yanıt vermeyi sağlar. **Model Yönlendirme**, basit isteği küçük modele, daha zor isteği daha yüksek kapasiteli modele yönlendirebilir.
+
+### Karar, Değerlendirme ve Yayın
+
+**Optimizasyon Süreci** bir deney döngüsüdür. Önce hedef davranışı ölçen bir **Değerlendirme Seti** tanımlanır. Ardından başlangıç modelinin hangi açıdan yetersiz kaldığı görülür: doğruluk mu, biçim tutarlılığı mı, gecikme mi, maliyet mi? Sonra tek bir değişken değiştirilir ve aynı set üzerinde karşılaştırılır.
+
+Fine-tuning kararı için şu sorular kullanılabilir:
+
+* Hedef davranış örneklerle açıkça gösterilebiliyor mu?
+* Bu davranış zamanla ne kadar değişiyor?
+* Retrieval veya prompt ile çözülemeyen kalıcı bir kalite sorunu var mı?
+* Eğitim, değerlendirme ve yeniden dağıtım maliyeti kabul edilebilir mi?
+
+Bir modelin yalnızca ortalama skoru değil, en olumsuz kullanıcı senaryolarında ve güvenlik açısından kritik durumlarda nasıl davrandığı da değerlendirilmelidir. Kalite artışı küçük ama operasyonel risk büyükse, değişiklik doğru yatırım olmayabilir.
+
+Deney metriklerini veri seti, model sürümü ve tarihle birlikte tutmak; farklı koşullarda üretilmiş skorları karşılaştırmayı kolaylaştırır. Ortalama maliyetin yanında token dağılımı, cache hit oranı ve p95 latency de izlenebilir. Yüksek hacimde küçük farklar toplam maliyeti etkileyebilir.
+
+### Regresyon Testi ve Yayın Kararı
+
+Yeni bir model sürümü, yalnızca ortalama kalite arttığı için doğrudan yayına alınmaz. Mevcut sürümün iyi yaptığı önemli örnekler de yeniden çalıştırılır. Güvenlik, biçim, dil desteği ve nadir ama yüksek etkili görevler için gerileme olup olmadığı kontrol edilir.
+
+Yayın küçük trafikle başlatılabilir ve yeni sürümün hata oranı, maliyeti ve kullanıcı geri bildirimi eski sürümle karşılaştırılabilir. Önceden belirlenmiş bir eşiğin altında kalırsa **Rollback (önceki sürüme dönüş)** planı devreye alınabilir. Bu disiplin, deney sonucunu ürün kararına daha güvenli biçimde bağlar.
+
+## Kaynaklar
+
+### [Hugging Face Fine-tuning Guides](https://huggingface.co/docs/transformers/training)
+
+Veri seti hazırlama, eğitim akışları ve model değerlendirmesi için pratik bir başlangıç noktasıdır.
+
+### [PEFT Documentation](https://huggingface.co/docs/peft/)
+
+LoRA ve benzeri parameter-efficient adaptation yöntemlerinin kavram ve kullanım ayrıntıları için birincil kaynaktır.

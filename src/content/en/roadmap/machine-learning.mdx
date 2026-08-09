@@ -1,0 +1,450 @@
+---
+title: "Machine Learning"
+slug: "machine-learning"
+order: 5
+description: "A foundational machine learning workflow for building, evaluating, and improving models that learn from data."
+tags: ["Supervised Learning", "Features and Target", "Data Splitting", "Regression", "Classification", "Overfitting"]
+---
+
+## Overview
+
+**Machine Learning** is the field of developing models that use patterns in data to produce predictions or decisions. In traditional programming, rules are written directly; in machine learning, the model learns those relationships from example data.
+
+In artificial intelligence projects, machine learning may require considering problem definition, data preparation, target-variable selection, model training, and evaluation together. Choosing an algorithm alone may not be enough; the data the model learns from, the metric used to evaluate it, and how it behaves on new data also matter.
+
+This module covers:
+
+* Supervised, Unsupervised, and Reinforcement Learning
+* Features and Target Variables
+* Training, Validation, and Test Sets
+* Regression, Classification, and Baseline Comparison
+* Metric Selection and Class Imbalance
+* Feature Engineering, Overfitting, Underfitting, and Cross-Validation
+* Data Leakage and Error Analysis
+
+## Key Concepts
+
+This section covers the core decisions involved in building a model: choosing the right target, reserving data for evaluation, selecting an appropriate metric, and learning from errors. The goal is to answer the question, “Does the model really work on new data as well?” reliably.
+
+### What Is Machine Learning?
+
+A model learns the relationship between inputs and the target from examples in training data. Success is evaluated not only by its results on training data, but by the predictions it produces on new data it has not seen before.
+
+For example:
+
+* Predicting a house’s sale price
+* Identifying whether an incoming email is spam
+* Grouping customers by shopping behavior
+* Predicting a user’s next click
+
+Machine learning is therefore not only about choosing an algorithm; it means defining the right problem, providing suitable data to the model, and measuring success with the right metrics.
+
+### Supervised, Unsupervised, and Reinforcement Learning
+
+One of the first steps in a machine learning problem is identifying the learning category it belongs to. The most basic distinction consists of three main groups:
+
+* **Supervised Learning:** Works with labeled data. Both the input and the known correct answer are available for the model to learn from. A dataset containing a house’s features and its realized sale price is a supervised learning problem.
+* **Unsupervised Learning:** Works with unlabeled data. There is no clear correct answer; the goal is to reveal the data’s natural structure, similarities, hidden groups, or anomalies.
+* **Reinforcement Learning:** A model or agent acts in an environment through trial and error, then tries to learn a better long-term strategy according to reward signals it receives.
+
+Regression and classification are the most common scenarios in classical machine learning. This module therefore focuses mainly on supervised learning.
+
+### Features and Target Variables
+
+One of the most fundamental distinctions in machine learning projects is between **features** and the **target variable**. Features are the input fields the model considers when making a decision. The target variable is the value the model tries to predict.
+
+For a house-price prediction problem, square meters, number of rooms, building age, and location can be features. The sale price to be predicted is the target variable.
+
+Clarifying this distinction from the beginning is useful for project design. When problem definition is weak, focusing on the wrong features or trying to predict the wrong target can take the entire modeling process in the wrong direction.
+
+### Training, Validation, and Test Sets
+
+Using all data at once is misleading when assessing whether a model has learned. If we test a model on the same data used for training, we only measure its ability to memorize. Splitting data into three parts is therefore a standard and reliable approach:
+
+* **Training Set:** The data the model works on and learns relationships from.
+* **Validation Set:** Used to compare hyperparameters and monitor the model’s progress.
+* **Test Set:** Kept separate to measure performance on new data at the end of training.
+
+In short, a model may have memorized training data; evaluating how it performs on previously unseen data is more meaningful. Keeping test data separate from training can make this comparison more reliable.
+
+### Supervised Learning
+
+As mentioned above, supervised learning works with data that contains both inputs and correct answers. The most common problem types are generally divided into two:
+
+* **Regression:** Used when the value to predict is continuous and numeric, such as a price or temperature.
+* **Classification:** Used when the value to predict is a specific class or category, such as spam/not spam or cat/dog.
+
+When building a solid supervised-learning workflow, these steps can make a project more manageable:
+
+1. Define the problem according to the business objective.
+2. Choose meaningful feature and label design.
+3. Isolate the data as train/validation/test.
+4. Establish a simple baseline before moving to complex models.
+5. Evaluate the model with the metric most appropriate for the problem.
+6. Improve the model iteratively based on error analysis.
+
+### Regression
+
+**Regression** covers scenarios in which we expect the model to predict a numeric quantity rather than a category.
+
+Examples include a house’s sale price, a customer’s basket value, or next month’s energy consumption. The goal is not only to make a prediction, but to measure how far that prediction deviates from the true value.
+
+Algorithm comparison table:
+
+<table data-mobile-table="algorithms">
+  <thead>
+    <tr>
+      <th>Algorithm</th>
+      <th>Core idea</th>
+      <th>When it is a good starting point</th>
+      <th>What to watch for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Linear Regression</td>
+      <td>Models the target as a linear combination of features; roughly, y = w1x1 + w2x2 + ... + b.</td>
+      <td>A useful starting point when the relationship appears roughly linear and interpretability matters.</td>
+      <td>Can be limited for nonlinear relationships and affected by outliers.</td>
+    </tr>
+    <tr>
+      <td>Ridge / Lasso Regression</td>
+      <td>Retains linear-regression logic while adding a penalty term to control coefficients. Ridge usually uses an <strong>L2</strong> penalty; Lasso uses <strong>L1</strong>.</td>
+      <td>Useful when there are many features and you want to limit unnecessary complexity or obtain more stable coefficients.</td>
+      <td>If the penalty is not tuned carefully, the model can become overly simple.</td>
+    </tr>
+    <tr>
+      <td>Decision Tree Regression</td>
+      <td>Partitions the feature space with rules and makes a separate prediction in each region, without assuming a linear relationship.</td>
+      <td>Can be useful when the relationship between features and target is segmented, threshold-based, or rule-driven.</td>
+      <td>Can overfit easily, and its structure can change substantially with small changes in the data.</td>
+    </tr>
+    <tr>
+      <td>Random Forest Regression</td>
+      <td>Combines the outputs of multiple decision trees to reduce variance relative to a single tree.</td>
+      <td>A good candidate when you need more stable results than one tree provides and the relationship is not close to linear.</td>
+      <td>Less interpretable and not automatically the best choice for every dataset.</td>
+    </tr>
+  </tbody>
+</table>
+
+The goal is not to memorize algorithms, but to understand which models are more interpretable, which are more flexible, and which carry a greater risk of overfitting.
+
+### Classification
+
+**Classification** refers to problems where the target variable is a category or class rather than a numeric value.
+
+For example, whether a transaction is fraudulent, whether a customer will renew a subscription, or what object appears in an image are classification problems. Some classification models produce a score or probability value alongside a class prediction. These values can be used to adjust the decision threshold according to the task's requirements.
+
+Algorithm comparison table:
+
+<table data-mobile-table="algorithms">
+  <thead>
+    <tr>
+      <th>Algorithm</th>
+      <th>Core idea</th>
+      <th>When it is a good starting point</th>
+      <th>What to watch for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Logistic Regression</td>
+      <td>Transforms a linear combination into a probability and uses a sigmoid-like decision boundary for binary classification.</td>
+      <td>A frequent baseline because it is fast and relatively easy to interpret.</td>
+      <td>May be insufficient for highly complex, nonlinear decision boundaries.</td>
+    </tr>
+    <tr>
+      <td>Decision Tree Classification</td>
+      <td>Makes class decisions through threshold-based rules over features.</td>
+      <td>Useful when you need to see which features influence a decision.</td>
+      <td>Can overfit easily, and a single tree can be unstable.</td>
+    </tr>
+    <tr>
+      <td>Random Forest Classification</td>
+      <td>Combines several decision trees to produce a more stable class decision.</td>
+      <td>A strong candidate for reducing a single tree’s memorization risk and improving stability.</td>
+      <td>Harder to interpret and more computationally expensive than a single tree.</td>
+    </tr>
+    <tr>
+      <td>KNN Classification</td>
+      <td>Labels a new example from the classes of its nearest neighbors.</td>
+      <td>An intuitive starting point for problems where similar examples cluster in nearby regions.</td>
+      <td>Highly sensitive to scaling; distorted feature scales can noticeably skew results.</td>
+    </tr>
+    <tr>
+      <td>Naive Bayes Classification</td>
+      <td>Calculates probabilities under an independence assumption between features and selects the most likely class.</td>
+      <td>Often surprisingly practical for text and simple classification problems.</td>
+      <td>Its assumptions are strong, so performance can vary across data structures.</td>
+    </tr>
+    <tr>
+      <td>SVM Classification</td>
+      <td>Attempts to place the decision boundary between classes with the widest possible margin.</td>
+      <td>Worth considering when the decision boundary matters and the feature space is carefully prepared.</td>
+      <td>Sensitive to parameters and scale; can be costly on large datasets.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Baseline Comparison
+
+A baseline is an initial reference that helps determine whether a complex model truly adds value. In many projects, the first question should be “How much value does this add compared with a simple reference?” rather than “How do we build the most advanced model?”
+
+For regression, always predicting the overall mean can be a baseline; for classification, always predicting the dominant class can serve the same role. If a Random Forest does not outperform this simple reference by a meaningful margin, it may not deliver sufficient business value. A quick baseline protects the project from unnecessary complexity.
+
+### Evaluation Metrics
+
+A model’s quality cannot be measured only by saying that it “predicted most cases correctly.” Selecting the right metric based on the nature of the task and the cost of errors reveals the model’s actual value.
+
+For regression, **MAE** shows the average absolute deviation, **MSE** penalizes larger errors more heavily, **RMSE** returns error to a scale closer to the target, and **R²** compares the model with a simple mean prediction. For classification, **Accuracy**, **Precision**, **Recall**, **F1 Score**, and the **Confusion Matrix** each highlight a different aspect of performance.
+
+Common regression metrics:
+
+<table data-mobile-table="regression-metrics">
+  <thead>
+    <tr><th>Metric</th><th>Mathematical idea</th><th>How to read it</th><th>What to watch for</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>MAE</td><td>Calculate `abs(y_true - y_pred)` for every example and take the mean.</td><td>Shows the average distance between predictions and actual values directly.</td><td>Does not penalize large errors extra harshly, so outliers have less influence than with MSE.</td></tr>
+    <tr><td>MSE</td><td>Square the difference between actual and predicted values for every example and take the mean.</td><td>Large deviations increase the metric more because errors are squared.</td><td>Its unit is the square of the target variable, which can make it less intuitive.</td></tr>
+    <tr><td>RMSE</td><td>Calculate MSE, then take its square root.</td><td>Returns error to a scale closer to that of the target variable.</td><td>Inherits MSE’s sensitivity to large errors, but can be easier to interpret than MSE.</td></tr>
+    <tr><td>R²</td><td>Compares the model’s total error with the data’s overall variability.</td><td>Helps interpret how explanatory the model is compared with a simple mean prediction.</td><td>Not sufficient alone: a high R² does not guarantee a good business result, so inspect error size too.</td></tr>
+  </tbody>
+</table>
+
+Classification Metrics Summary:
+
+<table data-mobile-table="classification-metrics">
+  <thead><tr><th>Metric</th><th>What it measures</th><th>When it matters</th></tr></thead>
+  <tbody>
+    <tr><td>Accuracy</td><td>The overall proportion of correct predictions.</td><td>When classes are balanced and error types have similar importance.</td></tr>
+    <tr><td>Precision</td><td>How many examples predicted positive are actually positive.</td><td>When false positives are costly.</td></tr>
+    <tr><td>Recall</td><td>How many actual positives the model captures.</td><td>When missing a positive case is critical.</td></tr>
+    <tr><td>F1 Score</td><td>The balance between precision and recall.</td><td>When accuracy alone is not enough.</td></tr>
+    <tr><td>Confusion Matrix</td><td>Which classes contain the model’s errors.</td><td>When you need to see exactly where predictions are confused.</td></tr>
+  </tbody>
+</table>
+
+For problems such as cancer diagnosis, where missing a disease has a serious cost, or credit-card fraud, accuracy alone can be misleading. In those cases, task-specific metrics such as recall or precision are more informative.
+
+### Class Imbalance
+
+Class imbalance means classes are distributed very unevenly in the data. If only 120 of 10,000 card transactions are fraudulent, the dataset has serious class imbalance. A model that labels every transaction “safe” can still achieve high accuracy while being useless for the actual task.
+
+For churn, fraud, failure detection, and medical diagnosis, it is important not to rely only on accuracy. Precision, recall, and F1 Score can be more informative, and a **Stratified Split** helps preserve the original class ratios in training and test sets.
+
+### Feature Engineering
+
+Success in many machine learning projects may depend not only on the chosen algorithm, but also on the quality of the features supplied to the model. Models cannot directly see business logic; they learn only from the columns provided.
+
+For example, instead of passing a raw date column directly to a model, deriving the day of week, public-holiday status, and seasonal effects may help it capture relationships more effectively. Creating ratios or deriving totals and averages from users’ past behavior can similarly add useful signals.
+
+Encoding categorical fields into numeric form, handling missing values according to business logic, and scaling data for suitable algorithms are core parts of feature engineering. Scaling is especially important for distance- and margin-sensitive methods such as SVM and KNN.
+
+### Overfitting and Underfitting
+
+**Overfitting** occurs when a model memorizes the training set too closely and fails on new data. **Underfitting** occurs when a model remains too simplistic to learn either the training data or new data adequately.
+
+If training performance is high but validation performance is significantly lower, the model may be overfitting. If both scores are well below target, the model may be too simple or the data may be insufficient. Adjusting model complexity, enriching data, trying regularization, and monitoring validation results can help find the balance. Regularization refers to techniques that help limit a model’s unnecessary complexity.
+
+### Cross-Validation
+
+When data is limited, one train/validation split may not be reliable enough. With **Cross-Validation**, data is divided into *k* parts; the model is trained from scratch *k* times, each time using a different part for validation. Averaging the resulting scores provides a more reliable view of performance across different scenarios.
+
+### Data Leakage
+
+Data leakage occurs when a model indirectly learns information during training that would not be available at prediction time in the real world. It is a common reason why a model can appear highly successful in development but underperform in production.
+
+Examples include using an input column that is a consequence of the target, scaling all data before the train/test split, or leaking future information into historical training data in time series. To prevent leakage, split data carefully from the start and fit preprocessing steps only on training data before applying them to test data.
+
+### Unsupervised Learning
+
+When no label is available, the goal is not to make a correct prediction but to reveal groups and patterns in the data. **Unsupervised Learning** aims to make similarities, clusters, and hidden patterns visible.
+
+* Segmenting users,
+* Grouping anomalies and potentially fraudulent behavior,
+* Simplifying a dataset with hundreds of columns into fewer dimensions
+
+are common uses. Because there is no single correct answer, success is often judged by business value, visual analysis, and whether the resulting clusters are meaningful rather than by one metric alone.
+
+### Clustering
+
+Clustering groups similar data points together. There is no predefined category; the model finds natural groups based on density or distance. Customer segmentation and content grouping are classic examples.
+
+Common algorithms include:
+
+* **K-Means**, which groups data around a specified number of centers.
+* **Hierarchical Clustering**, which progressively builds a tree from the proximity of data points.
+* **DBSCAN** is a density-based clustering algorithm that can identify outlier points that do not belong to any cluster.
+
+### Reinforcement Learning
+
+Reinforcement learning is the process by which an agent interacting with an environment learns an appropriate strategy from reward or penalty signals following its actions. It is prominent in game AI, robotics, recommender systems, and autonomous decision systems, where the goal is to maximize long-term gain rather than a single immediate prediction.
+
+### Error Analysis
+
+When a model score is low, the first step is not necessarily switching to another algorithm. Error analysis is the detailed examination of where the model makes mistakes.
+
+Questions such as the following often reveal more about data quality, missing features, or metric interpretation than model architecture alone:
+
+* Does the model fail mainly on a particular class?
+* Are errors concentrated in incomplete records?
+* Is there an inconsistency in the labeling process?
+
+Improvement begins by analyzing these errors.
+
+## How It Works
+
+Machine learning is usually an iterative loop with continuous feedback rather than a linear process:
+
+1. **Problem Definition:** Define the business goal and how success will be measured.
+2. **Data Preparation:** Handle missing data, check for leakage, and prepare data for the model.
+3. **Model Building:** Start with an understandable baseline while avoiding unnecessary complexity.
+4. **Evaluation:** Measure where the model succeeds and falls short with suitable metrics.
+5. **Improvement:** Enrich features or tune hyperparameters based on error analysis.
+
+Training a model and checking a score is only one part of the work; a successful machine learning application manages data, model, and business goal together.
+
+## Code Examples
+
+### Train/Test Split
+
+```python
+from sklearn.model_selection import train_test_split
+
+X = df[["age", "income", "session_count"]]
+y = df["churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y,
+)
+
+```
+
+With imbalanced classes, `stratify=y` keeps the dataset’s class ratios approximately preserved in the training and test sets. It does not equalize classes; it only helps preserve the original distribution after splitting.
+
+`random_state=42` makes random operations produce the same result on each run. The number 42 is not special; any integer can be used as long as it remains fixed, making the split and experiment results reproducible.
+
+### Simple Regression Example
+
+```python
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+X = df[["square_meters", "room_count", "building_age"]]
+y = df["price"]
+
+X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+)
+
+model = LinearRegression()
+model.fit(X_train_reg, y_train_reg)
+
+predictions_reg = model.predict(X_test_reg)
+
+print(predictions_reg[:5])
+
+```
+
+The model is trained only with training data, while predictions are produced for the previously unseen `X_test_reg`. Comparing those predictions with `y_test_reg` shows how the model performs on new data.
+
+### Simple Classification Example
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+X = df[["age", "income", "session_count"]]
+y = df["churn"]
+
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+
+print(predictions[:5])
+
+```
+
+`LogisticRegression` is useful when building a quick baseline for binary classification problems.
+
+### Simple Clustering Example
+
+```python
+from sklearn.cluster import KMeans
+
+X = df[["annual_spend", "session_count"]]
+
+model = KMeans(n_clusters=3, random_state=42)
+clusters = model.fit_predict(X)
+
+df["cluster"] = clusters
+
+print(df[["annual_spend", "session_count", "cluster"]].head())
+
+```
+
+The model assigns a cluster to each row. Interpreting what those clusters mean for the business generally requires visualization and domain knowledge.
+
+### Metric Calculation Example
+
+```python
+from sklearn.metrics import accuracy_score, f1_score, mean_absolute_error
+
+y_test_class = [1, 0, 1, 0, 1]
+predictions_class = [1, 0, 0, 0, 1]
+
+classification_accuracy = accuracy_score(y_test_class, predictions_class)
+classification_f1 = f1_score(y_test_class, predictions_class)
+
+print("Accuracy:", classification_accuracy)
+print("F1 Score:", classification_f1)
+
+y_test_reg = [210_000, 185_000, 260_000]
+predictions_reg = [205_000, 193_000, 252_000]
+
+regression_mae = mean_absolute_error(y_test_reg, predictions_reg)
+print("MAE:", regression_mae)
+
+```
+
+Classification and regression use different metric sets. The nature of the business problem can directly affect which metric should be selected.
+
+## Quick Notes
+
+* Machine learning is not only an algorithm choice; it is an end-to-end data problem-solving process.
+* The quality and meaning of the data used can directly affect model performance.
+* Without baseline models, it is difficult to determine whether a success score is truly satisfactory.
+* Imbalanced target classes can make some metrics look excessively high and misleading.
+* A model’s success often depends more on the quality of designed features than on the algorithm.
+* Data leakage is a significant risk that can make a project look successful on paper but fail in practice.
+
+## Resources
+
+### [scikit-learn Documentation](https://scikit-learn.org/stable/)
+
+Documentation for the industry-standard library for classical machine learning; a practical reference for algorithms, preprocessing tools, and metrics.
+
+### [LazyPredict](https://github.com/shankarpandala/lazypredict)
+
+Useful for quickly comparing several baseline models. Treat its results as a starting point for detailed experiments rather than a final model-selection decision.
+
+### [Google Machine Learning Crash Course](https://developers.google.com/machine-learning/crash-course)
+
+A balanced resource that presents machine learning concepts through visual and intuitive examples.
+
+### [StatQuest](https://www.youtube.com/@statquest)
+
+A collection of video lessons that explains statistical reasoning and popular machine learning algorithms.
+
+### [Hands-On Machine Learning](https://github.com/ageron/handson-ml3)
+
+A comprehensive practical resource for building intuition with scikit-learn- and TensorFlow-based examples.
