@@ -199,7 +199,7 @@ a {
   min-height: 2.5rem;
   align-items: center;
   justify-content: center;
-  gap: 0.18rem;
+  gap: 0.26rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--panel);
@@ -220,9 +220,9 @@ a {
 
 .github-star-emoji {
   color: #f4c542;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   line-height: 1;
-  -webkit-text-stroke: 4px #171512;
+  -webkit-text-stroke: 2px #171512;
   paint-order: stroke fill;
 }
 
