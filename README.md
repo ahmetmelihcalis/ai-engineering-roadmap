@@ -18,18 +18,12 @@ As a software engineering student, I created this roadmap by bringing together m
 
 If you would like to contribute, you can star the project on GitHub or open a Pull Request.
 
-<p align="center">
-  <a href="https://melihcalis.dev/">Explore My Other Work on melihcalis.dev</a>
-  ·
-  <a href="https://github.com/ahmetmelihcalis">My GitHub Profile</a>
-</p>
-
 ### Study Notes
 
 | # | Module | Read on GitHub |
 | --- | --- | --- |
 | 01 | Python for AI & Clean Code | [Open Note](./src/content/en/roadmap/python-for-ai.mdx) |
-| 02 | SQL & Database Architecture | [Open Note](./src/content/en/roadmap/sql-and-database-architecture.mdx) |
+| 02 | SQL & Database Fundamentals | [Open Note](./src/content/en/roadmap/sql-and-database-architecture.mdx) |
 | 03 | Data Analysis & EDA | [Open Note](./src/content/en/roadmap/exploratory-data-analysis.mdx) |
 | 04 | Math, Linear Algebra & Statistics | [Open Note](./src/content/en/roadmap/mathematics-linear-algebra-and-statistics.mdx) |
 | 05 | Machine Learning | [Open Note](./src/content/en/roadmap/machine-learning.mdx) |
@@ -73,18 +67,12 @@ Bir yazılım mühendisliği öğrencisi olarak, yapay zeka mühendisi olma yolu
 
 Katkıda bulunmak isterseniz projeye GitHub üzerinden yıldız verebilir veya Pull Request açabilirsiniz.
 
-<p align="center">
-  <a href="https://melihcalis.dev/">melihcalis.dev'de Diğer Çalışmalarıma Göz At</a>
-  ·
-  <a href="https://github.com/ahmetmelihcalis">GitHub Hesabım</a>
-</p>
-
 ### Çalışma Notları
 
 | # | Modül | GitHub'da Oku |
 | --- | --- | --- |
 | 01 | AI için Python | [Notu Aç](./src/content/tr/roadmap/ai-icin-python.mdx) |
-| 02 | SQL ve Veritabanı Mimarisi | [Notu Aç](./src/content/tr/roadmap/sql-ve-veritabani-mimarisi.mdx) |
+| 02 | SQL ve Veritabanı Temelleri | [Notu Aç](./src/content/tr/roadmap/sql-ve-veritabani-mimarisi.mdx) |
 | 03 | Keşifsel Veri Analizi (EDA) | [Notu Aç](./src/content/tr/roadmap/kesifsel-veri-analizi.mdx) |
 | 04 | Matematik, Lineer Cebir ve İstatistik | [Notu Aç](./src/content/tr/roadmap/matematik-lineer-cebir-ve-istatistik.mdx) |
 | 05 | Makine Öğrenmesi | [Notu Aç](./src/content/tr/roadmap/makine-ogrenmesi.mdx) |

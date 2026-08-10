@@ -85,24 +85,25 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           start: "Start the Roadmap",
           allModules: "Browse All Modules",
         };
-  const structuredData = [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: siteName,
-      url: siteUrl,
-      inLanguage: lang,
-      description: copy.description,
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: siteName,
-      url: siteUrl,
-      logo: `${siteUrl}/icon.svg`,
-      sameAs: ["https://github.com/ahmetmelihcalis/ai-engineering-roadmap", "https://melihcalis.dev"],
-    },
-  ];
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: siteName,
+        url: siteUrl,
+        inLanguage: lang,
+        description: copy.description,
+      },
+      {
+        "@type": "Organization",
+        name: siteName,
+        url: siteUrl,
+        logo: `${siteUrl}/icon.svg`,
+        sameAs: ["https://github.com/ahmetmelihcalis/ai-engineering-roadmap", "https://melihcalis.dev"],
+      },
+    ],
+  };
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 md:py-20">
