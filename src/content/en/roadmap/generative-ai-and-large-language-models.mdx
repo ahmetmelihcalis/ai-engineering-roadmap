@@ -51,9 +51,9 @@ As the context window grows, a model can see more information; however, irreleva
 
 ### Token Budget and Data Compatibility
 
-The tokenizer and model weights are expected to match; using a different tokenizer can lead to meaningless output. The basic logic of tokenization is in the NLP module; in LLM-based applications, the token length of agglutinative languages such as Turkish directly enters context-window, latency, and cost calculations.
+The tokenizer and model weights are expected to match; using a different tokenizer can lead to meaningless output. The basic logic of tokenization is in the NLP module; in LLM-based applications, the token length of agglutinative languages such as Turkish directly affects context-window limits, latency, and cost.
 
-`temperature` affects how diverse the model behaves when selecting the next token. `temperature=0` tends to produce more consistent and predictable output; it can be preferred for classification, structured output, or retrieval tasks. `temperature=1` gives more room to diverse and creative choices; however, responses can become more variable. `top_p` is a similar sampling setting that selects only from a certain portion of the most likely tokens. These settings affect output diversity; they do not guarantee correctness on their own.
+`temperature` affects how diverse the model behaves when selecting the next token. `temperature=0` tends to produce more consistent and predictable output; it can be preferred for classification, structured output, or retrieval tasks. `temperature=1` allows for more diverse and creative choices; however, responses can become more variable. `top_p` is a similar sampling setting that selects only from a certain portion of the most likely tokens. These settings affect output diversity; they do not guarantee correctness on their own.
 
 In decoder-based LLMs, a **Causal Mask** allows every token to attend only to itself and the tokens before it; it prevents access to future tokens. This way, when producing the next token, the model relies only on the context it has seen so far. If this mask is not used during training, the model can see target tokens in advance and receives a learning signal that does not reflect real generation conditions.
 
@@ -75,17 +75,17 @@ If a model must return JSON or another specific format, writing only “return i
 
 Once the task and initial baseline are clear, choose whether to run a model through an API or locally as an open-weight model. **OpenAI**, **Anthropic**, and **Gemini** are API providers; **Llama** and **Mistral** are examples of open-weight models. Alongside benchmark scores, it is useful to examine a model's license, supported languages, context limit, and hardware requirements. Using an API provides a quick start because it does not require infrastructure management; if data-privacy rules are strict, traffic and cost are high, or full control over data is required, hosting a local model may be more suitable.
 
-**Hugging Face Transformers** offers a widely used interface for reaching open-weight models, tokenizers, and tools. **PyTorch** and **TensorFlow** are useful for developing and training models; **Colab** is practical for quickly testing small experiments. Rather than adding broad frameworks such as **LangChain** or **LlamaIndex** immediately at the beginning, making direct requests to model APIs is a more direct way to see the basic workflow. Once basic use is clear, these tools can be added according to prompt-management, RAG, or workflow needs. The LLMOps approach aims to track prompts, model versions, evaluation sets, and costs through tracing together.
+**Hugging Face Transformers** offers a widely used interface for accessing open-weight models, tokenizers, and tools. **PyTorch** and **TensorFlow** are useful for developing and training models; **Colab** is practical for quickly testing small experiments. Rather than adding broad frameworks such as **LangChain** or **LlamaIndex** immediately at the beginning, making direct requests to model APIs is a more direct way to see the basic workflow. Once basic use is clear, these tools can be added according to prompt-management, RAG, or workflow needs. The LLMOps approach aims to track prompts, model versions, evaluation sets, and costs together through tracing.
 
 ### Training, Properties, and Scaling Laws of Large Language Models
 
-When selecting a model, it is also useful to understand which training stages give these models different behaviors.
+When selecting a model, it is also useful to understand how different training stages shape its behavior.
 
 The first stage of an LLM is **Pretraining**. By “predicting the next token” across large text collections, a model learns general patterns of language and the world. Data cleaning and which languages are represented more heavily directly determine model capabilities.
 
 **Instruction Tuning** is additional training of a pretrained model on instruction-and-response examples. It helps the model follow user requests more reliably and produce responses in the expected format.
 
-**Scaling Laws** show that performance improves predictably as data and compute supplied to a model grow. However, the generalization that “the largest model gives the most suitable result for every task” may not always be correct. Because **training your own LLM from scratch** requires large resources, designing a ready-made model with prompt and RAG components is generally a more efficient route for most projects to reach business goals.
+**Scaling Laws** show that performance improves predictably as data and compute supplied to a model grow. However, the generalization that “the largest model gives the most suitable result for every task” may not always be correct. Because training your own LLM from scratch requires substantial resources, building an application around a ready-made model with prompt and RAG components is generally a more efficient route for most projects to reach business goals.
 
 ### Inference
 

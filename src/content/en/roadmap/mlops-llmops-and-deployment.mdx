@@ -62,7 +62,7 @@ Monitoring makes a problem visible; versioning and rollback make it possible to 
 
 Version code, the model, data schema, feature-processing pipeline, and configuration together. When a problem occurs, identifying the changed component and safely returning to the previous version becomes much easier. A rollback plan prepared before release also reduces risk.
 
-After the model artifact, API contract, serving configuration, and monitoring preparation are ready, test a new version with predefined examples in test and staging environments. **Going live** begins when a gradual release directs a limited portion of traffic to the new version. In a parallel experiment, the new version can run alongside the current system without showing its outputs to users, and results can be compared. Setting thresholds in advance for API error rate, p95 latency, input-validation success, and business metrics supports a healthier release decision.
+Once the model artifact, API contract, serving configuration, and monitoring setup are in place, test a new version with predefined examples in test and staging environments. **Going live** begins when a gradual release directs a limited portion of traffic to the new version. In a parallel experiment, the new version can run alongside the current system without showing its outputs to users, and results can be compared. Setting thresholds in advance for API error rate, p95 latency, input-validation success, and business metrics supports a healthier release decision.
 
 ### LLMOps
 

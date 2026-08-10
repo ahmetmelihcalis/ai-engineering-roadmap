@@ -2,13 +2,13 @@
 title: "Fine-Tuning"
 slug: "fine-tuning-and-optimization"
 order: 11
-description: "Adapting pretrained models for target behavior, output formats, and domain language through data preparation, PEFT/LoRA, and evaluation."
+description: "Adapting pretrained models for target behavior, output formats, and domain-specific language through data preparation, PEFT/LoRA, and evaluation."
 tags: ["Fine-Tuning Decisions", "Training and Evaluation Data", "PEFT and LoRA", "Training Settings", "Regression Testing"]
 ---
 
 ## Overview
 
-**Fine-Tuning** is the method of adapting a pretrained model with additional data for a specific task, style, or a domain's language and requirements. Rather than teaching the model's general knowledge from scratch, it is used to make a particular output format or behavior pattern more consistent.
+**Fine-Tuning** is the method of adapting a pretrained model with additional data for a specific task, style, or the language and requirements of a particular domain. Rather than teaching the model's general knowledge from scratch, it is used to make a particular output format or behavior pattern more consistent.
 
 Fine-tuning is not always the first option. First, determine whether the target problem is missing knowledge, instructions and output format, or a persistent behavioral pattern.
 
@@ -24,13 +24,13 @@ This module covers:
 
 ### When Fine-Tuning Is Appropriate
 
-**Prompt Engineering** guides model behavior through instructions and examples given in the request. **RAG** adds current or private information to the context. Fine-tuning changes model weights through examples. These methods do not have to be alternatives; however, each solves a different type of error.
+**Prompt Engineering** guides model behavior through instructions and examples given in the request. **RAG** adds current or private information to the context. Fine-tuning changes model weights through examples. These methods are not necessarily mutually exclusive; however, each addresses a different type of problem.
 
 For frequently updated organizational knowledge, RAG is generally a better fit than fine-tuning. Fine-tuning can be considered for a consistent output format, recurring domain language, or a persistent behavior that can be shown clearly through examples.
 
 ### Training and Evaluation Data
 
-Fine-tuning data consists of clear examples of the desired behavior. Before the number of examples, quality, consistency, and representativeness matter. Contradictory answers, hidden personal data, incorrect labels, or synthetic patterns that will never be seen in production can worsen model behavior.
+Fine-tuning data consists of clear examples of the desired behavior. Quality, consistency, and representativeness matter more than the number of examples. Contradictory answers, hidden personal data, incorrect labels, or synthetic patterns that will never be seen in production can worsen model behavior.
 
 Defining an evaluation set for the target behavior before training is useful. Training, validation, and test splits should remain separate; if test examples leak into training data, measuring real generalization becomes difficult.
 
