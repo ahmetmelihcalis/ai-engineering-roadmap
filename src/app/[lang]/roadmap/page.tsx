@@ -65,12 +65,12 @@ export default async function RoadmapPage({ params }: { params: Promise<{ lang: 
   const copy =
     lang === "tr"
       ? {
-          eyebrow: "YOL HARİTASI",
+          eyebrow: "Yol Haritası",
           description:
             "Temel becerilerden canlı sistemlere doğru, adım adım ilerleyen 12 modüllük öğrenme akışı.",
         }
       : {
-          eyebrow: "ROADMAP",
+          eyebrow: "Roadmap",
           description:
             "A 12-module learning path that progresses step by step from foundational skills to production systems.",
         };
@@ -78,10 +78,10 @@ export default async function RoadmapPage({ params }: { params: Promise<{ lang: 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 md:py-20">
       <section className="text-center">
-        <h1 className="display-title roadmap-page-title text-4xl font-extrabold leading-[0.95] tracking-[-0.055em] text-accent sm:text-6xl md:text-7xl">
+        <h1 className="display-title roadmap-page-title text-4xl leading-[0.98] text-accent sm:text-5xl md:text-6xl">
           {copy.eyebrow}
         </h1>
-        <p className="mx-auto mt-5 max-w-3xl text-sm font-medium leading-6 text-foreground sm:mt-6 sm:text-base sm:leading-7">{copy.description}</p>
+        <p className="mx-auto mt-5 max-w-3xl text-sm leading-6 text-foreground sm:mt-6 sm:text-base sm:leading-7">{copy.description}</p>
         <div className="mx-auto mt-6 max-w-2xl sm:mt-8">
           <SearchBox items={modules} locale={lang} placeholder={t.common.search} />
         </div>

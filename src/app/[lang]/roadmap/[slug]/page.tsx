@@ -154,7 +154,7 @@ export default async function RoadmapDetailPage({
         </div>
         <div className="mt-6 grid gap-3 sm:mt-8 md:grid-cols-2">
           {previous ? (
-            <Link className="btn-secondary justify-start" href={`/${lang}/roadmap/${previous.slug}/`}>
+            <Link className="btn-secondary detail-pagination-link justify-start" href={`/${lang}/roadmap/${previous.slug}/`}>
               <ArrowLeft className="h-4 w-4" />
               {t.common.previous}: {previous.title}
             </Link>
@@ -162,7 +162,7 @@ export default async function RoadmapDetailPage({
             <span />
           )}
           {next ? (
-            <Link className="btn-secondary justify-end" href={`/${lang}/roadmap/${next.slug}/`}>
+            <Link className="btn-secondary detail-pagination-link justify-end" href={`/${lang}/roadmap/${next.slug}/`}>
               {t.common.next}: {next.title}
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -170,7 +170,7 @@ export default async function RoadmapDetailPage({
         </div>
       </article>
       <aside className="hidden lg:block">
-        <div className="progress-side sticky top-24 rounded-2xl border-[1.5px] border-border bg-panel p-4">
+        <div className="progress-side sticky top-24 rounded-2xl bg-panel p-4">
           <p className="text-sm font-semibold text-accent-strong dark:text-accent">
             {lang === "tr" ? "İlerleme" : "Progress"}
           </p>

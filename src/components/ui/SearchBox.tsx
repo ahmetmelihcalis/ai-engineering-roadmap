@@ -53,7 +53,7 @@ export function SearchBox({
 
   return (
     <div className="relative w-full">
-      <div className="flex items-center rounded-xl border-[1.5px] border-border bg-surface px-3">
+      <div className="search-box-field flex items-center rounded-xl bg-surface px-3">
         <Search className="h-4 w-4 text-muted" />
         <input
           className="h-11 w-full bg-transparent px-3 text-sm outline-none placeholder:text-muted"
@@ -63,12 +63,12 @@ export function SearchBox({
         />
       </div>
       {hasQuery ? (
-        <div className="absolute left-0 right-0 top-12 z-40 rounded-xl border-[1.5px] border-border bg-panel p-2 shadow-lg">
+        <div className="search-results-panel absolute left-0 right-0 top-12 z-40 rounded-xl bg-panel p-2">
           <p className="px-3 pb-2 pt-1 text-xs font-semibold text-accent">{resultLabel}</p>
           {results.length > 0 ? (
             results.map((item) => (
               <Link
-                className="block border-b border-border px-3 py-3 last:border-b-0 hover:bg-surface"
+                className="search-result-item block border-b px-3 py-3 last:border-b-0 hover:bg-surface"
                 href={`/${locale}/roadmap/${item.slug}/`}
                 key={item.slug}
                 onClick={() => setQuery("")}

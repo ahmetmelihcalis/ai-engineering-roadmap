@@ -72,6 +72,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   letter-spacing: 0.005em;
+  line-height: 1.55;
 }
 
 .reading-progress {
@@ -126,18 +127,17 @@ a {
   max-width: 100%;
   min-height: 2.5rem;
   align-items: center;
-  border: 1.5px solid var(--accent);
-  border-radius: var(--radius-sm);
-  background: var(--panel);
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  background: transparent;
   color: var(--foreground);
-  padding: 0 0.75rem;
+  padding: 0 0.35rem;
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
 .brand-link:hover {
-  border-color: var(--accent-strong);
-  background: var(--accent);
-  color: var(--panel);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-strong);
 }
 
 .btn-primary {
@@ -186,32 +186,31 @@ a {
 }
 
 .icon-button {
-  min-height: 2.5rem;
-  border: 1.5px solid var(--border);
-  background: var(--panel);
+  width: 2.35rem;
+  min-height: 2.35rem;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--foreground);
-  padding: 0 0.75rem;
+  padding: 0;
 }
 
 .github-star-link {
   display: inline-flex;
-  width: 3.35rem;
-  min-height: 2.5rem;
+  width: 2.85rem;
+  min-height: 2.35rem;
   align-items: center;
   justify-content: center;
   gap: 0.26rem;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--panel);
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  background: transparent;
   color: var(--foreground);
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .github-star-link:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-  background: var(--surface);
-  color: var(--foreground);
-  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-strong);
 }
 
 .github-star-label {
@@ -247,6 +246,61 @@ a {
   display: inline-flex;
 }
 
+.site-header,
+.mobile-nav-panel,
+.site-footer {
+  border-color: color-mix(in srgb, var(--border) 28%, transparent);
+}
+
+.site-header .brand-link:hover,
+.site-header .github-star-link:hover,
+.site-header .icon-button:hover,
+.site-header .nav-link:hover {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-strong);
+}
+
+.dark .site-header .brand-link:hover,
+.dark .site-header .github-star-link:hover,
+.dark .site-header .icon-button:hover,
+.dark .site-header .nav-link:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.site-header .github-star-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: var(--surface);
+  color: var(--accent-strong);
+}
+
+.dark .site-header .github-star-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+}
+
+.mobile-github-star-link {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.26rem;
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--foreground);
+  padding: 0.9rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.mobile-github-star-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  background: var(--surface);
+}
+
 @media (min-width: 1024px) {
   .mobile-menu-button {
     display: none;
@@ -270,17 +324,27 @@ a {
 }
 
 .nav-link {
+  position: relative;
   min-height: 2.5rem;
-  border: 1.5px solid transparent;
+  border: 1px solid transparent;
   color: var(--accent-strong);
   padding: 0 0.8rem;
   font-size: 0.9rem;
 }
 
 .nav-link-active {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  background: var(--surface);
   color: var(--accent-strong);
+}
+
+.nav-link-active::after {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.35rem;
+  left: 0.8rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+  content: "";
 }
 
 .dark .nav-link,
@@ -312,16 +376,16 @@ a {
 
 .roadmap-page-title {
   font-family: var(--font-dm-sans), var(--font-source-sans), system-ui, sans-serif;
-  font-weight: 750;
-  -webkit-text-stroke: 1px #171512;
-  paint-order: stroke fill;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
 }
 
 .module-count-compact {
   flex: 0 0 auto;
-  border: 1.5px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
   border-radius: 999px;
-  background: var(--panel);
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
   color: var(--accent-strong);
   padding: 0.38rem 0.7rem;
   font-size: 0.72rem;
@@ -393,9 +457,13 @@ a {
   top: 1.75rem;
   bottom: 1.75rem;
   left: 50%;
-  width: 3px;
+  width: 2px;
   border-radius: 999px;
-  background: repeating-linear-gradient(to bottom, var(--border) 0 1.35rem, transparent 1.35rem 2.05rem);
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--border) 62%, transparent) 0 1rem,
+    transparent 1rem 1.65rem
+  );
   transform: translateX(-50%);
   content: "";
 }
@@ -415,7 +483,7 @@ a {
   top: calc(50% + 1.5rem);
   left: 50%;
   z-index: 0;
-  width: 3px;
+  width: 2px;
   height: 2.1rem;
   border-radius: 999px;
   background: transparent;
@@ -434,7 +502,8 @@ a {
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--panel);
-  padding: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgb(23 21 18 / 4%);
   transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
@@ -527,8 +596,8 @@ a {
   .roadmap-route-card:hover {
     border-color: var(--accent);
     background: var(--surface);
-    box-shadow: 0 14px 28px color-mix(in srgb, var(--accent) 16%, transparent);
-    transform: translateY(-5px);
+    box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 12%, transparent);
+    transform: translateY(-3px);
   }
 
   .roadmap-route-card:hover .roadmap-route-card-accent {
@@ -598,6 +667,46 @@ a {
   content: "•";
 }
 
+.roadmap-module-card {
+  border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgb(23 21 18 / 4%);
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .roadmap-module-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 65%, var(--border));
+    background: var(--surface);
+    box-shadow: 0 10px 20px color-mix(in srgb, var(--accent) 10%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+
+.footer-column-label {
+  margin-bottom: 0.15rem;
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+@media (min-width: 768px) {
+  .footer-links {
+    align-items: flex-start;
+  }
+}
+
 .curriculum-row:hover .curriculum-open {
   color: var(--accent-strong);
 }
@@ -607,6 +716,46 @@ a {
   background: color-mix(in srgb, var(--accent) 24%, transparent);
   color: var(--foreground);
   padding: 0 0.08em;
+}
+
+.search-results-panel {
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  box-shadow: 0 12px 24px rgb(23 21 18 / 10%);
+}
+
+.search-box-field {
+  border: 1px solid color-mix(in srgb, var(--border) 42%, transparent);
+  box-shadow: 0 1px 2px rgb(23 21 18 / 3%);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.search-box-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.search-result-item {
+  border-color: color-mix(in srgb, var(--border) 16%, transparent);
+}
+
+.dark .search-results-panel {
+  box-shadow: 0 12px 24px rgb(0 0 0 / 28%);
+}
+
+.sidebar-panel,
+.progress-side {
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
+  box-shadow: 0 1px 2px rgb(23 21 18 / 4%);
+}
+
+.sidebar-panel > div,
+.progress-side > div {
+  border-color: color-mix(in srgb, var(--border) 18%, transparent);
+}
+
+.dark .sidebar-panel,
+.dark .progress-side {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
 }
 
 .sidebar-link {
@@ -716,18 +865,22 @@ a {
 }
 
 .mobile-nav-link {
-  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--border) 28%, transparent);
   background: var(--panel);
   border-radius: var(--radius-sm);
   color: var(--foreground);
   padding: 0.9rem 1rem;
   font-size: 0.95rem;
   font-weight: 750;
+  text-align: center;
 }
 
 .mobile-nav-link-active {
-  border-color: var(--border);
-  background: var(--panel);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel));
   color: var(--foreground);
 }
 
@@ -789,6 +942,17 @@ a {
   text-align: center;
   font-size: 0.82rem;
   line-height: 1.25;
+}
+
+.detail-pagination-link {
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--border) 34%, transparent);
+  box-shadow: 0 1px 2px rgb(23 21 18 / 3%);
+}
+
+.detail-pagination-link:hover {
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--border));
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .progress-tracker-completed {

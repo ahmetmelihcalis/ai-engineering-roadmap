@@ -34,7 +34,7 @@ export function RoadmapCard({
 
   return (
     <Link
-      className="group flex min-h-[210px] flex-col rounded-xl border-[1.5px] border-border bg-transparent p-5 transition-colors hover:border-accent hover:bg-surface"
+      className="roadmap-module-card group flex min-h-[210px] flex-col"
       href={`/${locale}/roadmap/${module.slug}/`}
     >
       <div className="flex items-start justify-between gap-4">

@@ -34,7 +34,7 @@ export function Sidebar({ label, sections }: { label: string; sections: string[]
 
   return (
     <aside className="hidden lg:block">
-      <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border-[1.5px] border-border bg-panel p-4">
+      <div className="sidebar-panel sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl bg-panel p-4">
         <div className="mb-4 border-b border-border pb-3">
           <p className="text-sm font-semibold text-accent-strong dark:text-accent">
             {label}

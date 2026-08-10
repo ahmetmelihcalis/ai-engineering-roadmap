@@ -26,7 +26,7 @@ export function Navbar({ locale }: { locale: Locale }) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b-[1.5px] border-border bg-background/92 backdrop-blur">
+    <header className="site-header sticky top-0 z-50 border-b bg-background/92 backdrop-blur">
       <div className="site-header-inner relative mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 sm:px-6">
         <Link className="brand-link min-w-0 text-sm font-semibold sm:text-base" href={`/${locale}/`} onClick={() => setOpen(false)}>
           <span className="block truncate">AI Engineering Roadmap</span>
@@ -69,7 +69,7 @@ export function Navbar({ locale }: { locale: Locale }) {
         </div>
       </div>
       {open ? (
-        <div className="border-t-[1.5px] border-border bg-background lg:hidden">
+        <div className="mobile-nav-panel border-t bg-background lg:hidden">
           <nav className="mx-auto grid max-w-7xl gap-2 px-4 py-4">
             {items.map((item) => (
               <Link
@@ -82,6 +82,16 @@ export function Navbar({ locale }: { locale: Locale }) {
                 {item.label}
               </Link>
             ))}
+            <a
+              aria-label="Star on GitHub"
+              className="mobile-github-star-link"
+              href="https://github.com/ahmetmelihcalis/ai-engineering-roadmap"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <GitHubIcon className="h-4 w-4" />
+              <span aria-hidden="true" className="github-star-emoji">★</span>
+            </a>
           </nav>
         </div>
       ) : null}

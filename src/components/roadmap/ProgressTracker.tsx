@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle2, Circle } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { Locale } from "@/types";
 import { progressChangedEvent, progressKey } from "@/lib/progress";
 
@@ -16,16 +16,23 @@ export function ProgressTracker({
   completedLabel: string;
   markCompleteLabel: string;
 }) {
-  const [completed, setCompleted] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
+  const subscribe = useCallback((onStoreChange: () => void) => {
+    window.addEventListener(progressChangedEvent, onStoreChange);
+    window.addEventListener("storage", onStoreChange);
+    return () => {
+      window.removeEventListener(progressChangedEvent, onStoreChange);
+      window.removeEventListener("storage", onStoreChange);
+    };
+  }, []);
+
+  const getSnapshot = useCallback(() => {
     return window.localStorage.getItem(progressKey(locale, slug)) === "complete";
-  });
+  }, [locale, slug]);
+
+  const completed = useSyncExternalStore(subscribe, getSnapshot, () => false);
 
   function toggle() {
     const nextValue = !completed;
-    setCompleted(nextValue);
     if (nextValue) {
       window.localStorage.setItem(progressKey(locale, slug), "complete");
     } else {
