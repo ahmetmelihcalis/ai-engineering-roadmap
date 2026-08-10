@@ -226,6 +226,23 @@ a {
   paint-order: stroke fill;
 }
 
+@media (max-width: 440px) {
+  .site-header-inner {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .site-header-actions {
+    margin-left: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .github-star-link {
+    display: none;
+  }
+
+}
+
 .mobile-menu-button {
   display: inline-flex;
 }

@@ -27,7 +27,7 @@ export function Navbar({ locale }: { locale: Locale }) {
 
   return (
     <header className="sticky top-0 z-50 border-b-[1.5px] border-border bg-background/92 backdrop-blur">
-      <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 sm:px-6">
+      <div className="site-header-inner relative mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 sm:px-6">
         <Link className="brand-link min-w-0 text-sm font-semibold sm:text-base" href={`/${locale}/`} onClick={() => setOpen(false)}>
           <span className="block truncate">AI Engineering Roadmap</span>
         </Link>
@@ -43,7 +43,7 @@ export function Navbar({ locale }: { locale: Locale }) {
             </Link>
           ))}
         </nav>
-        <div className="ml-3 flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="site-header-actions ml-3 flex shrink-0 items-center gap-1.5 sm:gap-2">
           <a
             aria-label={starLabel}
             className="github-star-link"
