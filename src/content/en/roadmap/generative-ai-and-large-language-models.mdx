@@ -16,25 +16,30 @@ For this reason, working with LLMs is not limited to model selection; prompt eng
 
 This module covers:
 
-* How LLMs Work
-* Tokenization
-* Context Window
-* Prompt Engineering
+* Generative AI Types
+* How LLMs Work, Tokenization, and Context Window
+* Model Selection and the Development Ecosystem
+* Pretraining, Instruction Tuning, and Scaling Laws
 * Inference
-* Hallucination
-* Tool Calling Fundamentals
-* API Integration
-* Open-Weight Models
-* Quantization
-* Evaluation
+* Prompt Engineering and Structured Output
+* Application Architecture and Evaluation
+* Hallucination, Safe Output, and Tool Calling
 
 ## Key Concepts
 
 ### An Overview of Large Language Models
 
-The basic operating logic of an LLM is simple: it looks at preceding words (tokens) and calculates a probability distribution for what the next word should be. When this “predict the next word” approach is combined with large datasets and high model capacity, it makes systems that answer questions, summarize, translate, and write code possible.
+The basic operating logic of an LLM is simple: it looks at preceding tokens and calculates a probability distribution for the next token. When this “predict the next token” approach is combined with large datasets and high model capacity, it makes systems that answer questions, summarize, translate, and write code possible.
 
 Models generally fall into two groups based on their intended use. A **base model** is a raw model trained on broad text collections to learn general language patterns. An **instruction-tuned or chat model** is trained specifically to follow user instructions and respond conversationally. Instead of choosing the largest available model for every task, balance quality, response speed, and budget.
+
+### Generative AI Types
+
+The Generative AI ecosystem is not limited to text-based chatbots. On the text side there is summarization and question answering; visual models can draw entirely new images from given text or edit existing ones. Audio models transcribe speech or read text aloud in a generated voice. **Multimodal** models can examine and interpret text, images, audio, or documents together in the same context.
+
+As the use case changes, so does the evaluation method. Success in code generation is measured with software tests, factual accuracy for information-seeking questions, and word error rate in audio generation. There is no universal metric that covers all AI domains on its own.
+
+Because this module focuses on text-generating LLMs, it next covers their token-based generation and context management.
 
 ### How Large Language Models Work
 
@@ -43,6 +48,10 @@ Text given to a model is split into tokens by a tokenizer; the model produces th
 **Context Window** is the total token capacity a model can consider during a single request. The system prompt, user messages, conversation history, document pieces retrieved through RAG, and tool outputs share this space. Because the model response also needs token budget, a long input can increase cost and latency and limit the length of the response that can be produced.
 
 As the context window grows, a model can see more information; however, irrelevant or repeated content can cause important details to remain in the background. For this reason, it is useful to summarize conversation history, limit RAG results to relevant pieces, and avoid adding unnecessary tool outputs to the context.
+
+### Token Budget and Data Compatibility
+
+The tokenizer and model weights are expected to match; using a different tokenizer can lead to meaningless output. The basic logic of tokenization is in the NLP module; in LLM-based applications, the token length of agglutinative languages such as Turkish directly enters context-window, latency, and cost calculations.
 
 `temperature` affects how diverse the model behaves when selecting the next token. `temperature=0` tends to produce more consistent and predictable output; it can be preferred for classification, structured output, or retrieval tasks. `temperature=1` gives more room to diverse and creative choices; however, responses can become more variable. `top_p` is a similar sampling setting that selects only from a certain portion of the most likely tokens. These settings affect output diversity; they do not guarantee correctness on their own.
 
@@ -54,51 +63,45 @@ On an attention matrix, future positions are masked: the first token can see onl
 
 ### Getting Started with Large Language Models
 
+This technical foundation makes the relevant constraints and measurements more visible when starting a project.
+
 When starting an LLM project, do not begin with “Which model should I use?” Define a narrow, measurable task first. For example, extracting a customer name and complaint category from an incoming support message as JSON is a clear, testable starting point.
 
 First, a baseline can be obtained by writing a simple prompt and adding a few few-shot examples. Then the model output is measured for accuracy, format, and safety. Recording the prompt, model version, and `temperature` settings makes it possible to compare the effect of later changes.
 
 If a model must return JSON or another specific format, writing only “return it in JSON format” in the prompt is often insufficient. Validate the output on the application side with a tool such as **Pydantic**, then route invalid output to a safe flow such as a retry or human review.
 
-### AI Domains
-
-The Generative AI ecosystem is not limited to text-based chatbots. On the text side there is summarization and question answering; visual models can draw entirely new images from given text or edit existing ones. Audio models transcribe speech or read text aloud in a generated voice. **Multimodal** models can examine and interpret text, images, audio, or documents together in the same context.
-
-As the use case changes, so does the evaluation method. Success in code generation is measured with software tests, factual accuracy for information-seeking questions, and word error rate in audio generation. There is no universal metric that covers all AI domains on its own.
-
 ### Model Selection and the Development Ecosystem
 
-When starting a project, there are usually two main paths: using an API or running an open-weight model locally. **OpenAI**, **Anthropic**, and **Gemini** are API providers; **Llama** and **Mistral** are examples of open-weight models. Alongside benchmark scores, it is useful to examine a model's license, supported languages, context limit, and hardware requirements. Using an API provides a quick start because it does not require infrastructure management; if data-privacy rules are strict, traffic and cost are high, or full control over data is required, hosting a local model may be more suitable.
+Once the task and initial baseline are clear, choose whether to run a model through an API or locally as an open-weight model. **OpenAI**, **Anthropic**, and **Gemini** are API providers; **Llama** and **Mistral** are examples of open-weight models. Alongside benchmark scores, it is useful to examine a model's license, supported languages, context limit, and hardware requirements. Using an API provides a quick start because it does not require infrastructure management; if data-privacy rules are strict, traffic and cost are high, or full control over data is required, hosting a local model may be more suitable.
 
 **Hugging Face Transformers** offers a widely used interface for reaching open-weight models, tokenizers, and tools. **PyTorch** and **TensorFlow** are useful for developing and training models; **Colab** is practical for quickly testing small experiments. Rather than adding broad frameworks such as **LangChain** or **LlamaIndex** immediately at the beginning, making direct requests to model APIs is a more direct way to see the basic workflow. Once basic use is clear, these tools can be added according to prompt-management, RAG, or workflow needs. The LLMOps approach aims to track prompts, model versions, evaluation sets, and costs through tracing together.
 
-### Token Budget and Data Compatibility
-
-The tokenizer and model weights are expected to match; using a different tokenizer can lead to meaningless output. The basic logic of tokenization is in the NLP module; in LLM-based applications, the token length of agglutinative languages such as Turkish directly enters context-window, latency, and cost calculations.
-
 ### Training, Properties, and Scaling Laws of Large Language Models
 
-The first stage of an LLM is **Pretraining**. By “predicting the next word” across large text collections, a model learns general patterns of language and the world. Data cleaning and which languages are represented more heavily directly determine model capabilities.
+When selecting a model, it is also useful to understand which training stages give these models different behaviors.
 
-Instruction tuning gives a model instruction-following behavior. RAG is considered for frequently changing information, while fine-tuning is considered for permanent behavior or output formats; the detailed selection framework is in the Fine-Tuning and Optimization module.
+The first stage of an LLM is **Pretraining**. By “predicting the next token” across large text collections, a model learns general patterns of language and the world. Data cleaning and which languages are represented more heavily directly determine model capabilities.
+
+**Instruction Tuning** is additional training of a pretrained model on instruction-and-response examples. It helps the model follow user requests more reliably and produce responses in the expected format.
 
 **Scaling Laws** show that performance improves predictably as data and compute supplied to a model grow. However, the generalization that “the largest model gives the most suitable result for every task” may not always be correct. Because **training your own LLM from scratch** requires large resources, designing a ready-made model with prompt and RAG components is generally a more efficient route for most projects to reach business goals.
 
-### Inference and Quantization
+### Inference
 
 **Inference** is producing an output or prediction from a trained model for a new input. In LLMs, this happens as the model generates tokens sequentially. Producing a response for a user in production is a common use of inference. In this use, **TTFT** and the number of tokens generated per second are often tracked. TTFT is the time until the first token is produced. Long contexts given to a system directly increase latency and memory use.
 
-Quantization can reduce memory requirements in large models; making a release decision without measuring quality loss on the relevant task set can be risky. Detailed optimization decisions between bit precision, cache, and routing are in the Fine-Tuning and Optimization module.
+Because LLMs generate tokens sequentially, each new token needs the key/value representations from attention layers for earlier tokens. **KV cache** stores these representations instead of recalculating them, which is why it is directly related to inference.
 
-Optimizations such as **KV Cache** and **Batching** increase generation speed. KV Cache keeps computations in memory; batching groups incoming requests. Although these techniques increase total capacity, they can increase waiting time for an individual user. Evaluate speed, cost, and quality together when making an architectural choice.
+The memory and latency trade-off of KV cache, along with production-serving choices such as quantization, batching, response caching, and model routing, are covered in the MLOps, LLMOps, and Deployment module.
 
-### Prompt Engineering and Context Window
+### Prompt Engineering and Context Design
 
 A well-designed prompt does more than tell a model the task; it clearly separates the boundaries it must follow, the context it will use, and the expected output format. **Few-Shot Prompting** helps a model understand a task not only from an instruction, but also through a few input-output examples in the prompt. For example, showing several texts and their correct labels in text classification can make it easier for the model to follow both expected categories and response format.
 
 Few-shot examples do not change model weights; they guide only the context of that request. In this respect, they differ from fine-tuning. It is important that examples resemble the real task, are labeled correctly, and show the requested output format consistently. Too many, irrelevant, or contradictory examples can fill the context window unnecessarily, increase cost, and make it harder for a model to focus on the actual question.
 
-**Context-window capacity is limited.** When there is a long dialogue history, it is useful to design carefully which messages the application retains and which it summarizes. It may not be appropriate to evaluate free text entered by a user and a System Prompt written by the developer at the same trust level. This distinction is an important precaution against risks such as Prompt Injection.
+Context-window capacity is limited. When there is a long dialogue history, it is useful to design carefully which messages the application retains and which it summarizes. It may not be appropriate to evaluate free text entered by a user and a System Prompt written by the developer at the same trust level. This distinction is an important precaution against risks such as Prompt Injection.
 
 ### Hallucination, Reasoning, and Safe Output
 
@@ -119,6 +122,8 @@ For example, a current exchange rate, weather information, or a record in a data
 Tool selection, memory, and more advanced agent loops are covered in greater detail in the next **RAG and Agentic Systems** module.
 
 ## How It Works
+
+Prompts, context, and output validation should be designed together as layers of the same application architecture.
 
 An LLM application has four main architectural layers:
 
@@ -237,7 +242,6 @@ Recording token use and latency for every request provides concrete data when de
 * Prompt design guides output but does not provide complete correctness or safety on its own.
 * Generative AI is not limited to text; it also includes code, images, audio, and multimodal systems that understand complex documents.
 * Using RAG is one of the most common ways to provide correct information without needing to teach a model your current data continuously.
-* During inference, Quantization is used to reduce memory requirements while keeping quality at an acceptable level.
 
 ## Resources
 

@@ -2,8 +2,8 @@
 title: "MLOps, LLMOps ve Deployment"
 slug: "mlops-llmops-ve-deployment"
 order: 12
-description: "Canlıya alınan yapay zeka sistemleri için paketleme, dağıtım, izleme, data drift, model sürümleme ve LLMOps."
-tags: ["Model Artifact ve Servis Sözleşmeleri", "Servisleme", "Monitoring", "Sürümleme", "LLMOps", "Güvenlik"]
+description: "Canlıya alınan yapay zeka sistemleri için paketleme, servisleme, izleme, sürümleme, performans optimizasyonu ve LLMOps."
+tags: ["Model Artifact ve Servis Sözleşmeleri", "Servisleme", "LLM Servisleme Optimizasyonları", "Monitoring", "Sürümleme", "LLMOps", "Güvenlik"]
 ---
 
 ## Genel Bakış
@@ -14,9 +14,10 @@ Bu modülde şu başlıklar işlenecektir:
 
 * Model Artifact ve Servis Sözleşmeleri
 * Servisleme Biçimleri
+* LLM Servisleme Optimizasyonları
 * İzleme, Geri Bildirim ve Data Drift
 * Sürümleme, Yayın ve Rollback
-* LLMOps, Prompt Versioning ve LLM Değerlendirmesi
+* LLMOps, Prompt Sürümleme ve LLM Değerlendirmesi
 * Kapasite, Güvenlik ve Gizlilik
 
 ## Genel Bilgi
@@ -29,7 +30,7 @@ Bir modeli canlıya almadan önce hangi model çıktısının servis edileceğin
 
 **Tahmin API Sözleşmesi**, API'nin hangi alanları kabul ettiğini, bu alanların hangi tür ve formatta olması gerektiğini ve hangi çıktıyı üreteceğini tanımlar. Eğitim sırasında kullanılan özellik sırası veya preprocessing adımları ile servisleme sırasında uygulanan işlemler farklıysa model hata vermeden yanlış tahminler üretebilir.
 
-Model API'sinde **şema doğrulama** kullanmak iyi bir başlangıçtır. Bunun yanında, gelen verinin yapısında veya anlamında zamanla oluşabilecek değişimleri izlemek de önemlidir. Kritik alanlar için beklenen değer aralıkları, kategoriler ve eksik veri oranları bir **veri sözleşmesi** içinde tanımlanabilir. Yeni bir kategori, beklenmeyen eksiklik veya geçersiz bir değer görüldüğünde isteğin reddedilmesi, fallback uygulanması ya da insan incelemesine yönlendirilmesi gibi davranışlar önceden belirlenebilir.
+Tahmin API'sinde **şema doğrulama** kullanmak iyi bir başlangıçtır. Bunun yanında, gelen verinin yapısında veya anlamında zamanla oluşabilecek değişimleri izlemek de önemlidir. Kritik alanlar için beklenen değer aralıkları, kategoriler ve eksik veri oranları bir **veri sözleşmesi** içinde tanımlanabilir. Yeni bir kategori, beklenmeyen eksiklik veya geçersiz bir değer görüldüğünde isteğin reddedilmesi, fallback uygulanması ya da insan incelemesine yönlendirilmesi gibi davranışlar önceden belirlenebilir.
 
 ### Servisleme Biçimleri
 
@@ -37,19 +38,31 @@ Model API'sinde **şema doğrulama** kullanmak iyi bir başlangıçtır. Bunun y
 
 Her model HTTP isteğiyle anlık çalışmak zorunda değildir. Günlük öneri listesi, risk skoru veya rapor üretimi toplu tahminle daha düşük maliyetle yapılabilir; birkaç saniye beklenebilen işlerde asenkron kuyruk ve durum takibi değerlendirilebilir.
 
+### LLM Servisleme Optimizasyonları
+
+Canlı LLM servislerinde **quantization**, model ağırlıklarını daha düşük hassasiyetle tutarak bellek ihtiyacını azaltabilir. **KV cache**, önceki token'lar için hesaplanan attention değerlerini saklayarak üretimi hızlandırır; **batching** ise birden fazla isteği birlikte işleyerek toplam kapasiteyi artırabilir. Bu tercihlerin kalite, bellek ve tekil isteğin gecikmesi üzerindeki etkisi hedef iş yükünde ölçülmelidir.
+
+**Yanıt önbellekleme**, aynı veya benzer isteklerde modeli yeniden çalıştırmadan sonuç döndürebilir. **Model yönlendirme** ise basit istekleri küçük modele, daha zor istekleri daha yetenekli modele gönderebilir. Cache anahtarı ve yönlendirme kuralları; güncellik, kullanıcı yetkisi, güvenlik ve fallback davranışı dikkate alınarak tasarlanmalıdır.
+
+Bu servisleme tercihleri; kullanılan model, prompt ve bilgi getirme bileşenleriyle birlikte sürümlenip maliyet, gecikme ve kalite metrikleri üzerinden izlenmelidir. Bu izleme ve değerlendirme disiplini LLMOps başlığında ele alınır.
+
 ### İzleme, Geri Bildirim ve Data Drift
 
-**İzleme (Monitoring)** yalnızca sunucunun ayakta olup olmadığını kontrol etmek değildir. Girdi dağılımı, eksik alan oranı, gecikme, hata oranı, tahmin dağılımı ve mümkünse gerçek iş sonuçlarını izlemek faydalı olur. **Data Drift**, üretim girdilerinin eğitim verisinden farklılaşmasıdır. **Concept Drift (Kavram Kayması)** ise girdi ile hedef arasındaki ilişkinin değişmesidir.
+Bu servisleme kararlarının hız, maliyet ve kalite üzerindeki etkisini anlayabilmek için sistemin davranışını düzenli olarak izlemek gerekir.
+
+**İzleme (Monitoring)** yalnızca sunucunun ayakta olup olmadığını kontrol etmek değildir. Girdi dağılımı, eksik alan oranı, gecikme, hata oranı, tahmin dağılımı ve mümkünse gerçek iş sonuçlarını izlemek faydalı olur. **Data Drift (Veri Kayması)**, üretim girdilerinin eğitim verisinden farklılaşmasıdır. **Concept Drift (Kavram Kayması)** ise girdi ile hedef arasındaki ilişkinin değişmesidir.
 
 Gerçek etiket bazen günler veya haftalar sonra gelebilir. Bu durumda anlık teknik ölçümler ile gecikmeli kalite ölçümünü ayrı izlemek daha anlamlı olabilir. Geri bildirim, otomatik yeniden eğitim anlamına gelmez; önce veri kalitesi, temsil sorunu, iş kuralı ve model davranışı incelenebilir.
 
-Model çıktısının dağılımı da erken uyarı sağlayabilir. Bir sınıfın tahmin oranı bir gecede sıfıra inerse modelden önce feature hattında veya sınıf indeksinde bir hata oluşmuş olabilir. Her alarm için sorumlu kişi, eşik değer ve runbook tanımlamak müdahaleyi kolaylaştırır.
+Model çıktısının dağılımı da erken uyarı sağlayabilir. Bir sınıfın tahmin oranı bir gecede sıfıra inerse modelden önce feature hattında veya sınıf indeksinde bir hata oluşmuş olabilir. Her uyarı için sorumlu kişi, eşik değer ve runbook tanımlamak müdahaleyi kolaylaştırır.
 
 ### Sürümleme, Yayın ve Rollback
 
+İzleme sorunu görünür kılar; sürümleme ve rollback ise değişikliğin kaynağını bulup güvenli biçimde müdahale etmeyi sağlar.
+
 Kod, model, veri şeması, özellik işleme hattı ve yapılandırmayı birlikte sürümlemek yararlı olur. Bir sorun oluştuğunda hangi bileşenin değiştiğini bulabilmek ve önceki sürüme güvenle dönebilmek süreci kolaylaştırır. Rollback planını yayın öncesinde hazırlamak da riski azaltabilir.
 
-Yeni sürümü test ve hazırlık (staging) ortamında önceden belirlenmiş örnek verilerle denemek iyi bir uygulamadır. Kademeli bir yayında trafiğin sınırlı bir bölümü yeni sürüme yönlendirilir. Paralel bir denemede ise yeni sürüm, çıktıları kullanıcıya gösterilmeden mevcut sistemle birlikte çalıştırılıp sonuçlar karşılaştırılabilir. API hata oranı, p95 gecikme süresi, girdi doğrulama başarısı ve iş metrikleri için önceden eşik değerleri belirlemek, yayın kararının daha sağlıklı verilmesini sağlar.
+Model artifact'ı, API sözleşmesi, servisleme yapılandırması ve izleme hazırlıkları tamamlandıktan sonra yeni sürüm önce test ve hazırlık (staging) ortamında önceden belirlenmiş örnek verilerle denenir. **Canlıya alma**, kademeli bir yayında trafiğin sınırlı bir bölümünün yeni sürüme yönlendirilmesiyle başlar. Paralel bir denemede ise yeni sürüm, çıktıları kullanıcıya gösterilmeden mevcut sistemle birlikte çalıştırılıp sonuçlar karşılaştırılabilir. API hata oranı, p95 gecikme süresi, girdi doğrulama başarısı ve iş metrikleri için önceden eşik değerleri belirlemek, yayın kararının daha sağlıklı verilmesini sağlar.
 
 ### LLMOps
 
@@ -59,7 +72,7 @@ Bir LLM uygulamasında değerlendirme yalnızca tek bir doğruluk metriğine day
 
 RAG kullanılan sistemlerde doküman kümesi, embedding modeli ve indeks sürümü de üretim davranışını etkiler. Bu bileşenlerdeki değişiklikleri model değişikliği gibi izlemek; yanıt kalitesini, bilgi getirme başarısını ve gecikmeyi birlikte değerlendirmeyi kolaylaştırır.
 
-Token kullanımı, istek başına maliyet, gecikme, hata oranı ve kullanıcı geri bildirimi LLMOps için yararlı izleme verileridir. Halüsinasyon veya güvenlik ihlali riski taşıyan görevlerde güvenlik filtresi, insan incelemesi ya da fallback davranışını önceden tanımlamak düşünülebilir.
+Token kullanımı, istek başına maliyet, cache hit oranı, p95 gecikme, hata oranı ve kullanıcı geri bildirimi LLMOps için yararlı izleme verileridir. Halüsinasyon veya güvenlik ihlali riski taşıyan görevlerde güvenlik filtresi, insan incelemesi ya da fallback davranışını önceden tanımlamak düşünülebilir.
 
 ### Kapasite, Güvenlik ve Gizlilik
 

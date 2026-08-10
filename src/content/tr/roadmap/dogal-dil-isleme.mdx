@@ -53,15 +53,9 @@ Word2Vec, GloVe ve FastText gibi **Word embedding** modelleri kelimelere sabit v
 
 Bir cümle veya belge embedding'i seçerken modelin Türkçe desteğini, çalışılan domain terminolojisine yatkınlığını, token uzunluk limitini ve gerçek arama senaryolarındaki başarısını bir bütün olarak değerlendirmek yararlı olur.
 
-### Derin Öğrenme Tabanlı Dil Modelleri
-
-Transformer ve attention'ın mimari temeli Deep Learning modülündedir. NLP'de encoder modelleri anlama ve sınıflandırma, decoder modelleri ise üretim görevleri için değerlendirilir.
-
-Pretrained bir dil modeli için prompting, embedding çıkarma veya fine-tuning seçimi görevin hata türüne ve gecikme bütçesine göre yapılır. Fine-tuning karar çerçevesi Fine-tuning & Optimization modülündedir; burada amaç seçilen yöntemin görev başarısına katkı sağlayıp sağlamadığını ölçmektir.
-
 ### Temel NLP Görevleri
 
-**Text Classification (Metin Sınıflandırma)**, metnin konusunu, kullanıcının niyetini veya duygusunu etiketler. **Named Entity Recognition (NER / Adlandırılmış Varlık Tanıma)**, cümlenin içindeki kişi, kurum, konum, tarih veya ürün kodu gibi belirli alanları bulup çıkarır. **Semantic Search (Anlamsal Arama)**, kullanıcının sorgusuna en uygun belge veya paragrafları eşleştirir. **Summarization (Özetleme)**, **Translation (Çeviri)** ve **Question Answering (Soru Yanıtlama)** temel NLP görevleri arasındadır.
+**Metin Sınıflandırma (Text Classification)**, metnin konusunu, kullanıcının niyetini veya duygusunu etiketler. **NER (Named Entity Recognition / Adlandırılmış Varlık Tanıma)**, cümlenin içindeki kişi, kurum, konum, tarih veya ürün kodu gibi belirli alanları bulup çıkarır. **Semantic Search (Anlamsal Arama)**, kullanıcının sorgusuna en uygun belge veya paragrafları eşleştirir. **Summarization (Özetleme)**, **Translation (Çeviri)** ve **Question Answering (Soru Yanıtlama)** temel NLP görevleri arasındadır.
 
 Değerlendirme kriterleri de göreve göre şekillenir. Sınıflandırma görevlerinde precision, recall, F1-score ve confusion matrix sıkça kullanılır. Çok etiketli veya dengesiz sınıf dağılımı olan problemlerde; her sınıfa eşit ağırlık veren **Macro-F1**, baskın sınıfın yönlendirebileceği **Micro-F1** veya sınıf büyüklüklerine göre değerlendiren **Weighted-F1** arasında bilinçli bir tercih yapmak yararlı olur.
 
@@ -75,13 +69,13 @@ Değerlendirme kriterleri de göreve göre şekillenir. Sınıflandırma görevl
 
 **NER**, yalnızca varlığın türünü değil, metindeki başlangıç ve bitiş sınırlarını da doğru tespit etmeyi hedefler. Çıkarılan değeri standart formata dönüştürürken, orijinal halini veri yapısında korumak modelin karar mekanizmasını geriye dönük denetlemeyi kolaylaştırır.
 
-### Text Classification, Sentiment Analysis ve Recommendation Systems
+### Metin Sınıflandırma, Duygu Analizi ve Öneri Sistemleri
 
 Sınıflandırma problemleri tek etiketli, çok etiketli veya hiyerarşik yapıya sahip olabilir. Etiket sınırları birbirine karışıyorsa, daha büyük bir modele geçmek yerine etiketleme rehberini netleştirmek genellikle sorunu kökünden çözer.
 
-**Sentiment Analysis (Duygu Analizi)**, metinleri olumlu, olumsuz veya nötr olarak gruplamaya çalışır. Ancak ironi, örtülü olumsuzluklar veya sadece belirli bir sektöre has jargonlar bu modelleri yanıltabilir; bu nedenle belirli alanlara özel hata analizleri yapılması önerilir.
+**Duygu Analizi (Sentiment Analysis)**, metinleri olumlu, olumsuz veya nötr olarak gruplamaya çalışır. Ancak ironi, örtülü olumsuzluklar veya sadece belirli bir sektöre has jargonlar bu modelleri yanıltabilir; bu nedenle belirli alanlara özel hata analizleri yapılması önerilir.
 
-**Recommendation Systems (Öneri Sistemleri)**, salt bir NLP problemi olmaktan ziyade metin analizi ile kullanıcı etkileşim sinyallerinin harmanlandığı yapılardır. Metin embedding'leri içerik benzerliği kurmada yararlı bir sinyal sunsa da; sistem başarısının CTR, conversion, diversity ve cold-start gibi öneri sistemlerine özgü metriklerle ölçülmesi daha gerçekçi sonuçlar verir.
+**Öneri Sistemleri (Recommendation Systems)**, salt bir NLP problemi olmaktan ziyade metin analizi ile kullanıcı etkileşim sinyallerinin harmanlandığı yapılardır. Metin embedding'leri içerik benzerliği kurmada yararlı bir sinyal sunsa da; sistem başarısının CTR, conversion, diversity ve cold-start gibi öneri sistemlerine özgü metriklerle ölçülmesi daha gerçekçi sonuçlar verir.
 
 ## Çalışma Mantığı
 
@@ -278,7 +272,6 @@ Modelin yanlış tahmin ettiği örneklerin yalnızca sayısına odaklanmak yeri
 * TF-IDF, metin sınıflandırma problemlerinde hâlâ hızlı, basit ve güçlü bir başlangıç yöntemi olabilir.
 * Word2Vec ve GloVe gibi yöntemler kelimeler için sabit embedding’ler üretirken, Transformer tabanlı modeller kelimenin bulunduğu bağlama göre farklı temsiller oluşturabilir.
 * Embedding’ler, metinler arasındaki anlamsal benzerliği temsil etmeye yardımcı olur; tek başına doğru cevabı garanti etmez.
-* Transformer modelleri, attention mekanizması sayesinde cümlenin farklı bölümleri arasındaki ilişkileri öğrenebilir ve özellikle eğitim sırasında paralel işlem avantajı sağlar.
 * NLP’de kullanılacak metrik, görevin türüne göre seçilmelidir. Örneğin metin üretiminde BLEU veya ROUGE, bilgi erişiminde ise Recall@k gibi metrikler kullanılabilir.
 * N-gramlar, kısa kelime veya karakter kalıplarını yakalamada etkilidir; ancak n değeri arttıkça bellek ve işlem maliyeti de artabilir.
 * Morfolojik analiz, POS etiketleme ve WSD, dilin biçimsel ve anlamsal yapısını daha ayrıntılı incelemek için kullanılan yöntemlerdir.

@@ -32,7 +32,7 @@ If you would like to contribute, you can star the project on GitHub or open a Pu
 | 08 | NLP | [Open Note](./src/content/en/roadmap/natural-language-processing.mdx) |
 | 09 | Generative AI & LLM | [Open Note](./src/content/en/roadmap/generative-ai-and-large-language-models.mdx) |
 | 10 | RAG & Agentic Systems | [Open Note](./src/content/en/roadmap/rag-and-agentic-systems.mdx) |
-| 11 | Fine-Tuning & Optimization | [Open Note](./src/content/en/roadmap/fine-tuning-and-optimization.mdx) |
+| 11 | Fine-Tuning | [Open Note](./src/content/en/roadmap/fine-tuning-and-optimization.mdx) |
 | 12 | MLOps & Deployment | [Open Note](./src/content/en/roadmap/mlops-llmops-and-deployment.mdx) |
 
 ### Project Structure
@@ -81,7 +81,7 @@ Katkıda bulunmak isterseniz projeye GitHub üzerinden yıldız verebilir veya P
 | 08 | Doğal Dil İşleme (NLP) | [Notu Aç](./src/content/tr/roadmap/dogal-dil-isleme.mdx) |
 | 09 | Üretken Yapay Zeka ve Büyük Dil Modelleri | [Notu Aç](./src/content/tr/roadmap/uretken-yapay-zeka-ve-buyuk-dil-modelleri.mdx) |
 | 10 | RAG ve Ajan Tabanlı Sistemler | [Notu Aç](./src/content/tr/roadmap/rag-ve-ajan-tabanli-sistemler.mdx) |
-| 11 | Fine-Tuning ve Optimizasyon | [Notu Aç](./src/content/tr/roadmap/fine-tuning-ve-optimizasyon.mdx) |
+| 11 | Fine-Tuning | [Notu Aç](./src/content/tr/roadmap/fine-tuning-ve-optimizasyon.mdx) |
 | 12 | MLOps, LLMOps ve Deployment | [Notu Aç](./src/content/tr/roadmap/mlops-llmops-ve-deployment.mdx) |
 
 ### Proje Yapısı

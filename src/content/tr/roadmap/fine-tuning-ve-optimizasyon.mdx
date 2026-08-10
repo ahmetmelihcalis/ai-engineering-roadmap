@@ -1,79 +1,56 @@
 ---
-title: "Fine-Tuning ve Optimizasyon"
+title: "Fine-Tuning"
 slug: "fine-tuning-ve-optimizasyon"
 order: 11
-description: "Optimizasyon, değerlendirme döngüsü, maliyet kontrolü, gecikme ve quantization."
-tags: ["Fine-Tuning Kararı", "Veri Seti Hazırlığı", "Hiperparametreler", "Canlı Kullanım", "Maliyet"]
+description: "Önceden eğitilmiş modelleri hedef davranış, biçim ve alan dili için uyarlama; veri hazırlığı, PEFT/LoRA ve değerlendirme."
+tags: ["Fine-Tuning Kararı", "Eğitim ve Değerlendirme Verisi", "PEFT ve LoRA", "Eğitim Ayarları", "Regresyon Testi"]
 ---
 
 ## Genel Bakış
 
 **Fine-Tuning**, önceden eğitilmiş bir modeli belirli bir görev, üslup veya alanın dili ve gereksinimleri için ek veriyle uyarlama yöntemidir. Modelin genel bilgisini baştan öğretmekten çok, belirli bir çıktı biçimini veya davranış kalıbını daha tutarlı hale getirmek için kullanılır.
 
-Yapay zeka projelerinde fine-tuning kararı; kalite, maliyet, gecikme, veri gizliliği ve bakım yüküyle birlikte değerlendirilebilir.
-
-Bazı problemler şu yaklaşımlarla çözülebilir:
-
-* Prompt Düzenleme
-* RAG
-* Quantization
-* Caching (Önbellekleme)
-* Daha Küçük Model Seçimi
-
-Bu nedenle fine-tuning her durumda ilk seçenek değildir.
+Fine-tuning her durumda ilk seçenek değildir. Önce hedefteki sorunun bilgi eksikliği mi, talimat ve çıktı biçimi mi, yoksa kalıcı bir davranış kalıbı mı olduğunun ayrıştırılması gerekir.
 
 Bu modülde şu başlıklar işlenecektir:
 
-* Fine-Tuning Kararı
-* Veri Seti Hazırlığı
-* Hiperparametre Denemeleri
-* Çevrimdışı Değerlendirmeden Canlı Ortama Geçiş
-* Tahmin Çalıştırma Maliyetini İyileştirme
-* Kalite Artışını Ölçme
-* Bakım Takvimi
+* Fine-Tuning Ne Zaman Uygun?
+* Eğitim ve Değerlendirme Verisi
+* Parametre Verimli Fine-Tuning (PEFT ve LoRA)
+* Eğitim Ayarları
+* Değerlendirme ve Regresyon Testi
 
 ## Genel Bilgi
 
-### Uyarlama Seçenekleri
+### Fine-Tuning Ne Zaman Uygun?
 
 **Prompt Tasarımı**, model davranışını istekte verilen talimat ve örneklerle yönlendirir. **RAG**, güncel veya özel bilgiyi bağlama ekler. Fine-tuning, model ağırlıklarını örnekler üzerinden değiştirir. Bu yöntemler birbirinin alternatifi olmak zorunda değildir; ancak her biri farklı hata türünü çözer.
 
-Sık güncellenen kurumsal bilgi için fine-tuning yerine RAG genellikle daha uygundur. Tutarlı bir çıktı biçimi veya tekrar eden alan dili için fine-tuning değerlendirilebilir. Önce bu ayrımı yapmak, doğru yaklaşımı seçmeyi kolaylaştırır.
+Sık güncellenen kurumsal bilgi için fine-tuning yerine RAG genellikle daha uygundur. Tutarlı bir çıktı biçimi, tekrar eden alan dili veya örneklerle açıkça gösterilebilen kalıcı bir davranış için fine-tuning değerlendirilebilir.
 
-### Eğitim Verisi ve Veri Kalitesi
+### Eğitim ve Değerlendirme Verisi
 
 Fine-tuning verisi, hedeflenen davranışın açık örneklerinden oluşur. Örnek sayısından önce kalite, tutarlılık ve temsil gücü önemlidir. Çelişkili cevaplar, gizli kişisel veri, yanlış etiket veya canlı ortamda hiç görülmeyecek sentetik kalıplar modelin davranışını kötüleştirebilir.
 
-Eğitim, doğrulama ve test ayrımını burada da korumak faydalı olur. Test örnekleri eğitim verisine sızarsa gerçek genellenebilirliği ölçmek zorlaşır.
+Eğitime başlamadan önce hedef davranışı ölçen bir değerlendirme seti tanımlamak faydalıdır. Eğitim, doğrulama ve test ayrımını korumak gerekir; test örnekleri eğitim verisine sızarsa gerçek genellenebilirliği ölçmek zorlaşır.
 
 ### Parametre Verimli Fine-Tuning
 
 **PEFT** yaklaşımları, tüm model ağırlıklarını güncellemek yerine daha küçük ek parametre kümelerini eğitir. **LoRA** gibi yöntemler daha düşük hesaplama ve bellek ihtiyacıyla uyarlama sağlayabilir. Yine de veri, değerlendirme ve yayına alma karmaşıklığı ortadan kalkmaz.
 
-### Quantization, Caching ve Model Yönlendirme
+### Eğitim Ayarları
 
-**Quantization**, ağırlıkları daha düşük hassasiyetle temsil ederek bellek ve bazen gecikme maliyetini azaltır. Kalite üzerindeki etkisini ilgili görevde ölçmek yararlı olur. **Önbellekleme (Caching)**, aynı veya benzer isteklere yeniden hesaplama yapmadan yanıt vermeyi sağlar. **Model Yönlendirme**, basit isteği küçük modele, daha zor isteği daha yüksek kapasiteli modele yönlendirebilir.
+Learning rate, epoch sayısı, batch size ve PEFT yöntemlerinde LoRA rank gibi ayarlar, modelin hedef davranışa ne kadar ve hangi maliyetle uyarlanacağını etkiler. Çok yüksek learning rate, modelin önceden öğrendiği yararlı davranışları bozabilir; gereğinden fazla epoch ise eğitim örneklerine aşırı uyuma yol açabilir.
 
-### Karar, Değerlendirme ve Yayın
+Bu ayarları tek tek değiştirip aynı değerlendirme seti üzerinde karşılaştırmak daha güvenilir bir yaklaşımdır. En düşük eğitim kaybını veren yapılandırma her zaman en iyi seçim değildir; biçim tutarlılığı, güvenlik ve hedef görevdeki hata örnekleri birlikte değerlendirilmelidir.
 
-**Optimizasyon Süreci** bir deney döngüsüdür. Önce hedef davranışı ölçen bir **Değerlendirme Seti** tanımlanır. Ardından başlangıç modelinin hangi açıdan yetersiz kaldığı görülür: doğruluk mu, biçim tutarlılığı mı, gecikme mi, maliyet mi? Sonra tek bir değişken değiştirilir ve aynı set üzerinde karşılaştırılır.
+### Değerlendirme ve Regresyon Testi
 
-Fine-tuning kararı için şu sorular kullanılabilir:
-
-* Hedef davranış örneklerle açıkça gösterilebiliyor mu?
-* Bu davranış zamanla ne kadar değişiyor?
-* Retrieval veya prompt ile çözülemeyen kalıcı bir kalite sorunu var mı?
-* Eğitim, değerlendirme ve yeniden dağıtım maliyeti kabul edilebilir mi?
-
-Bir modelin yalnızca ortalama skoru değil, en olumsuz kullanıcı senaryolarında ve güvenlik açısından kritik durumlarda nasıl davrandığı da değerlendirilmelidir. Kalite artışı küçük ama operasyonel risk büyükse, değişiklik doğru yatırım olmayabilir.
-
-Deney metriklerini veri seti, model sürümü ve tarihle birlikte tutmak; farklı koşullarda üretilmiş skorları karşılaştırmayı kolaylaştırır. Ortalama maliyetin yanında token dağılımı, cache hit oranı ve p95 latency de izlenebilir. Yüksek hacimde küçük farklar toplam maliyeti etkileyebilir.
-
-### Regresyon Testi ve Yayın Kararı
+Her deneyde tek bir değişken değiştirip aynı değerlendirme seti üzerinde karşılaştırma yapmak, farkın nedenini anlamayı kolaylaştırır. Deney sonuçlarını veri seti, model sürümü ve tarihle birlikte tutmak da farklı koşullarda üretilmiş skorları karşılaştırmayı kolaylaştırır.
 
 Yeni bir model sürümü, yalnızca ortalama kalite arttığı için doğrudan yayına alınmaz. Mevcut sürümün iyi yaptığı önemli örnekler de yeniden çalıştırılır. Güvenlik, biçim, dil desteği ve nadir ama yüksek etkili görevler için gerileme olup olmadığı kontrol edilir.
 
-Yayın küçük trafikle başlatılabilir ve yeni sürümün hata oranı, maliyeti ve kullanıcı geri bildirimi eski sürümle karşılaştırılabilir. Önceden belirlenmiş bir eşiğin altında kalırsa **Rollback (önceki sürüme dönüş)** planı devreye alınabilir. Bu disiplin, deney sonucunu ürün kararına daha güvenli biçimde bağlar.
+Regresyon testinin başarılı olması, sürümün doğrudan herkese açılacağı anlamına gelmez. Canlıya alma, trafik yönlendirme, sürüm izleme ve rollback süreci MLOps, LLMOps ve Deployment modülünde ele alınır.
 
 ## Kaynaklar
 

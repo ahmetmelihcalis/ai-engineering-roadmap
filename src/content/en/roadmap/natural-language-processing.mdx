@@ -53,12 +53,6 @@ Word2Vec, GloVe, and FastText **word-embedding** models assign fixed vectors to 
 
 When choosing a sentence or document embedding, consider the model's Turkish support, suitability for domain terminology, token-length limit, and performance in real search scenarios together.
 
-### Deep Learning-Based Language Models
-
-The architectural foundations of Transformer and attention are in the Deep Learning module. In NLP, encoder models are evaluated for understanding and classification, while decoder models are evaluated for generation tasks.
-
-For a pretrained language model, the choice between prompting, embedding extraction, or fine-tuning depends on the task's error type and latency budget. The fine-tuning decision framework is in the Fine-Tuning and Optimization module; the goal here is to measure whether the selected method contributes to task success.
-
 ### Core NLP Tasks
 
 **Text Classification** labels a text's topic, the user's intent, or its sentiment. **Named Entity Recognition (NER)** finds and extracts particular fields from a sentence, such as a person, organization, location, date, or product code. **Semantic Search** matches documents or paragraphs most suitable for a user's query. **Summarization**, **Translation**, and **Question Answering** are among core NLP tasks.
@@ -254,7 +248,6 @@ Rather than focusing only on the number of examples a model predicts incorrectly
 * TF-IDF can still be a fast, simple, and strong starting method for text-classification problems.
 * Methods such as Word2Vec and GloVe produce static embeddings for words, while Transformer-based models can create different representations depending on a word's context.
 * Embeddings help represent semantic similarity between texts; they do not guarantee the correct answer on their own.
-* Transformer models can learn relationships between different parts of a sentence through attention, which offers a parallel-processing advantage, especially during training.
 * The metric used in NLP should be selected according to the task type. For example, BLEU or ROUGE can be used for text generation, while Recall@k can be used for information retrieval.
 * N-grams are effective at capturing short word or character patterns; however, memory and computational cost can increase as the value of n grows.
 * Morphological analysis, POS tagging, and WSD are methods for examining a language's formal and semantic structure in greater detail.

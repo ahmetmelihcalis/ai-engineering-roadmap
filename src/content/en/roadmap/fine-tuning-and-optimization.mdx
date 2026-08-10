@@ -1,79 +1,56 @@
 ---
-title: "Fine-Tuning and Optimization"
+title: "Fine-Tuning"
 slug: "fine-tuning-and-optimization"
 order: 11
-description: "Optimization, evaluation loops, cost control, latency, and quantization."
-tags: ["Fine-Tuning Decisions", "Dataset Preparation", "Hyperparameters", "Production Use", "Cost"]
+description: "Adapting pretrained models for target behavior, output formats, and domain language through data preparation, PEFT/LoRA, and evaluation."
+tags: ["Fine-Tuning Decisions", "Training and Evaluation Data", "PEFT and LoRA", "Training Settings", "Regression Testing"]
 ---
 
 ## Overview
 
 **Fine-Tuning** is the method of adapting a pretrained model with additional data for a specific task, style, or a domain's language and requirements. Rather than teaching the model's general knowledge from scratch, it is used to make a particular output format or behavior pattern more consistent.
 
-In AI projects, weigh a fine-tuning decision against quality, cost, latency, data privacy, and maintenance burden.
-
-Some problems can be solved with these approaches:
-
-* Prompt Refinement
-* RAG
-* Quantization
-* Caching
-* Choosing a Smaller Model
-
-For this reason, fine-tuning is not the first option in every situation.
+Fine-tuning is not always the first option. First, determine whether the target problem is missing knowledge, instructions and output format, or a persistent behavioral pattern.
 
 This module covers:
 
-* Fine-Tuning Decisions
-* Dataset Preparation
-* Hyperparameter Experiments
-* From Offline Evaluation to Production Use
-* Improving Inference Cost
-* Measuring Quality Improvement
-* Maintenance Scheduling
+* When Fine-Tuning Is Appropriate
+* Training and Evaluation Data
+* Parameter-Efficient Fine-Tuning (PEFT and LoRA)
+* Training Settings
+* Evaluation and Regression Testing
 
 ## General Information
 
-### Adaptation Options
+### When Fine-Tuning Is Appropriate
 
 **Prompt Engineering** guides model behavior through instructions and examples given in the request. **RAG** adds current or private information to the context. Fine-tuning changes model weights through examples. These methods do not have to be alternatives; however, each solves a different type of error.
 
-For frequently updated organizational knowledge, RAG is generally a better fit than fine-tuning. Use fine-tuning when you need a consistent output format or recurring domain language. Making this distinction first makes it easier to choose the right approach.
+For frequently updated organizational knowledge, RAG is generally a better fit than fine-tuning. Fine-tuning can be considered for a consistent output format, recurring domain language, or a persistent behavior that can be shown clearly through examples.
 
-### Training Data and Data Quality
+### Training and Evaluation Data
 
 Fine-tuning data consists of clear examples of the desired behavior. Before the number of examples, quality, consistency, and representativeness matter. Contradictory answers, hidden personal data, incorrect labels, or synthetic patterns that will never be seen in production can worsen model behavior.
 
-Preserve the training, validation, and test split here as well. If test examples leak into the training data, measuring real generalization becomes more difficult.
+Defining an evaluation set for the target behavior before training is useful. Training, validation, and test splits should remain separate; if test examples leak into training data, measuring real generalization becomes difficult.
 
 ### Parameter-Efficient Fine-Tuning
 
 **PEFT** approaches train smaller additional parameter sets instead of updating all model weights. Methods such as **LoRA** can provide adaptation with lower compute and memory needs. Still, data, evaluation, and deployment complexity do not disappear.
 
-### Quantization, Caching, and Model Routing
+### Training Settings
 
-**Quantization** represents weights at lower precision to reduce memory and sometimes latency cost. Its impact on quality should be measured on the relevant task. **Caching** makes it possible to respond to identical or similar requests without recomputing them. **Model Routing** can send a simple request to a smaller model and a harder request to a higher-capacity model.
+Settings such as learning rate, number of epochs, batch size, and LoRA rank in PEFT methods affect how far and at what cost a model adapts to the target behavior. A learning rate that is too high can damage useful behavior the model already learned, while too many epochs can lead to overfitting on training examples.
 
-### Decisions, Evaluation, and Release
+Changing one setting at a time and comparing results on the same evaluation set is more reliable. The configuration with the lowest training loss is not always the best choice; format consistency, safety, and error cases in the target task should be evaluated together.
 
-**The Optimization Process** is an experiment loop. First, an **Evaluation Set** that measures target behavior is defined. Then it becomes clear where the baseline model falls short: accuracy, format consistency, latency, or cost? Next, a single variable is changed and compared on the same set.
+### Evaluation and Regression Testing
 
-The following questions can be used for a fine-tuning decision:
-
-* Can the target behavior be demonstrated clearly with examples?
-* How much does this behavior change over time?
-* Is there a persistent quality problem that cannot be solved with retrieval or prompts?
-* Is the cost of training, evaluation, and redeployment acceptable?
-
-Evaluate not only a model's average score, but also its behavior in adverse user scenarios and safety-critical cases. If the quality improvement is small but operational risk is high, the change may not be the right investment.
-
-Keeping experiment metrics together with the dataset, model version, and date makes it easier to compare scores produced under different conditions. Alongside average cost, token distribution, cache-hit rate, and p95 latency can also be monitored. At high volume, small differences can affect total cost.
-
-### Regression Testing and Release Decisions
+Changing one variable per experiment and comparing it on the same evaluation set makes it easier to understand what caused a difference. Keeping results with the dataset, model version, and date also makes scores from different conditions easier to compare.
 
 A new model version is not released directly just because average quality increases. Important examples that the current version handles well are run again. It is checked whether regressions exist for safety, format, language support, and rare but high-impact tasks.
 
-A release can start with a small amount of traffic, and the new version's error rate, cost, and user feedback can be compared with the current version. If it falls below a predetermined threshold, the **rollback (reverting to a previous version)** plan can be activated. This discipline connects an experiment result to a product decision more safely.
+Passing regression testing does not mean a version should immediately be released to everyone. Deployment, traffic routing, version monitoring, and rollback are covered in the MLOps, LLMOps, and Deployment module.
 
 ## Resources
 
